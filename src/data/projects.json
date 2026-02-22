@@ -1,0 +1,74 @@
+[
+  {
+    "id": "01",
+    "title": "Stock Market Price Prediction",
+    "subtitle": "LSTM & ARIMA Forecasting",
+    "category": "Machine Learning",
+    "color": "#00e5ff",
+    "emoji": "📈",
+    "description": "Engineered LSTM and ARIMA models to forecast NIFTY 50 Open and Close prices with MAPE below 3%. Built reproducible data pipelines, automated forecasting workflows, and a Streamlit dashboard with CI/CD via GitHub Actions.",
+    "tech": ["Python", "Pandas", "NumPy", "LSTM", "ARIMA", "Streamlit", "GitHub Actions"],
+    "github": "https://github.com/Nishan052/Stock-Price-Prediction",
+    "highlights": ["MAPE < 3%", "CI/CD Pipeline", "Streamlit Dashboard"]
+  },
+  {
+    "id": "02",
+    "title": "SignalDock",
+    "subtitle": "MQTT-based IoT Messaging Platform",
+    "category": "IoT / Full-Stack",
+    "color": "#a855f7",
+    "emoji": "📡",
+    "description": "An IoT communication platform built around the MQTT protocol — like WhatsApp but for machines. Devices publish and subscribe to topics in real time, enabling instant signal exchange across distributed IoT nodes. Built to explore lightweight pub/sub messaging for embedded systems.",
+    "tech": ["MQTT", "Angular", "TypeScript", "WebSockets", "Python", "IoT", "Broker"],
+    "github": "https://github.com/Nishan052/SignalDock",
+    "highlights": ["Pub/Sub MQTT", "Real-time IoT", "Lightweight Protocol"]
+  },
+  {
+    "id": "03",
+    "title": "Barcode Scanner",
+    "subtitle": "Intelligent Inventory Scanner",
+    "category": "Application",
+    "color": "#f59e0b",
+    "emoji": "🔍",
+    "description": "An intelligent barcode scanning application with inventory management capabilities. Supports multiple barcode formats, real-time lookups, and data export for warehouse and retail workflows.",
+    "tech": ["Python", "OpenCV", "ZBar", "SQLite", "GUI", "REST API"],
+    "github": "https://github.com/Nishan052/barcodeScanner",
+    "highlights": ["Multi-format Scan", "Inventory Sync", "Export Reports"]
+  },
+  {
+    "id": "04",
+    "title": "TinyML Face Verification",
+    "subtitle": "Edge AI on Arduino",
+    "category": "Embedded AI",
+    "color": "#10b981",
+    "emoji": "🤖",
+    "description": "End-to-end TinyML face verification on Arduino Nano 33 BLE Sense using INT8-quantized CNN embeddings with TensorFlow Lite Micro and cosine similarity-based adaptive thresholding for unknown-face rejection.",
+    "tech": ["Python", "TensorFlow Lite", "PyTorch", "Arduino", "C", "LiteRT"],
+    "github": "https://github.com/Nishan052",
+    "highlights": ["INT8 Quantized", "Cosine Similarity", "RGB LED Feedback"]
+  },
+  {
+    "id": "05",
+    "title": "SPA Routing App",
+    "subtitle": "Angular Single Page Application",
+    "category": "Frontend",
+    "color": "#3b82f6",
+    "emoji": "🔀",
+    "description": "Demonstration of Single Page Application routing patterns in TypeScript and Angular — lazy loading, route guards, state management, and nested navigation architectures.",
+    "tech": ["TypeScript", "Angular", "RxJS", "Lazy Loading"],
+    "github": "https://github.com/Nishan052/Routing-app",
+    "highlights": ["Lazy Loading", "Route Guards", "State Mgmt"]
+  },
+  {
+    "id": "06",
+    "title": "Python Data Projects",
+    "subtitle": "Jupyter Data Science Notebooks",
+    "category": "Data Science",
+    "color": "#ec4899",
+    "emoji": "🐍",
+    "description": "Collection of Python data science notebooks covering statistical analysis, data cleaning, feature engineering, visualization, and exploratory data analysis across multiple real-world datasets.",
+    "tech": ["Python", "Jupyter", "Pandas", "Matplotlib", "NumPy", "Seaborn"],
+    "github": "https://github.com/Nishan052/python",
+    "highlights": ["EDA", "Statistical Analysis", "Visualization"]
+  }
+]

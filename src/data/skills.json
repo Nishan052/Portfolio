@@ -1,0 +1,50 @@
+{
+  "categories": [
+    {
+      "name": "Data & ML",
+      "skills": [
+        { "name": "Python",     "icon": "🐍" },
+        { "name": "R",          "icon": "📊" },
+        { "name": "SQL",        "icon": "🗄️" },
+        { "name": "Power BI",   "icon": "📈" },
+        { "name": "Tableau",    "icon": "📉" },
+        { "name": "KNIME",      "icon": "🔧" },
+        { "name": "TensorFlow", "icon": "🧠" },
+        { "name": "PyTorch",    "icon": "🔥" }
+      ]
+    },
+    {
+      "name": "Frontend & Backend",
+      "skills": [
+        { "name": "Angular",     "icon": "🅰️" },
+        { "name": "TypeScript",  "icon": "🔷" },
+        { "name": "HTML/CSS",    "icon": "🌐" },
+        { "name": "Node.js",     "icon": "💚" },
+        { "name": "Spring Boot", "icon": "🍃" },
+        { "name": "Salesforce",  "icon": "☁️" },
+        { "name": "SAP S/4HANA","icon": "🏢" }
+      ]
+    },
+    {
+      "name": "Tools & DevOps",
+      "skills": [
+        { "name": "GitHub",    "icon": "⎔" },
+        { "name": "Jira",      "icon": "📋" },
+        { "name": "Streamlit", "icon": "🚀" },
+        { "name": "MQTT",      "icon": "📡" },
+        { "name": "OpenCV",    "icon": "👁️" },
+        { "name": "Arduino",   "icon": "🔌" },
+        { "name": "Jenkins",   "icon": "🔁" },
+        { "name": "AWS",       "icon": "☁️" }
+      ]
+    }
+  ],
+  "certifications": [
+    { "title": "Data Analytics Foundations",              "org": "Google" },
+    { "title": "Python for Data Science, AI & Dev",       "org": "Coursera" },
+    { "title": "Python Data Structures",                  "org": "Coursera" },
+    { "title": "Programming for Everybody in Python",     "org": "Coursera" },
+    { "title": "Java Spring & Angular Full Stack",        "org": "Infosys Foundation" },
+    { "title": "Data Structures & Algorithms using Java", "org": "Infosys Foundation" }
+  ]
+}

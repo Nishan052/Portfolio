@@ -1,0 +1,51 @@
+[
+  {
+    "role": "Senior Software Developer",
+    "company": "Novigo Solutions",
+    "period": "Jun 2023",
+    "end": "Feb 2025",
+    "duration": "1 yr 9 mos",
+    "location": "Mangaluru, India",
+    "type": "Full-time",
+    "skills": ["Angular", "TypeScript", "Salesforce", "Jira", "Agile", "GitHub", "Jenkins"],
+    "highlights": [
+      "Led data visualization & API integration for a large-scale healthcare digitization platform",
+      "Enhanced data interoperability using Angular, TypeScript, and Salesforce",
+      "Drove Agile development and cross-functional collaboration managing workflows in Jira"
+    ],
+    "subRoles": null
+  },
+  {
+    "role": "Systems Engineer  →   Senior System Engineer",
+    "company": "Infosys",
+    "period": "May 2021",
+    "end": "Jun 2023",
+    "duration": "2 yrs 10 mos",
+    "location": "Bangalore, India",
+    "type": "Full-time",
+    "skills": ["Angular", "TypeScript", "Spring Boot", "Java", "SQL", "GitHub", "CI/CD", "Jira"],
+    "highlights": [
+      "Progressed from Systems Engineer to Senior System Engineer within Infosys Helix healthcare division",
+      "Led data visualization and API integration, building interactive dashboards with Angular, TypeScript, HTML/CSS, and Spring Boot",
+      "Applied healthcare domain knowledge to design secure, compliant data components ensuring regulatory alignment"
+    ],
+    "subRoles": [
+      { "title": "Systems Engineer",       "period": "May 2021 – Jan 2023" },
+      { "title": "Senior System Engineer", "period": "Jan 2023 – Jun 2023" }
+    ]
+  },
+  {
+    "role": "Consultant",
+    "company": "Softusvista",
+    "period": "Feb 2021",
+    "end": "Mar 2021",
+    "duration": "2 mos",
+    "location": "Remote",
+    "type": "Internship",
+    "skills": ["MS Office", "Agile", "Communication"],
+    "highlights": [
+      "Agile application development and business communication consulting"
+    ],
+    "subRoles": null
+  }
+]
