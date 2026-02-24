@@ -17,7 +17,7 @@ const ThreeBackground = memo(({ isDark }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // ── Renderer ───────────────────────────────────────────────────────────────
+    {/*  ── Renderer ─────────────────────────────────────────────────────────────── */}
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -26,7 +26,7 @@ const ThreeBackground = memo(({ isDark }) => {
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 30;
 
-    // ── Particles ──────────────────────────────────────────────────────────────
+    {/* ── Particles ────────────────────────────────────────────────────────────── */}
     const COUNT = 800;
     const pos   = new Float32Array(COUNT * 3);
     const cols  = new Float32Array(COUNT * 3);
@@ -55,7 +55,7 @@ const ThreeBackground = memo(({ isDark }) => {
     const particles = new THREE.Points(geo, mat);
     scene.add(particles);
 
-    // ── Connection lines ───────────────────────────────────────────────────────
+    {/* ── Connection lines ───────────────────────────────────────────────────────*/}
     const lineMat   = new THREE.LineBasicMaterial({
       color: isDark ? 0x00e5ff : 0x2563eb,
       transparent: true,
@@ -77,7 +77,7 @@ const ThreeBackground = memo(({ isDark }) => {
     );
     scene.add(lineGroup);
 
-    // ── Torus ──────────────────────────────────────────────────────────────────
+    {/*  ── Torus ────────────────────────────────────────────────────────────────── */}
     const torusMat = new THREE.MeshBasicMaterial({
       color: isDark ? 0x00e5ff : 0x2563eb,
       wireframe: true, transparent: true,
@@ -87,7 +87,7 @@ const ThreeBackground = memo(({ isDark }) => {
     torus.position.set(28, -10, -15);
     scene.add(torus);
 
-    // ── Icosahedron ────────────────────────────────────────────────────────────
+   
     const icoMat = new THREE.MeshBasicMaterial({
       color: isDark ? 0xa855f7 : 0x7c3aed,
       wireframe: true, transparent: true,
@@ -97,7 +97,7 @@ const ThreeBackground = memo(({ isDark }) => {
     ico.position.set(-28, 12, -20);
     scene.add(ico);
 
-    // ── Mouse parallax ─────────────────────────────────────────────────────────
+    {/*  ── Mouse parallax ───────────────────────────────────────────────────────── */}
     let mx = 0, my = 0;
     const onMouse  = (e) => {
       mx = (e.clientX / window.innerWidth  - 0.5) * 2;
@@ -105,7 +105,7 @@ const ThreeBackground = memo(({ isDark }) => {
     };
     window.addEventListener("mousemove", onMouse);
 
-    // ── Resize ─────────────────────────────────────────────────────────────────
+    {/* ── Resize ───────────────────────────────────────────────────────────────── */}
     const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -113,7 +113,7 @@ const ThreeBackground = memo(({ isDark }) => {
     };
     window.addEventListener("resize", onResize);
 
-    // ── Animation loop ─────────────────────────────────────────────────────────
+  {/* ── Animation loop ───────────────────────────────────────────────────────── */}
     let t = 0, animId;
     const animate = () => {
       animId = requestAnimationFrame(animate);
@@ -134,7 +134,6 @@ const ThreeBackground = memo(({ isDark }) => {
     };
     animate();
 
-    // ── Cleanup ────────────────────────────────────────────────────────────────
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("mousemove", onMouse);
