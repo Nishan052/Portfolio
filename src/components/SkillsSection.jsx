@@ -15,7 +15,7 @@ const SkillsSection = memo(() => {
         <div className="divider" />
 
         <div style={{ marginBottom: 46 }}>
-          <p className="section-tag fade-up">// technical skills</p>
+          <p className="section-tag fade-up">{"// technical skills"}</p>
           <h2 className="section-title fade-up fade-up-delay-1">My Toolkit</h2>
         </div>
 
@@ -29,7 +29,7 @@ const SkillsSection = memo(() => {
                 letterSpacing: 2, textTransform: "uppercase",
                 color: "var(--text-muted)", marginBottom: 13,
               }}>
-                <span style={{ color: "var(--accent)" }}>// </span>
+                <span style={{ color: "var(--accent)" }}>{"// "}</span>
                 {cat.name}
               </div>
 
@@ -53,7 +53,7 @@ const SkillsSection = memo(() => {
             letterSpacing: 2, textTransform: "uppercase",
             color: "var(--text-muted)", marginBottom: 16,
           }}>
-            <span style={{ color: "var(--accent)" }}>// </span>Certifications
+            <span style={{ color: "var(--accent)" }}>{"// "}</span>Certifications
           </div>
 
           <div

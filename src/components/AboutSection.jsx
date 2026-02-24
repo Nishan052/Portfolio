@@ -47,7 +47,7 @@ const AboutSection = memo(() => (
       >
         {/* ── Left: bio ───────────────────────────────────────────────────────── */}
         <div>
-          <p className="section-tag fade-up">// about me</p>
+          <p className="section-tag fade-up">{"// about me"}</p>
           <h2 className="section-title fade-up fade-up-delay-1">
             The Person<br />Behind the Code
           </h2>

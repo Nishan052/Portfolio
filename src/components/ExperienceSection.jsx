@@ -12,7 +12,7 @@ const ExperienceSection = memo(() => (
       <div className="divider" />
 
       <div style={{ marginBottom: 46 }}>
-        <p className="section-tag fade-up">// work history</p>
+        <p className="section-tag fade-up">{"// work history"}</p>
         <h2 className="section-title fade-up fade-up-delay-1">
           Professional<br />Experience
         </h2>

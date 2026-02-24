@@ -105,7 +105,7 @@ const ContactSection = memo(() => (
       <div className="divider" />
 
       <div style={{ maxWidth: 660, margin: "0 auto", textAlign: "center" }}>
-        <p className="section-tag fade-up" style={{ textAlign: "center" }}>// contact</p>
+        <p className="section-tag fade-up" style={{ textAlign: "center" }}>{"// contact"}</p>
         <h2 className="section-title fade-up fade-up-delay-1" style={{ textAlign: "center" }}>
           Let's Work<br />Together
         </h2>

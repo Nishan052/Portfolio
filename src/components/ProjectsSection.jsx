@@ -115,7 +115,7 @@ const ProjectsSection = memo(() => {
         <div className="divider" />
 
         <div style={{ marginBottom: 46 }}>
-          <p className="section-tag fade-up">// portfolio</p>
+          <p className="section-tag fade-up">{"// portfolio"}</p>
           <h2 className="section-title fade-up fade-up-delay-1">
             Featured<br />Projects
           </h2>

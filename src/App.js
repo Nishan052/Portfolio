@@ -49,10 +49,10 @@ export default function App() {
   const theme         = isDark ? THEMES.dark : THEMES.light;
   const activeSection = useActiveSection();
 
-  {/* Apply CSS variables whenever theme changes */}
+  // Apply CSS variables whenever theme changes
   useEffect(() => { applyThemeVars(theme); }, [theme]);
 
-  {/* Scroll sentinel for nav border */}
+  // Scroll sentinel for nav border
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", fn, { passive: true });
@@ -61,7 +61,7 @@ export default function App() {
 
   const toggleTheme = useCallback(() => setIsDark((p) => !p), []);
 
-  {/* Global animation hooks */}
+  // Global animation hooks
   useScrollAnimation();
   useParallax();
 
