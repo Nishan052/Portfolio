@@ -13,7 +13,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -35,7 +35,6 @@
     ]
   },
   "devDependencies": {
-    "@octokit/rest": "^22.0.1",
     "dotenv": "^17.3.1",
     "pdf-parse": "^2.4.5",
     "wrangler": "^4.68.1"

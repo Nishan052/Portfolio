@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * ingest-local.js — Full RAG ingestion pipeline
+ * ingest.js — RAG ingestion pipeline
  * Runs locally with Node.js. Reads portfolio data, creates contextual chunks,
  * embeds them with Ollama, and upserts to Pinecone.
  *
@@ -10,9 +10,15 @@
  *   3. .env.local exists with PINECONE_API_KEY and PINECONE_HOST
  *
  * Usage:
- *   node scripts/ingest-local.js           # full run
- *   node scripts/ingest-local.js --clear   # delete existing vectors first
- *   SKIP_CONTEXT=true node scripts/ingest-local.js  # skip LLM context (faster)
+ *   node scripts/ingest.js                     # skips if vectors already exist
+ *   node scripts/ingest.js --force             # clears and re-ingests everything
+ *   SKIP_CONTEXT=true node scripts/ingest.js   # skip LLM context generation (faster)
+ *
+ * Sources ingested:
+ *   - PDFs in data/
+ *   - src/data/experience.json
+ *   - src/data/projects.json
+ *   - src/data/skills.json
  */
 
 require('dotenv').config({ path: '.env.local' });
@@ -24,23 +30,24 @@ const { Pinecone } = require('@pinecone-database/pinecone');
 const { chunkText } = require('./lib/chunk');
 const { generateContextualChunk } = require('./lib/contextual');
 
-// ─── Config ──────────────────────────────────────────────────────────────────
+// ─── Config ───────────────────────────────────────────────────────────────────
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY;
 const PINECONE_HOST    = process.env.PINECONE_HOST;
 const PINECONE_INDEX   = process.env.PINECONE_INDEX || 'portfolio-rag';
 const OLLAMA_BASE      = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
 const EMBED_MODEL      = process.env.EMBED_MODEL || 'nomic-embed-text';
 const SKIP_CONTEXT     = process.env.SKIP_CONTEXT === 'true';
-const CLEAR_FIRST      = process.argv.includes('--clear');
+const FORCE            = process.argv.includes('--force');
+const CLEAR_FIRST      = process.argv.includes('--clear') || FORCE;
 const BATCH_SIZE       = 100;
 
 // ─── Validate ─────────────────────────────────────────────────────────────────
 if (!PINECONE_API_KEY) {
-  console.error('❌ PINECONE_API_KEY not set. Add it to .env.local or .dev.vars');
+  console.error('[ERROR] PINECONE_API_KEY not set. Add it to .env.local or .dev.vars');
   process.exit(1);
 }
 if (!PINECONE_HOST) {
-  console.error('❌ PINECONE_HOST not set. Add it to .env.local or .dev.vars');
+  console.error('[ERROR] PINECONE_HOST not set. Add it to .env.local or .dev.vars');
   process.exit(1);
 }
 
@@ -73,17 +80,17 @@ async function checkOllama() {
     const models = (data.models || []).map(m => m.name);
     const hasEmbed = models.some(m => m.includes('nomic-embed'));
     const hasLLM   = models.some(m => m.includes('llama3') || m.includes('llama'));
-    console.log(`✓ Ollama running. Models: ${models.join(', ')}`);
+    console.log(`[OK] Ollama running. Models: ${models.join(', ')}`);
     if (!hasEmbed) {
-      console.warn('⚠ nomic-embed-text not found. Run: ollama pull nomic-embed-text');
+      console.warn('[WARN] nomic-embed-text not found. Run: ollama pull nomic-embed-text');
     }
     if (!hasLLM && !SKIP_CONTEXT) {
-      console.warn('⚠ llama3.2:3b not found. Run: ollama pull llama3.2:3b');
-      console.warn('  Or set SKIP_CONTEXT=true to skip context generation');
+      console.warn('[WARN] llama3.2:3b not found. Run: ollama pull llama3.2:3b');
+      console.warn('       Or set SKIP_CONTEXT=true to skip context generation');
     }
     return { hasEmbed, hasLLM };
   } catch {
-    console.error('❌ Ollama not running. Start it with: ollama serve');
+    console.error('[ERROR] Ollama not running. Start it with: ollama serve');
     process.exit(1);
   }
 }
@@ -95,23 +102,21 @@ async function processSource(sourceId, sourceType, fullText, metadata = {}) {
 
   const vectors = [];
   for (const chunk of chunks) {
-    let chunkText = chunk.text;
+    let text = chunk.text;
 
-    // Contextual Retrieval: prepend LLM-generated context
     if (!SKIP_CONTEXT) {
       process.stdout.write(`    chunk ${chunk.chunkIndex + 1}/${chunk.totalChunks} context... `);
-      chunkText = await generateContextualChunk(fullText, chunk);
-      process.stdout.write('✓\n');
+      text = await generateContextualChunk(fullText, chunk);
+      process.stdout.write('[OK]\n');
     }
 
-    // Embed the contextual chunk
-    const embedding = await embedText(chunkText);
+    const embedding = await embedText(text);
 
     vectors.push({
       id: `${sourceId}_${chunk.chunkIndex}`,
       values: embedding,
       metadata: {
-        text: chunkText,
+        text,
         source: sourceId,
         type: sourceType,
         chunkIndex: chunk.chunkIndex,
@@ -132,25 +137,25 @@ async function upsertBatched(index, vectors) {
     const batch = vectors.slice(i, i + BATCH_SIZE);
     await index.upsert({ records: batch });
     total += batch.length;
-    console.log(`  ↑ Upserted batch ${Math.ceil((i + 1) / BATCH_SIZE)} (${total}/${vectors.length} vectors)`);
+    console.log(`  Upserted batch ${Math.ceil((i + 1) / BATCH_SIZE)} (${total}/${vectors.length} vectors)`);
   }
 }
 
-// ─── Load PDF sources ─────────────────────────────────────────────────────────
+// ─── Load PDFs from data/ ─────────────────────────────────────────────────────
 async function loadPDFs() {
   const { PDFParse } = require('pdf-parse');
-  const ragDataDir = path.join(__dirname, '..', 'ragData');
+  const dataDir = path.join(__dirname, '..', 'data');
 
-  if (!fs.existsSync(ragDataDir)) {
-    console.log('  No ragData/ directory found, skipping PDFs');
+  if (!fs.existsSync(dataDir)) {
+    console.log('  No data/ directory found, skipping PDFs');
     return [];
   }
 
-  const pdfs = fs.readdirSync(ragDataDir).filter(f => f.endsWith('.pdf'));
+  const pdfs = fs.readdirSync(dataDir).filter(f => f.endsWith('.pdf'));
   const results = [];
 
   for (const pdfFile of pdfs) {
-    const filePath = path.join(ragDataDir, pdfFile);
+    const filePath = path.join(dataDir, pdfFile);
     try {
       const buffer = fs.readFileSync(filePath);
       const parser = new PDFParse({ data: buffer });
@@ -162,36 +167,9 @@ async function loadPDFs() {
         text: data.text,
         metadata: { filename: pdfFile }
       });
-      console.log(`  ✓ Loaded PDF: ${pdfFile} (${data.total} pages, ${data.text.length} chars)`);
+      console.log(`  [OK] Loaded: ${pdfFile} (${data.total} pages, ${data.text.length} chars)`);
     } catch (err) {
-      console.warn(`  ⚠ Failed to parse ${pdfFile}: ${err.message}`);
-    }
-  }
-
-  return results;
-}
-
-// ─── Load GitHub READMEs ──────────────────────────────────────────────────────
-async function loadGitHubREADMEs() {
-  const { Octokit } = require('@octokit/rest');
-  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-  const owner = 'Nishan052';
-  const repos = ['Stock-Price-Prediction', 'Routing-app', 'python'];
-  const results = [];
-
-  for (const repo of repos) {
-    try {
-      const { data } = await octokit.repos.getReadme({ owner, repo });
-      const text = Buffer.from(data.content, 'base64').toString('utf-8');
-      results.push({
-        id: `github_${repo.toLowerCase()}`,
-        type: 'github_readme',
-        text,
-        metadata: { repo: `${owner}/${repo}` }
-      });
-      console.log(`  ✓ Loaded README: ${owner}/${repo} (${text.length} chars)`);
-    } catch (err) {
-      console.warn(`  ⚠ Could not fetch README for ${owner}/${repo}: ${err.message}`);
+      console.warn(`  [WARN] Failed to parse ${pdfFile}: ${err.message}`);
     }
   }
 
@@ -200,9 +178,9 @@ async function loadGitHubREADMEs() {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
-  console.log('\n🚀 Portfolio RAG Ingestion Pipeline\n');
+  console.log('\nPortfolio RAG Ingestion Pipeline\n');
   console.log(`Mode: ${SKIP_CONTEXT ? 'Fast (no context generation)' : 'Full (with Contextual Retrieval)'}`);
-  console.log(`Clear first: ${CLEAR_FIRST}\n`);
+  console.log(`Force re-ingest: ${FORCE}\n`);
 
   // Check Ollama
   await checkOllama();
@@ -210,19 +188,27 @@ async function main() {
   // Connect to Pinecone
   const pc = new Pinecone({ apiKey: PINECONE_API_KEY });
   const index = pc.index(PINECONE_INDEX, PINECONE_HOST);
-  console.log(`✓ Connected to Pinecone index: ${PINECONE_INDEX}`);
+  console.log(`[OK] Connected to Pinecone index: ${PINECONE_INDEX}`);
 
-  // Optionally clear existing vectors
+  // Skip guard — exit early if vectors already exist and --force not passed
+  const stats = await index.describeIndexStats();
+  const existing = stats.totalRecordCount ?? 0;
+  if (existing > 0 && !FORCE) {
+    console.log(`\nPinecone already has ${existing} vectors. Run with --force to re-ingest.\n`);
+    process.exit(0);
+  }
+
+  // Clear existing vectors if requested
   if (CLEAR_FIRST) {
-    console.log('\n🗑  Clearing existing vectors...');
+    console.log('\nClearing existing vectors...');
     await index.deleteAll();
-    console.log('  ✓ Cleared all vectors');
+    console.log('[OK] Cleared all vectors');
   }
 
   const allVectors = [];
 
   // ── Source 1: PDFs ──────────────────────────────────────────────────────────
-  console.log('\n📄 Loading PDFs from ragData/...');
+  console.log('\nLoading PDFs from data/...');
   const pdfs = await loadPDFs();
   for (const pdf of pdfs) {
     console.log(`\n  Processing: ${pdf.id}`);
@@ -230,25 +216,11 @@ async function main() {
     allVectors.push(...vecs);
   }
 
-  // ── Source 2: Portfolio Context Markdown ───────────────────────────────────
-  console.log('\n📝 Loading portfolio context markdown...');
-  const mdPath = path.join(__dirname, '..', 'NishanPoojary_Portfolio_ProjectContext.md');
-  if (fs.existsSync(mdPath)) {
-    const mdText = fs.readFileSync(mdPath, 'utf-8');
-    console.log(`  ${mdText.length} chars`);
-    console.log('\n  Processing: context_md');
-    const vecs = await processSource('context_md', 'portfolio_context', mdText);
-    allVectors.push(...vecs);
-  } else {
-    console.log('  ⚠ NishanPoojary_Portfolio_ProjectContext.md not found, skipping');
-  }
-
-  // ── Source 3: experience.json ──────────────────────────────────────────────
-  console.log('\n💼 Loading experience.json...');
+  // ── Source 2: experience.json ──────────────────────────────────────────────
+  console.log('\nLoading experience.json...');
   const expPath = path.join(__dirname, '..', 'src', 'data', 'experience.json');
   if (fs.existsSync(expPath)) {
     const expData = JSON.parse(fs.readFileSync(expPath, 'utf-8'));
-    // Create one document per role for better context
     for (const role of expData) {
       const text = `
 Role: ${role.role}
@@ -258,9 +230,9 @@ Location: ${role.location}
 Type: ${role.type}
 Skills: ${role.skills.join(', ')}
 
-Key Responsibilities & Achievements:
-${role.highlights.map(h => `• ${h}`).join('\n')}
-${role.subRoles ? `\nProgression:\n${role.subRoles.map(r => `• ${r.title} (${r.period})`).join('\n')}` : ''}
+Key Responsibilities and Achievements:
+${role.highlights.map(h => `- ${h}`).join('\n')}
+${role.subRoles ? `\nProgression:\n${role.subRoles.map(r => `- ${r.title} (${r.period})`).join('\n')}` : ''}
       `.trim();
 
       const id = `experience_${role.company.replace(/\s+/g, '_').toLowerCase()}`;
@@ -270,8 +242,8 @@ ${role.subRoles ? `\nProgression:\n${role.subRoles.map(r => `• ${r.title} (${r
     }
   }
 
-  // ── Source 4: projects.json ────────────────────────────────────────────────
-  console.log('\n🔧 Loading projects.json...');
+  // ── Source 3: projects.json ────────────────────────────────────────────────
+  console.log('\nLoading projects.json...');
   const projPath = path.join(__dirname, '..', 'src', 'data', 'projects.json');
   if (fs.existsSync(projPath)) {
     const projData = JSON.parse(fs.readFileSync(projPath, 'utf-8'));
@@ -295,8 +267,8 @@ GitHub: ${project.github}
     }
   }
 
-  // ── Source 5: skills.json ──────────────────────────────────────────────────
-  console.log('\n🧠 Loading skills.json...');
+  // ── Source 4: skills.json ──────────────────────────────────────────────────
+  console.log('\nLoading skills.json...');
   const skillsPath = path.join(__dirname, '..', 'src', 'data', 'skills.json');
   if (fs.existsSync(skillsPath)) {
     const skillsData = JSON.parse(fs.readFileSync(skillsPath, 'utf-8'));
@@ -304,38 +276,29 @@ GitHub: ${project.github}
 Nishan Poojary's Technical Skills:
 
 ${skillsData.categories.map(cat =>
-  `${cat.name}:\n${cat.skills.map(s => `• ${s.name}`).join(', ')}`
+  `${cat.name}:\n${cat.skills.map(s => `- ${s.name}`).join(', ')}`
 ).join('\n\n')}
 
 Certifications:
-${skillsData.certifications.map(c => `• ${c.title} — ${c.org}`).join('\n')}
+${skillsData.certifications.map(c => `- ${c.title} — ${c.org}`).join('\n')}
     `.trim();
 
-    console.log(`\n  Processing: skills_data`);
+    console.log('\n  Processing: skills_data');
     const vecs = await processSource('skills_data', 'skills', skillsText);
     allVectors.push(...vecs);
   }
 
-  // ── Source 6: GitHub READMEs ───────────────────────────────────────────────
-  console.log('\n🐙 Fetching GitHub READMEs...');
-  const readmes = await loadGitHubREADMEs();
-  for (const readme of readmes) {
-    console.log(`\n  Processing: ${readme.id}`);
-    const vecs = await processSource(readme.id, readme.type, readme.text, readme.metadata);
-    allVectors.push(...vecs);
-  }
-
   // ── Upsert all to Pinecone ─────────────────────────────────────────────────
-  console.log(`\n📤 Upserting ${allVectors.length} vectors to Pinecone...`);
+  console.log(`\nUpserting ${allVectors.length} vectors to Pinecone...`);
   await upsertBatched(index, allVectors);
 
-  console.log('\n✅ Ingestion complete!');
-  console.log(`   Total vectors: ${allVectors.length}`);
-  console.log(`   Verify at: https://app.pinecone.io\n`);
+  console.log('\n[OK] Ingestion complete!');
+  console.log(`     Total vectors: ${allVectors.length}`);
+  console.log(`     Verify at: https://app.pinecone.io\n`);
 }
 
 main().catch(err => {
-  console.error('\n❌ Ingestion failed:', err.message);
+  console.error('\n[ERROR] Ingestion failed:', err.message);
   console.error(err.stack);
   process.exit(1);
 });
