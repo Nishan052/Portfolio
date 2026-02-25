@@ -130,7 +130,7 @@ async function upsertBatched(index, vectors) {
   let total = 0;
   for (let i = 0; i < vectors.length; i += BATCH_SIZE) {
     const batch = vectors.slice(i, i + BATCH_SIZE);
-    await index.upsert(batch);
+    await index.upsert({ records: batch });
     total += batch.length;
     console.log(`  ↑ Upserted batch ${Math.ceil((i + 1) / BATCH_SIZE)} (${total}/${vectors.length} vectors)`);
   }
@@ -138,7 +138,7 @@ async function upsertBatched(index, vectors) {
 
 // ─── Load PDF sources ─────────────────────────────────────────────────────────
 async function loadPDFs() {
-  const pdfParse = require('pdf-parse');
+  const { PDFParse } = require('pdf-parse');
   const ragDataDir = path.join(__dirname, '..', 'ragData');
 
   if (!fs.existsSync(ragDataDir)) {
@@ -153,7 +153,8 @@ async function loadPDFs() {
     const filePath = path.join(ragDataDir, pdfFile);
     try {
       const buffer = fs.readFileSync(filePath);
-      const data = await pdfParse(buffer);
+      const parser = new PDFParse({ data: buffer });
+      const data = await parser.getText();
       const baseName = pdfFile.replace('.pdf', '').replace(/\s+/g, '_').toLowerCase();
       results.push({
         id: `pdf_${baseName}`,
@@ -161,7 +162,7 @@ async function loadPDFs() {
         text: data.text,
         metadata: { filename: pdfFile }
       });
-      console.log(`  ✓ Loaded PDF: ${pdfFile} (${data.numpages} pages, ${data.text.length} chars)`);
+      console.log(`  ✓ Loaded PDF: ${pdfFile} (${data.total} pages, ${data.text.length} chars)`);
     } catch (err) {
       console.warn(`  ⚠ Failed to parse ${pdfFile}: ${err.message}`);
     }
