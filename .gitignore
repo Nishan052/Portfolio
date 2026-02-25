@@ -36,3 +36,8 @@ Thumbs.db
 
 # Config with credentials
 config.env
+
+# RAG ingestion data (PDFs, context docs — local only)
+ragData/
+NishanPoojary_Portfolio_ProjectContext.md
+RAG_Chatbot_Requirements_Reconciled.md

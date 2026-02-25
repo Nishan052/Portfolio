@@ -86,7 +86,6 @@ function ChatWidget() {
     const history = messages.map(m => ({ role: m.role, content: m.content }));
 
     // Add empty assistant message placeholder
-    const assistantIdx = messages.length + 1; // after user msg
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
     // Abort any ongoing request

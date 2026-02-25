@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext } from "react";
 
 // ─── Theme Tokens ─────────────────────────────────────────────────────────────
 export const THEMES = {
@@ -34,6 +34,3 @@ export const THEMES = {
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 export const ThemeContext = createContext(THEMES.dark);
-
-// ─── Hook ─────────────────────────────────────────────────────────────────────
-export const useTheme = () => useContext(ThemeContext);
