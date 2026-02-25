@@ -30,3 +30,9 @@ Thumbs.db
 
 # Claude
 .claude/
+
+# Wrangler local dev secrets
+.dev.vars
+
+# Config with credentials
+config.env

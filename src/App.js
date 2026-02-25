@@ -19,6 +19,7 @@ import ProjectsSection  from "./components/ProjectsSection";
 import SkillsSection    from "./components/SkillsSection";
 import ContactSection   from "./components/ContactSection";
 import Footer           from "./components/Footer";
+import ChatWidget       from "./components/ChatWidget";
 
 // ── Global styles (CSS custom properties injected by App) ─────────────────────
 import "./styles.css";
@@ -90,6 +91,9 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {/* Floating AI chat widget — bottom right */}
+      <ChatWidget />
     </ThemeContext.Provider>
   );
 }
