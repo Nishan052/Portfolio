@@ -32,7 +32,7 @@ const HeroSection = memo(() => (
       >
         {/* ── Left: text content ──────────────────────────────────────────────── */}
         <div>
-          <p className="hero-role fade-up">Senior Software Developer &amp; Data Scientist</p>
+          <p className="hero-role fade-up">Software Developer &amp; Data Scientist</p>
           <div className="glow-line fade-up fade-up-delay-1" />
 
           <h1 className="hero-name fade-up fade-up-delay-1">
