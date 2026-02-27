@@ -1,7 +1,6 @@
 /**
- * llm.js — Groq streaming LLM via raw fetch
+ * llm.js — Groq LLM utilities: streaming answer generation + HyDE query expansion
  * Uses Groq's OpenAI-compatible API (free tier: 14,400 req/day).
- * Returns the raw ReadableStream from Groq to pipe directly to the client.
  */
 
 const GROQ_BASE = 'https://api.groq.com/openai/v1';
@@ -40,6 +39,54 @@ export async function streamGroq(env, messages) {
   }
 
   return response; // Caller pipes response.body
+}
+
+// System prompt used exclusively for HyDE query expansion
+const HYDE_SYSTEM = `You are helping improve document retrieval for a portfolio chatbot.
+Given a question about a software developer, write a 2-3 sentence passage that a
+resume, project description, or skills section might contain that would directly
+answer the question. Output only the passage, no preamble or explanation.`;
+
+/**
+ * HyDE (Hypothetical Document Embeddings) — generate a hypothetical answer passage.
+ * The passage is embedded instead of the raw question so that cosine similarity
+ * is computed against text that looks like the stored chunks (declarative facts),
+ * improving retrieval accuracy.
+ *
+ * Non-fatal: callers should catch and fall back to embedding the raw question.
+ *
+ * @param {object} env      - Cloudflare environment (env.GROQ_API_KEY required)
+ * @param {string} question - The user's raw question
+ * @returns {Promise<string|null>} A 2-3 sentence hypothetical passage, or null
+ */
+export async function hydeExpand(env, question) {
+  if (!env.GROQ_API_KEY) throw new Error('GROQ_API_KEY not set');
+
+  const response = await fetch(`${GROQ_BASE}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+      'Content-Type':  'application/json',
+    },
+    body: JSON.stringify({
+      model:       MODEL,
+      stream:      false,
+      max_tokens:  150,
+      temperature: 0.5,
+      messages: [
+        { role: 'system', content: HYDE_SYSTEM },
+        { role: 'user',   content: question },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`HyDE Groq error ${response.status}: ${err}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content?.trim() || null;
 }
 
 /**

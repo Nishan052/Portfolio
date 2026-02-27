@@ -6,15 +6,16 @@
  *   2. Parse & validate request body
  *   3. Rate limit check (Upstash, 10 req/min per IP)
  *   4. Exact cache check (Upstash Redis, 24h TTL)
- *   5. Embed query (Workers AI, bge-base-en-v1.5, 768 dims, zero-latency)
- *   6. Vector search (Pinecone, top-5, minScore 0.55)
- *   7. Build messages with system prompt + context + history
- *   8. Stream Groq response → SSE to client
- *   9. Cache full response async (non-blocking)
+ *   5. HyDE expand query → hypothetical answer (Groq, non-streaming, 150 tok)
+ *   6. Embed expanded query (Workers AI, bge-base-en-v1.5, 768 dims)
+ *   7. Vector search (Pinecone, top-5, minScore 0.55)
+ *   8. Build messages with system prompt + context + history
+ *   9. Stream Groq response → SSE to client
+ *  10. Cache full response async (non-blocking)
  */
 
 import { embedText }        from './lib/embed.js';
-import { streamGroq, extractGroqContent } from './lib/llm.js';
+import { streamGroq, extractGroqContent, hydeExpand } from './lib/llm.js';
 import { queryPinecone }    from './lib/pinecone.js';
 import { checkRateLimit, getExactCache, setExactCache } from './lib/cache.js';
 import { buildSystemPrompt, formatContext } from './lib/system-prompt.js';
@@ -148,16 +149,27 @@ export async function onRequestPost({ request, env }) {
     });
   }
 
-  // 5. Embed query via Workers AI (zero-latency, native binding)
+  // 5. HyDE: generate a hypothetical answer to embed instead of the raw question.
+  //    The hypothesis is semantically closer to stored chunks → better retrieval.
+  //    Non-fatal: falls back to embedding the raw message on any error.
+  let queryText = message;
+  try {
+    const hypothesis = await hydeExpand(env, message);
+    if (hypothesis) queryText = hypothesis;
+  } catch (err) {
+    console.error('HyDE expansion failed, using raw query:', err.message);
+  }
+
+  // 6. Embed the expanded query (or raw message if HyDE failed)
   let embedding;
   try {
-    embedding = await embedText(env, message);
+    embedding = await embedText(env, queryText);
   } catch (err) {
     console.error('Embedding failed:', err.message);
     embedding = null;
   }
 
-  // 6. Vector search
+  // 7. Vector search
   let chunks = [];
   if (embedding) {
     try {
@@ -167,7 +179,7 @@ export async function onRequestPost({ request, env }) {
     }
   }
 
-  // 7. Build messages array
+  // 8. Build messages array
   const context   = formatContext(chunks);
   const systemMsg = buildSystemPrompt(context);
   const messages  = [
@@ -176,7 +188,7 @@ export async function onRequestPost({ request, env }) {
     { role: 'user',      content: message   },
   ];
 
-  // 8. Stream Groq response via SSE
+  // 9. Stream Groq response via SSE
   let groqResponse;
   try {
     groqResponse = await streamGroq(env, messages);
@@ -240,7 +252,7 @@ export async function onRequestPost({ request, env }) {
       await writer.close();
     }
 
-    // 9. Cache the full response async (non-blocking)
+    // 10. Cache the full response async (non-blocking)
     if (fullChunks.length > 0) {
       const fullResponse = fullChunks.join('');
       setExactCache(env, message, fullResponse).catch(() => {});
