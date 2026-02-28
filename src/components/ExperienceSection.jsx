@@ -1,20 +1,24 @@
 import { memo } from "react";
 import experiences from "../data/experience.json";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Renders a vertical stack of experience cards.
  * Data comes from src/data/experience.json — edit that file to update content.
  */
-const ExperienceSection = memo(() => (
+const ExperienceSection = memo(() => {
+  const { t, lang } = useLanguage();
+  const e = t.experience;
+  return (
   <section id="experience" className="section">
     <div className="section-overlay" />
     <div className="container">
       <div className="divider" />
 
       <div style={{ marginBottom: 46 }}>
-        <p className="section-tag fade-up">{"// work history"}</p>
+        <p className="section-tag fade-up">{e.tag}</p>
         <h2 className="section-title fade-up fade-up-delay-1">
-          Professional<br />Experience
+          {e.title[0]}<br />{e.title[1]}
         </h2>
       </div>
 
@@ -60,7 +64,7 @@ const ExperienceSection = memo(() => (
                     background: "var(--accent-soft)", color: "var(--accent)",
                     fontFamily: "'DM Mono',monospace",
                   }}>
-                    {exp.type}
+                    {(lang === 'de' && exp.type_de) ? exp.type_de : exp.type}
                   </span>
                 </div>
 
@@ -87,7 +91,7 @@ const ExperienceSection = memo(() => (
 
                 {/* Bullet highlights */}
                 <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 5 }}>
-                  {exp.highlights.map((point, j) => (
+                  {((lang === 'de' && exp.highlights_de) ? exp.highlights_de : exp.highlights).map((point, j) => (
                     <li key={j} style={{
                       fontSize: "0.845rem", color: "var(--text-muted)",
                       lineHeight: 1.68, paddingLeft: 15, position: "relative",
@@ -129,6 +133,7 @@ const ExperienceSection = memo(() => (
       </div>
     </div>
   </section>
-));
+  );
+});
 
 export default ExperienceSection;

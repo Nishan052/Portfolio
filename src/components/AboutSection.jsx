@@ -1,27 +1,5 @@
 import { memo } from "react";
-
-const INFO_CARDS = [
-  {
-    icon: "🎓",
-    title: "Education",
-    desc: "MEng Business Intelligence & Data Analytics — Hochschule Emden/Leer (Grade: 1.45/5)",
-  },
-  {
-    icon: "🏢",
-    title: "Background",
-    desc: "4+ years at Infosys & Novigo Solutions in banking & healthcare domains",
-  },
-  {
-    icon: "🌍",
-    title: "Languages",
-    desc: "English (C1) · German (B1) · Kannada (C1) · Hindi (C1) · Tulu (C2)",
-  },
-  {
-    icon: "📊",
-    title: "Focus Areas",
-    desc: "ML/AI · Data Analytics · Business Intelligence · Full-Stack Engineering",
-  },
-];
+import { useLanguage } from "../context/LanguageContext";
 
 const HIGHLIGHT_SKILLS = ["Python", "R", "SQL", "Angular", "Power BI", "TensorFlow"];
 
@@ -30,7 +8,10 @@ const HIGHLIGHT_SKILLS = ["Python", "R", "SQL", "Angular", "Power BI", "TensorFl
  * left  → bio text + skill pills
  * right → info cards (education, background, languages, focus)
  */
-const AboutSection = memo(() => (
+const AboutSection = memo(() => {
+  const { t } = useLanguage();
+  const a = t.about;
+  return (
   <section id="about" className="section">
     <div className="section-overlay" />
     <div className="container">
@@ -47,25 +28,21 @@ const AboutSection = memo(() => (
       >
         {/* ── Left: bio ───────────────────────────────────────────────────────── */}
         <div>
-          <p className="section-tag fade-up">{"// about me"}</p>
+          <p className="section-tag fade-up">{a.tag}</p>
           <h2 className="section-title fade-up fade-up-delay-1">
-            The Person<br />Behind the Code
+            {a.title[0]}<br />{a.title[1]}
           </h2>
           <p
             style={{ color: "var(--text-muted)", lineHeight: 1.82, marginBottom: 18, fontSize: "0.95rem" }}
             className="fade-up fade-up-delay-2"
           >
-            I'm a dedicated software developer specializing in robust, responsive applications for
-            the financial and healthcare sectors. Currently pursuing a Master of Engineering in
-            Business Intelligence and Data Analytics at Hochschule Emden/Leer, Germany.
+            {a.bio1}
           </p>
           <p
             style={{ color: "var(--text-muted)", lineHeight: 1.82, fontSize: "0.95rem" }}
             className="fade-up fade-up-delay-3"
           >
-            My core skills span Python, R, Angular, Salesforce, TypeScript, Power BI, and Machine
-            Learning. I'm passionate about AI-driven solutions and building data pipelines that
-            deliver real business insights.
+            {a.bio2}
           </p>
 
           <div
@@ -80,7 +57,7 @@ const AboutSection = memo(() => (
 
         {/* ── Right: info cards ────────────────────────────────────────────────── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
-          {INFO_CARDS.map((item, i) => (
+          {a.cards.map((item, i) => (
             <div
               key={item.title}
               className={`card fade-up fade-up-delay-${i + 1}`}
@@ -101,6 +78,7 @@ const AboutSection = memo(() => (
       </div>
     </div>
   </section>
-));
+  );
+});
 
 export default AboutSection;

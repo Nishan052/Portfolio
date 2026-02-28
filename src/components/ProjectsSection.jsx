@@ -1,5 +1,6 @@
 import { memo, useState } from "react";
 import projects from "../data/projects.json";
+import { useLanguage } from "../context/LanguageContext";
 
 /** GitHub icon SVG (reusable inline) */
 const GitHubIcon = () => (
@@ -12,7 +13,7 @@ const GitHubIcon = () => (
  * Project card renders one project from projects.json.
  * The active hover state is lifted to the parent for performance.
  */
-const ProjectCard = ({ project: p, isActive, onEnter, onLeave }) => (
+const ProjectCard = ({ project: p, isActive, onEnter, onLeave, lang }) => (
   <div
     className={`project-card fade-up fade-up-delay-${(parseInt(p.id, 10) % 3) + 1}`}
     style={{
@@ -31,7 +32,7 @@ const ProjectCard = ({ project: p, isActive, onEnter, onLeave }) => (
           color: p.color, padding: "3px 10px", borderRadius: 100,
           background: `${p.color}14`, border: `1px solid ${p.color}28`,
         }}>
-          {p.category}
+          {(lang === 'de' && p.category_de) ? p.category_de : p.category}
         </span>
 
         {/* GitHub link */}
@@ -61,7 +62,7 @@ const ProjectCard = ({ project: p, isActive, onEnter, onLeave }) => (
             {p.title}
           </h3>
           <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'DM Mono',monospace" }}>
-            {p.subtitle}
+            {(lang === 'de' && p.subtitle_de) ? p.subtitle_de : p.subtitle}
           </div>
         </div>
       </div>
@@ -70,7 +71,7 @@ const ProjectCard = ({ project: p, isActive, onEnter, onLeave }) => (
     {/* Body */}
     <div className="project-card-body">
       <p style={{ fontSize: "0.84rem", color: "var(--text-muted)", lineHeight: 1.74, marginBottom: 13, flex: 1 }}>
-        {p.description}
+        {(lang === 'de' && p.description_de) ? p.description_de : p.description}
       </p>
 
       {/* Tech pills */}
@@ -87,7 +88,7 @@ const ProjectCard = ({ project: p, isActive, onEnter, onLeave }) => (
 
       {/* Highlight badges */}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        {p.highlights.map((h) => (
+        {((lang === 'de' && p.highlights_de) ? p.highlights_de : p.highlights).map((h) => (
           <span key={h} style={{
             fontSize: 10, padding: "3px 8px", borderRadius: 100,
             background: "var(--accent-soft)", color: "var(--text-muted)",
@@ -107,6 +108,8 @@ const ProjectCard = ({ project: p, isActive, onEnter, onLeave }) => (
  */
 const ProjectsSection = memo(() => {
   const [activeId, setActiveId] = useState(null);
+  const { t, lang } = useLanguage();
+  const p = t.projects;
 
   return (
     <section id="projects" className="section">
@@ -115,9 +118,9 @@ const ProjectsSection = memo(() => {
         <div className="divider" />
 
         <div style={{ marginBottom: 46 }}>
-          <p className="section-tag fade-up">{"// portfolio"}</p>
+          <p className="section-tag fade-up">{p.tag}</p>
           <h2 className="section-title fade-up fade-up-delay-1">
-            Featured<br />Projects
+            {p.title[0]}<br />{p.title[1]}
           </h2>
         </div>
 
@@ -132,6 +135,7 @@ const ProjectsSection = memo(() => {
               isActive={activeId === p.id}
               onEnter={() => setActiveId(p.id)}
               onLeave={() => setActiveId(null)}
+              lang={lang}
             />
           ))}
         </div>

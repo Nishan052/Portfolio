@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 
 // ── Context & theme ────────────────────────────────────────────────────────────
 import { ThemeContext, THEMES } from "./context/ThemeContext";
+import { LanguageContext, translations } from "./context/LanguageContext";
 
 // ── Hooks ──────────────────────────────────────────────────────────────────────
 import useScrollAnimation from "./hooks/useScrollAnimation";
@@ -46,6 +47,10 @@ function applyThemeVars(theme) {
 export default function App() {
   const [isDark,   setIsDark]   = useState(true);
   const [scrolled, setScrolled] = useState(false);
+  const [lang,     setLang]     = useState("en");
+
+  const toggleLang = useCallback(() => setLang((l) => (l === "en" ? "de" : "en")), []);
+  const t = translations[lang];
 
   const theme         = isDark ? THEMES.dark : THEMES.light;
   const activeSection = useActiveSection();
@@ -68,6 +73,7 @@ export default function App() {
 
   return (
     <ThemeContext.Provider value={theme}>
+      <LanguageContext.Provider value={{ lang, t, toggleLang }}>
       {/* Fixed canvas background */}
       <ThreeBackground isDark={isDark} />
       <FloatingOrbs    isDark={isDark} />
@@ -78,6 +84,8 @@ export default function App() {
         toggleTheme={toggleTheme}
         scrolled={scrolled}
         activeSection={activeSection}
+        lang={lang}
+        toggleLang={toggleLang}
       />
 
       {/* Page sections */}
@@ -94,6 +102,7 @@ export default function App() {
 
       {/* Floating AI chat widget — bottom right */}
       <ChatWidget />
+      </LanguageContext.Provider>
     </ThemeContext.Provider>
   );
 }

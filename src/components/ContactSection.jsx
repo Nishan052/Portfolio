@@ -1,8 +1,9 @@
 import { memo } from "react";
+import { useLanguage } from "../context/LanguageContext";
 
 const CONTACTS = [
   {
-    label: "Email",
+    labelKey: "email",
     value: "nishanchandrashekarpoojary@gmail.com",
     href:  "mailto:nishanchandrashekarpoojary@gmail.com",
     icon: (
@@ -14,7 +15,7 @@ const CONTACTS = [
     ),
   },
   {
-    label: "Phone",
+    labelKey: "phone",
     value: "+49 1556 3374276",
     href:  "tel:+4915563374276",
     icon: (
@@ -25,7 +26,7 @@ const CONTACTS = [
     ),
   },
   {
-    label: "GitHub",
+    labelKey: "github",
     value: "github.com/Nishan052",
     href:  "https://github.com/Nishan052",
     icon: (
@@ -35,7 +36,7 @@ const CONTACTS = [
     ),
   },
   {
-    label: "LinkedIn",
+    labelKey: "linkedin",
     value: "linkedin.com/in/nishan-poojary",
     href:  "https://www.linkedin.com/in/nishan-chandrashekar-poojary-756147184/",
     icon: (
@@ -45,7 +46,7 @@ const CONTACTS = [
     ),
   },
   {
-    label: "Location",
+    labelKey: "location",
     value: "Berlin, Germany",
     href:  null,
     icon:  <span style={{ fontSize: "1.1rem" }}>📍</span>,
@@ -55,7 +56,7 @@ const CONTACTS = [
 /**
  * Single contact row — renders as <a> if href is set, <div> otherwise.
  */
-const ContactRow = ({ item }) => {
+const ContactRow = ({ item, labels }) => {
   const inner = (
     <>
       <div className="contact-icon">{item.icon}</div>
@@ -64,7 +65,7 @@ const ContactRow = ({ item }) => {
           fontSize: 10, color: "var(--text-muted)",
           fontFamily: "'DM Mono',monospace", letterSpacing: 1,
         }}>
-          {item.label}
+          {labels[item.labelKey]}
         </div>
         <div style={{
           fontWeight: 500, fontSize: "0.87rem",
@@ -98,23 +99,25 @@ const ContactRow = ({ item }) => {
 /**
  * Contact section — centred layout with a stacked list of contact methods.
  */
-const ContactSection = memo(() => (
+const ContactSection = memo(() => {
+  const { t } = useLanguage();
+  const c = t.contact;
+  return (
   <section id="contact" className="section">
     <div className="section-overlay" />
     <div className="container">
       <div className="divider" />
 
       <div style={{ maxWidth: 660, margin: "0 auto", textAlign: "center" }}>
-        <p className="section-tag fade-up" style={{ textAlign: "center" }}>{"// contact"}</p>
+        <p className="section-tag fade-up" style={{ textAlign: "center" }}>{c.tag}</p>
         <h2 className="section-title fade-up fade-up-delay-1" style={{ textAlign: "center" }}>
-          Let's Work<br />Together
+          {c.title[0]}<br />{c.title[1]}
         </h2>
         <p
           style={{ color: "var(--text-muted)", lineHeight: 1.82, marginBottom: 42, fontSize: "0.95rem" }}
           className="fade-up fade-up-delay-2"
         >
-          Open to opportunities in Data Analytics, Business Intelligence, and Software Engineering.
-          Based in Berlin, Germany — open to remote and on-site roles.
+          {c.description}
         </p>
 
         <div
@@ -122,12 +125,13 @@ const ContactSection = memo(() => (
           className="fade-up fade-up-delay-3"
         >
           {CONTACTS.map((item) => (
-            <ContactRow key={item.label} item={item} />
+            <ContactRow key={item.labelKey} item={item} labels={c.labels} />
           ))}
         </div>
       </div>
     </div>
   </section>
-));
+  );
+});
 
 export default ContactSection;

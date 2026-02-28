@@ -1,16 +1,19 @@
 import { memo } from "react";
-
-const STATS = [
-  { label: "Years Exp.", value: "4+" },
-  { label: "Companies",  value: "2"  },
-  { label: "Languages",  value: "5"  },
-];
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Full-viewport hero section with name, role, description,
  * CTA buttons, stat counters, and a floating avatar.
  */
-const HeroSection = memo(() => (
+const HeroSection = memo(() => {
+  const { t } = useLanguage();
+  const h = t.hero;
+  const STATS = [
+    { label: h.stats.yearsExp,  value: "4+" },
+    { label: h.stats.companies, value: "2"  },
+    { label: h.stats.languages, value: "5"  },
+  ];
+  return (
   <section
     id="hero"
     className="section"
@@ -32,7 +35,7 @@ const HeroSection = memo(() => (
       >
         {/* ── Left: text content ──────────────────────────────────────────────── */}
         <div>
-          <p className="hero-role fade-up">Software Developer &amp; Data Scientist</p>
+          <p className="hero-role fade-up">{h.role}</p>
           <div className="glow-line fade-up fade-up-delay-1" />
 
           <h1 className="hero-name fade-up fade-up-delay-1">
@@ -48,9 +51,7 @@ const HeroSection = memo(() => (
               maxWidth: 520,
             }}
           >
-            Master's student in Business Intelligence &amp; Data Analytics at Hochschule
-            Emden/Leer, with 4+ years building data-driven solutions across banking
-            and healthcare domain.
+            {h.description}
           </p>
 
           {/* CTA buttons */}
@@ -59,14 +60,13 @@ const HeroSection = memo(() => (
             style={{ display: "flex", gap: 14, marginTop: 32, flexWrap: "wrap" }}
           >
             <a href="mailto:nishanchandrashekarpoojary@gmail.com" className="btn-primary">
-              {/* Mail icon */}
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2.2"
                 strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="4" width="20" height="16" rx="2" />
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
               </svg>
-              Get in Touch
+              {h.cta}
             </a>
 
             <a href="https://github.com/Nishan052" target="_blank" rel="noreferrer" className="btn-ghost">
@@ -131,6 +131,7 @@ const HeroSection = memo(() => (
       </div>
     </div>
   </section>
-));
+  );
+});
 
 export default HeroSection;

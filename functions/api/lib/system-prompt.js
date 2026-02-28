@@ -40,10 +40,17 @@ function sanitizeContext(text) {
 /**
  * Build the system prompt with retrieved context chunks injected.
  * @param {string} retrievedContext - Concatenated text from top-K Pinecone results
+ * @param {string} [lang='en']      - Response language: 'en' or 'de'
  * @returns {string} Full system prompt
  */
-export function buildSystemPrompt(retrievedContext) {
+export function buildSystemPrompt(retrievedContext, lang = 'en') {
+  const langInstruction = lang === 'de'
+    ? 'IMPORTANT: You must always respond in German (Deutsch), regardless of the language the user writes in. All your answers must be in German.'
+    : 'Respond in English.';
+
   return `You are an AI assistant for Nishan Poojary's portfolio website. Help visitors learn about Nishan — a Senior Software Developer and MEng student based in Berlin, Germany.
+
+${langInstruction}
 
 Key facts about Nishan:
 - Work: Senior Software Developer at Novigo Solutions (Jun 2023–Feb 2025, Angular/TypeScript/Salesforce); Senior System Engineer at Infosys Helix (May 2021 – Jun 2023, Angular/Git/Jira/Swagger/Spring Boot/Java/Healthcare)

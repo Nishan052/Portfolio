@@ -1,7 +1,8 @@
 import { useState, memo } from "react";
 import scrollTo from "../utils/scrollTo";
+import { useLanguage } from "../context/LanguageContext";
 
-const NAV_ITEMS = ["about", "experience", "projects", "skills", "contact"];
+const NAV_KEYS = ["about", "experience", "projects", "skills", "contact"];
 
 /**
  * Fixed top navigation bar.
@@ -11,9 +12,12 @@ const NAV_ITEMS = ["about", "experience", "projects", "skills", "contact"];
  *  toggleTheme   {function} — flip isDark
  *  scrolled      {boolean}  — true when page has scrolled > 20px (shows border)
  *  activeSection {string}   — id of the section currently in view
+ *  lang          {string}   — "en" | "de"
+ *  toggleLang    {function} — flip lang
  */
-const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
+const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection, lang, toggleLang }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   const handleNav = (id) => {
     scrollTo(id);
@@ -49,19 +53,52 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
 
           {/* Desktop links */}
           <div className="nav-desktop" style={{ display: "flex", gap: 28, alignItems: "center" }}>
-            {NAV_ITEMS.map((id) => (
+            {NAV_KEYS.map((key) => (
               <button
-                key={id}
-                className={`nav-link ${activeSection === id ? "active" : ""}`}
-                onClick={() => handleNav(id)}
+                key={key}
+                className={`nav-link ${activeSection === key ? "active" : ""}`}
+                onClick={() => handleNav(key)}
               >
-                {id.charAt(0).toUpperCase() + id.slice(1)}
+                {t.nav[key]}
               </button>
             ))}
           </div>
 
-          {/* Right controls: theme toggle + hamburger */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* Right controls: lang toggle + theme toggle + hamburger */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+
+            {/* Language toggle — segmented EN | DE pill */}
+            <div style={{
+              display: "flex",
+              borderRadius: 100,
+              border: "1px solid var(--border)",
+              overflow: "hidden",
+              background: "var(--surface)",
+            }}>
+              {["en", "de"].map((l) => (
+                <button
+                  key={l}
+                  onClick={() => { if (lang !== l) toggleLang(); }}
+                  title={l === "en" ? "Switch to English" : "Auf Deutsch wechseln"}
+                  style={{
+                    fontFamily: "'DM Mono',monospace",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.06em",
+                    padding: "5px 11px",
+                    border: "none",
+                    background: lang === l ? "var(--accent)" : "transparent",
+                    color: lang === l ? "#fff" : "var(--text-muted)",
+                    cursor: lang === l ? "default" : "pointer",
+                    transition: "background 0.2s, color 0.2s",
+                    lineHeight: 1,
+                  }}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
             <button
               onClick={toggleTheme}
               className="theme-toggle"
@@ -85,11 +122,11 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
 
       {/* ── Mobile dropdown ────────────────────────────────────────────────────── */}
       <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
-        {NAV_ITEMS.map((id, idx) => (
+        {NAV_KEYS.map((key, idx) => (
           <button
-            key={id}
-            className={`mobile-nav-link ${activeSection === id ? "active" : ""}`}
-            onClick={() => handleNav(id)}
+            key={key}
+            className={`mobile-nav-link ${activeSection === key ? "active" : ""}`}
+            onClick={() => handleNav(key)}
           >
             <span style={{
               color: "var(--accent)",
@@ -98,9 +135,41 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
             }}>
               0{idx + 1}.
             </span>
-            {id.charAt(0).toUpperCase() + id.slice(1)}
+            {t.nav[key]}
           </button>
         ))}
+
+        {/* Language toggle in mobile menu — segmented pill */}
+        <div style={{ padding: "10px 24px" }}>
+          <div style={{
+            display: "inline-flex",
+            borderRadius: 100,
+            border: "1px solid var(--border)",
+            overflow: "hidden",
+            background: "var(--surface)",
+          }}>
+            {["en", "de"].map((l) => (
+              <button
+                key={l}
+                onClick={() => { if (lang !== l) toggleLang(); }}
+                style={{
+                  fontFamily: "'DM Mono',monospace",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  padding: "6px 14px",
+                  border: "none",
+                  background: lang === l ? "var(--accent)" : "transparent",
+                  color: lang === l ? "#fff" : "var(--text-muted)",
+                  cursor: lang === l ? "default" : "pointer",
+                  transition: "background 0.2s, color 0.2s",
+                }}
+              >
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </>
   );

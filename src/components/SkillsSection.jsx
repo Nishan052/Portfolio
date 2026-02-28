@@ -1,5 +1,6 @@
 import { memo } from "react";
 import skillsData from "../data/skills.json";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Skills section — three category grids + certifications list.
@@ -7,6 +8,8 @@ import skillsData from "../data/skills.json";
  */
 const SkillsSection = memo(() => {
   const { categories, certifications } = skillsData;
+  const { t, lang } = useLanguage();
+  const s = t.skills;
 
   return (
     <section id="skills" className="section">
@@ -15,8 +18,8 @@ const SkillsSection = memo(() => {
         <div className="divider" />
 
         <div style={{ marginBottom: 46 }}>
-          <p className="section-tag fade-up">{"// technical skills"}</p>
-          <h2 className="section-title fade-up fade-up-delay-1">My Toolkit</h2>
+          <p className="section-tag fade-up">{s.tag}</p>
+          <h2 className="section-title fade-up fade-up-delay-1">{s.title}</h2>
         </div>
 
         {/* ── Skill category grids ──────────────────────────────────────────────── */}
@@ -30,7 +33,7 @@ const SkillsSection = memo(() => {
                 color: "var(--text-muted)", marginBottom: 13,
               }}>
                 <span style={{ color: "var(--accent)" }}>{"// "}</span>
-                {cat.name}
+                {(lang === 'de' && cat.name_de) ? cat.name_de : cat.name}
               </div>
 
               {/* Icon grid */}
@@ -53,7 +56,7 @@ const SkillsSection = memo(() => {
             letterSpacing: 2, textTransform: "uppercase",
             color: "var(--text-muted)", marginBottom: 16,
           }}>
-            <span style={{ color: "var(--accent)" }}>{"// "}</span>Certifications
+            <span style={{ color: "var(--accent)" }}>{"// "}</span>{s.certifications}
           </div>
 
           <div

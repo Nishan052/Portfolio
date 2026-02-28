@@ -79,10 +79,11 @@ export async function onRequestOptions({ request }) {
 // ─── POST /api/chat ───────────────────────────────────────────────────────────
 export async function onRequestPost({ request, env }) {
   // 1. Parse body
-  let message, history;
+  let message, history, lang;
   try {
     const body = await request.json();
     message = sanitizeInput((body.message || '').trim());
+    lang    = body.lang === 'de' ? 'de' : 'en';   // whitelist; default 'en'
 
     // Deep-validate history: only allow user/assistant roles with string content
     history = Array.isArray(body.history)
@@ -126,8 +127,9 @@ export async function onRequestPost({ request, env }) {
     );
   }
 
-  // 4. Exact cache check
-  const cached = await getExactCache(env, message);
+  // 4. Exact cache check — key includes lang so EN/DE responses don't collide
+  const cacheKey = lang === 'de' ? `de:${message}` : message;
+  const cached = await getExactCache(env, cacheKey);
   if (cached) {
     const encoder = new TextEncoder();
     const stream  = new ReadableStream({
@@ -181,7 +183,7 @@ export async function onRequestPost({ request, env }) {
 
   // 8. Build messages array
   const context   = formatContext(chunks);
-  const systemMsg = buildSystemPrompt(context);
+  const systemMsg = buildSystemPrompt(context, lang);
   const messages  = [
     { role: 'system',    content: systemMsg },
     ...history,
@@ -255,7 +257,7 @@ export async function onRequestPost({ request, env }) {
     // 10. Cache the full response async (non-blocking)
     if (fullChunks.length > 0) {
       const fullResponse = fullChunks.join('');
-      setExactCache(env, message, fullResponse).catch(() => {});
+      setExactCache(env, cacheKey, fullResponse).catch(() => {});
     }
   })();
 

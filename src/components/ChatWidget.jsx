@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import './ChatWidget.css';
+import { useLanguage } from '../context/LanguageContext';
 
 // ─── Inline SVGs ──────────────────────────────────────────────────────────────
 const IconChat = () => (
@@ -32,18 +33,14 @@ const IconBot = () => (
   </svg>
 );
 
-// ─── FAQ questions (always visible) ──────────────────────────────────────────
-const FAQ = [
-  "What's your work experience?",
-  "Tell me about your projects",
-  "What skills do you have?",
-];
-
 // ─── API endpoint ─────────────────────────────────────────────────────────────
 const API_URL = '/api/chat';
 
 // ─── ChatWidget ───────────────────────────────────────────────────────────────
 function ChatWidget() {
+  const { lang, t } = useLanguage();
+  const ct = t.chat;
+
   const [isOpen,      setIsOpen]      = useState(false);
   const [messages,    setMessages]    = useState([]);
   const [input,       setInput]       = useState('');
@@ -102,17 +99,17 @@ function ChatWidget() {
       const response = await fetch(API_URL, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ message: msg, history }),
+        body:    JSON.stringify({ message: msg, history, lang }),
         signal:  abortControllerRef.current.signal,
       });
 
       if (!response.ok) {
-        let errMsg = 'Something went wrong. Please try again.';
+        let errKey = '__default__';
         try {
           const errData = await response.json();
-          errMsg = errData.error || errMsg;
+          if (errData.error) errKey = errData.error;
         } catch {}
-        throw new Error(errMsg);
+        throw new Error(errKey);
       }
 
       const reader  = response.body.getReader();
@@ -159,8 +156,8 @@ function ChatWidget() {
     } catch (err) {
       if (err.name === 'AbortError') return;
 
-      const errMsg = err.message || 'Connection error. Please try again.';
-      setError(errMsg);
+      const errKey = (err instanceof TypeError) ? '__connection__' : (err.message || '__default__');
+      setError(errKey);
 
       setMessages(prev => {
         const updated = [...prev];
@@ -173,7 +170,7 @@ function ChatWidget() {
     } finally {
       setIsStreaming(false);
     }
-  }, [input, isStreaming, messages, isOpen]);
+  }, [input, isStreaming, messages, isOpen, lang, ct]);
 
   // ─── Keyboard submit ──────────────────────────────────────────────────────
   const handleKeyDown = useCallback((e) => {
@@ -216,8 +213,8 @@ function ChatWidget() {
               <IconBot />
             </div>
             <div>
-              <div className="chat-header-title">Ask about Nishan</div>
-              <div className="chat-header-sub">RAG AI assistant · usually instant</div>
+              <div className="chat-header-title">{ct.header}</div>
+              <div className="chat-header-sub">{ct.headerSub}</div>
             </div>
           </div>
           <button
@@ -236,7 +233,7 @@ function ChatWidget() {
           {showWelcome && (
             <div className="chat-welcome">
               <p className="chat-welcome-text">
-                Hi! I'm Nishan's AI assistant. Ask me about his experience, projects, or skills.
+                {ct.welcome}
               </p>
             </div>
           )}
@@ -262,9 +259,13 @@ function ChatWidget() {
           {/* Error state */}
           {error && !isStreaming && (
             <div className="chat-error">
-              <div className="chat-error-bubble">{error}</div>
+              <div className="chat-error-bubble">
+                {error === '__default__' ? ct.errorDefault
+                  : error === '__connection__' ? ct.errorConnection
+                  : error}
+              </div>
               <button className="chat-retry-btn" onClick={retry}>
-                Try again
+                {ct.retry}
               </button>
             </div>
           )}
@@ -276,9 +277,9 @@ function ChatWidget() {
         <div className="chat-input-area">
           {/* FAQ chips — always visible */}
           <div className="chat-faq" role="group" aria-label="Frequently asked questions">
-            <span className="chat-faq-label">Frequently asked</span>
+            <span className="chat-faq-label">{ct.faqLabel}</span>
             <div className="chat-faq-chips">
-              {FAQ.map(q => (
+              {ct.faq.map(q => (
                 <button
                   key={q}
                   className="chat-faq-chip"
@@ -296,7 +297,7 @@ function ChatWidget() {
             <textarea
               ref={inputRef}
               className="chat-input"
-              placeholder="Ask anything about Nishan..."
+              placeholder={ct.placeholder}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -328,7 +329,7 @@ function ChatWidget() {
         {!isOpen && hasUnread && <span className="chat-toggle-dot" aria-hidden="true" />}
         {!isOpen && (
           <span className="chat-tooltip" role="tooltip">
-            RAG-powered AI assistant trained on Nishan's resume, projects and skills
+            {ct.tooltip}
           </span>
         )}
       </button>
