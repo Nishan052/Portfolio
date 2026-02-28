@@ -2,6 +2,7 @@
   "categories": [
     {
       "name": "Data & ML",
+      "name_de": "Daten & ML",
       "skills": [
         { "name": "Python",     "icon": "🐍" },
         { "name": "R",          "icon": "📊" },
@@ -15,6 +16,7 @@
     },
     {
       "name": "Frontend & Backend",
+      "name_de": "Frontend & Backend",
       "skills": [
         { "name": "Angular",     "icon": "🅰️" },
         { "name": "TypeScript",  "icon": "🔷" },
@@ -27,6 +29,7 @@
     },
     {
       "name": "Tools & DevOps",
+      "name_de": "Werkzeuge & DevOps",
       "skills": [
         { "name": "GitHub",    "icon": "⎔" },
         { "name": "Jira",      "icon": "📋" },

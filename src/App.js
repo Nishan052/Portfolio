@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 
 // ── Context & theme ────────────────────────────────────────────────────────────
-import { ThemeContext, THEMES }   from "./context/ThemeContext";
-import { LanguageContext }        from "./context/LanguageContext";
-import en                        from "./locales/en";
-import de                        from "./locales/de";
+import { ThemeContext, THEMES } from "./context/ThemeContext";
+import { LanguageContext, translations } from "./context/LanguageContext";
 
 // ── Hooks ──────────────────────────────────────────────────────────────────────
 import useScrollAnimation from "./hooks/useScrollAnimation";
@@ -12,22 +10,20 @@ import useParallax        from "./hooks/useParallax";
 import useActiveSection   from "./hooks/useActiveSection";
 
 // ── Components ─────────────────────────────────────────────────────────────────
-import ThreeBackground   from "./components/ThreeBackground";
-import FloatingOrbs      from "./components/FloatingOrbs";
-import Navbar            from "./components/Navbar";
-import HeroSection       from "./components/HeroSection";
-import AboutSection      from "./components/AboutSection";
+import ThreeBackground  from "./components/ThreeBackground";
+import FloatingOrbs     from "./components/FloatingOrbs";
+import Navbar           from "./components/Navbar";
+import HeroSection      from "./components/HeroSection";
+import AboutSection     from "./components/AboutSection";
 import ExperienceSection from "./components/ExperienceSection";
-import ProjectsSection   from "./components/ProjectsSection";
-import SkillsSection     from "./components/SkillsSection";
-import ContactSection    from "./components/ContactSection";
-import Footer            from "./components/Footer";
-import ChatWidget        from "./components/ChatWidget";
+import ProjectsSection  from "./components/ProjectsSection";
+import SkillsSection    from "./components/SkillsSection";
+import ContactSection   from "./components/ContactSection";
+import Footer           from "./components/Footer";
+import ChatWidget       from "./components/ChatWidget";
 
 // ── Global styles (CSS custom properties injected by App) ─────────────────────
 import "./styles.css";
-
-const LOCALES = { en, de };
 
 /**
  * Injects CSS custom properties onto :root based on the active theme object.
@@ -51,18 +47,13 @@ function applyThemeVars(theme) {
 export default function App() {
   const [isDark,   setIsDark]   = useState(true);
   const [scrolled, setScrolled] = useState(false);
-  const [lang, setLangState]    = useState(
-    () => localStorage.getItem("portfolio-lang") || "en"
-  );
+  const [lang,     setLang]     = useState("en");
+
+  const toggleLang = useCallback(() => setLang((l) => (l === "en" ? "de" : "en")), []);
+  const t = translations[lang];
 
   const theme         = isDark ? THEMES.dark : THEMES.light;
   const activeSection = useActiveSection();
-  const t             = LOCALES[lang] || en;
-
-  const setLang = useCallback((l) => {
-    setLangState(l);
-    localStorage.setItem("portfolio-lang", l);
-  }, []);
 
   // Apply CSS variables whenever theme changes
   useEffect(() => { applyThemeVars(theme); }, [theme]);
@@ -82,33 +73,35 @@ export default function App() {
 
   return (
     <ThemeContext.Provider value={theme}>
-      <LanguageContext.Provider value={{ lang, setLang, t }}>
-        {/* Fixed canvas background */}
-        <ThreeBackground isDark={isDark} />
-        <FloatingOrbs    isDark={isDark} />
+      <LanguageContext.Provider value={{ lang, t, toggleLang }}>
+      {/* Fixed canvas background */}
+      <ThreeBackground isDark={isDark} />
+      <FloatingOrbs    isDark={isDark} />
 
-        {/* Navigation */}
-        <Navbar
-          isDark={isDark}
-          toggleTheme={toggleTheme}
-          scrolled={scrolled}
-          activeSection={activeSection}
-        />
+      {/* Navigation */}
+      <Navbar
+        isDark={isDark}
+        toggleTheme={toggleTheme}
+        scrolled={scrolled}
+        activeSection={activeSection}
+        lang={lang}
+        toggleLang={toggleLang}
+      />
 
-        {/* Page sections */}
-        <main style={{ position: "relative", zIndex: 1 }}>
-          <HeroSection />
-          <AboutSection />
-          <ExperienceSection />
-          <ProjectsSection />
-          <SkillsSection />
-          <ContactSection />
-        </main>
+      {/* Page sections */}
+      <main style={{ position: "relative", zIndex: 1 }}>
+        <HeroSection />
+        <AboutSection />
+        <ExperienceSection />
+        <ProjectsSection />
+        <SkillsSection />
+        <ContactSection />
+      </main>
 
-        <Footer />
+      <Footer />
 
-        {/* Floating AI chat widget — bottom right */}
-        <ChatWidget />
+      {/* Floating AI chat widget — bottom right */}
+      <ChatWidget />
       </LanguageContext.Provider>
     </ThemeContext.Provider>
   );

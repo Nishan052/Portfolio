@@ -2,6 +2,8 @@ import { useState, memo } from "react";
 import scrollTo from "../utils/scrollTo";
 import { useLanguage } from "../context/LanguageContext";
 
+const NAV_KEYS = ["about", "experience", "projects", "skills", "contact"];
+
 /**
  * Fixed top navigation bar.
  *
@@ -10,12 +12,12 @@ import { useLanguage } from "../context/LanguageContext";
  *  toggleTheme   {function} — flip isDark
  *  scrolled      {boolean}  — true when page has scrolled > 20px (shows border)
  *  activeSection {string}   — id of the section currently in view
+ *  lang          {string}   — "en" | "de"
+ *  toggleLang    {function} — flip lang
  */
-const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
+const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection, lang, toggleLang }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { lang, setLang, t } = useLanguage();
-
-  const NAV_ITEMS = t.nav.items;
+  const { t } = useLanguage();
 
   const handleNav = (id) => {
     scrollTo(id);
@@ -43,7 +45,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
         }}>
 
           {/* Logo — clicking goes to hero */}
-          <button className="logo-btn" onClick={() => scrollTo("hero")} aria-label={t.nav.logoAriaLabel}>
+          <button className="logo-btn" onClick={() => scrollTo("hero")} aria-label="Go to top">
             <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "var(--accent)" }}>N</span>
             <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "var(--text)" }}>P</span>
             <span style={{ fontFamily: "'DM Mono',monospace", fontSize: "0.57rem", color: "var(--text-muted)", marginLeft: 3 }}>.dev</span>
@@ -51,49 +53,56 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
 
           {/* Desktop links */}
           <div className="nav-desktop" style={{ display: "flex", gap: 28, alignItems: "center" }}>
-            {NAV_ITEMS.map((id) => (
+            {NAV_KEYS.map((key) => (
               <button
-                key={id}
-                className={`nav-link ${activeSection === id ? "active" : ""}`}
-                onClick={() => handleNav(id)}
+                key={key}
+                className={`nav-link ${activeSection === key ? "active" : ""}`}
+                onClick={() => handleNav(key)}
               >
-                {t.nav.labels[id]}
+                {t.nav[key]}
               </button>
             ))}
           </div>
 
-          {/* Right controls: language toggle + theme toggle + hamburger */}
+          {/* Right controls: lang toggle + theme toggle + hamburger */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
 
-            {/* EN | DE language toggle */}
-            <button
-              onClick={() => setLang(lang === "en" ? "de" : "en")}
-              aria-label={t.nav.langToggleAriaLabel}
-              style={{
-                fontFamily:    "'DM Mono',monospace",
-                fontSize:      "0.72rem",
-                letterSpacing: 1,
-                color:         "var(--text-muted)",
-                background:    "none",
-                border:        "1px solid var(--border)",
-                borderRadius:  6,
-                padding:       "3px 9px",
-                cursor:        "pointer",
-                transition:    "color 0.2s, border-color 0.2s",
-                whiteSpace:    "nowrap",
-              }}
-            >
-              {lang === "en"
-                ? <><span style={{ color: "var(--accent)" }}>EN</span> | DE</>
-                : <>EN | <span style={{ color: "var(--accent)" }}>DE</span></>
-              }
-            </button>
+            {/* Language toggle — segmented EN | DE pill */}
+            <div style={{
+              display: "flex",
+              borderRadius: 100,
+              border: "1px solid var(--border)",
+              overflow: "hidden",
+              background: "var(--surface)",
+            }}>
+              {["en", "de"].map((l) => (
+                <button
+                  key={l}
+                  onClick={() => { if (lang !== l) toggleLang(); }}
+                  title={l === "en" ? "Switch to English" : "Auf Deutsch wechseln"}
+                  style={{
+                    fontFamily: "'DM Mono',monospace",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.06em",
+                    padding: "5px 11px",
+                    border: "none",
+                    background: lang === l ? "var(--accent)" : "transparent",
+                    color: lang === l ? "#fff" : "var(--text-muted)",
+                    cursor: lang === l ? "default" : "pointer",
+                    transition: "background 0.2s, color 0.2s",
+                    lineHeight: 1,
+                  }}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
 
-            {/* Theme toggle */}
             <button
               onClick={toggleTheme}
               className="theme-toggle"
-              title={isDark ? t.nav.themeToggleDark : t.nav.themeToggleLight}
+              title={isDark ? "Switch to Day mode" : "Switch to Night mode"}
             >
               <div className={`theme-toggle-knob ${isDark ? "right" : ""}`}>
                 {isDark ? "🌙" : "☀️"}
@@ -103,7 +112,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
             <button
               className={`hamburger ${menuOpen ? "open" : ""}`}
               onClick={() => setMenuOpen((p) => !p)}
-              aria-label={t.nav.hamburgerAriaLabel}
+              aria-label="Toggle menu"
             >
               <span /><span /><span />
             </button>
@@ -113,11 +122,11 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
 
       {/* ── Mobile dropdown ────────────────────────────────────────────────────── */}
       <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
-        {NAV_ITEMS.map((id, idx) => (
+        {NAV_KEYS.map((key, idx) => (
           <button
-            key={id}
-            className={`mobile-nav-link ${activeSection === id ? "active" : ""}`}
-            onClick={() => handleNav(id)}
+            key={key}
+            className={`mobile-nav-link ${activeSection === key ? "active" : ""}`}
+            onClick={() => handleNav(key)}
           >
             <span style={{
               color: "var(--accent)",
@@ -126,9 +135,41 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
             }}>
               0{idx + 1}.
             </span>
-            {t.nav.labels[id]}
+            {t.nav[key]}
           </button>
         ))}
+
+        {/* Language toggle in mobile menu — segmented pill */}
+        <div style={{ padding: "10px 24px" }}>
+          <div style={{
+            display: "inline-flex",
+            borderRadius: 100,
+            border: "1px solid var(--border)",
+            overflow: "hidden",
+            background: "var(--surface)",
+          }}>
+            {["en", "de"].map((l) => (
+              <button
+                key={l}
+                onClick={() => { if (lang !== l) toggleLang(); }}
+                style={{
+                  fontFamily: "'DM Mono',monospace",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  padding: "6px 14px",
+                  border: "none",
+                  background: lang === l ? "var(--accent)" : "transparent",
+                  color: lang === l ? "#fff" : "var(--text-muted)",
+                  cursor: lang === l ? "default" : "pointer",
+                  transition: "background 0.2s, color 0.2s",
+                }}
+              >
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </>
   );
