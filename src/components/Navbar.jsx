@@ -1,7 +1,6 @@
 import { useState, memo } from "react";
 import scrollTo from "../utils/scrollTo";
-
-const NAV_ITEMS = ["about", "experience", "projects", "skills", "contact"];
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Fixed top navigation bar.
@@ -14,6 +13,9 @@ const NAV_ITEMS = ["about", "experience", "projects", "skills", "contact"];
  */
 const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { lang, setLang, t } = useLanguage();
+
+  const NAV_ITEMS = t.nav.items;
 
   const handleNav = (id) => {
     scrollTo(id);
@@ -41,7 +43,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
         }}>
 
           {/* Logo — clicking goes to hero */}
-          <button className="logo-btn" onClick={() => scrollTo("hero")} aria-label="Go to top">
+          <button className="logo-btn" onClick={() => scrollTo("hero")} aria-label={t.nav.logoAriaLabel}>
             <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "var(--accent)" }}>N</span>
             <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "var(--text)" }}>P</span>
             <span style={{ fontFamily: "'DM Mono',monospace", fontSize: "0.57rem", color: "var(--text-muted)", marginLeft: 3 }}>.dev</span>
@@ -55,17 +57,43 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
                 className={`nav-link ${activeSection === id ? "active" : ""}`}
                 onClick={() => handleNav(id)}
               >
-                {id.charAt(0).toUpperCase() + id.slice(1)}
+                {t.nav.labels[id]}
               </button>
             ))}
           </div>
 
-          {/* Right controls: theme toggle + hamburger */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* Right controls: language toggle + theme toggle + hamburger */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+
+            {/* EN | DE language toggle */}
+            <button
+              onClick={() => setLang(lang === "en" ? "de" : "en")}
+              aria-label={t.nav.langToggleAriaLabel}
+              style={{
+                fontFamily:    "'DM Mono',monospace",
+                fontSize:      "0.72rem",
+                letterSpacing: 1,
+                color:         "var(--text-muted)",
+                background:    "none",
+                border:        "1px solid var(--border)",
+                borderRadius:  6,
+                padding:       "3px 9px",
+                cursor:        "pointer",
+                transition:    "color 0.2s, border-color 0.2s",
+                whiteSpace:    "nowrap",
+              }}
+            >
+              {lang === "en"
+                ? <><span style={{ color: "var(--accent)" }}>EN</span> | DE</>
+                : <>EN | <span style={{ color: "var(--accent)" }}>DE</span></>
+              }
+            </button>
+
+            {/* Theme toggle */}
             <button
               onClick={toggleTheme}
               className="theme-toggle"
-              title={isDark ? "Switch to Day mode" : "Switch to Night mode"}
+              title={isDark ? t.nav.themeToggleDark : t.nav.themeToggleLight}
             >
               <div className={`theme-toggle-knob ${isDark ? "right" : ""}`}>
                 {isDark ? "🌙" : "☀️"}
@@ -75,7 +103,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
             <button
               className={`hamburger ${menuOpen ? "open" : ""}`}
               onClick={() => setMenuOpen((p) => !p)}
-              aria-label="Toggle menu"
+              aria-label={t.nav.hamburgerAriaLabel}
             >
               <span /><span /><span />
             </button>
@@ -98,7 +126,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
             }}>
               0{idx + 1}.
             </span>
-            {id.charAt(0).toUpperCase() + id.slice(1)}
+            {t.nav.labels[id]}
           </button>
         ))}
       </div>

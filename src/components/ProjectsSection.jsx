@@ -1,4 +1,5 @@
 import { memo, useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
 import projects from "../data/projects.json";
 
 /** GitHub icon SVG (reusable inline) */
@@ -11,102 +12,113 @@ const GitHubIcon = () => (
 /**
  * Project card renders one project from projects.json.
  * The active hover state is lifted to the parent for performance.
+ * Localised fields (_de) are used when German is active.
  */
-const ProjectCard = ({ project: p, isActive, onEnter, onLeave }) => (
-  <div
-    className={`project-card fade-up fade-up-delay-${(parseInt(p.id, 10) % 3) + 1}`}
-    style={{
-      boxShadow:   isActive ? `0 20px 60px ${p.color}20` : "none",
-      borderColor: isActive ? p.color : "var(--border)",
-    }}
-    onMouseEnter={onEnter}
-    onMouseLeave={onLeave}
-  >
-    {/* Header */}
-    <div className="project-card-header" style={{ borderBottomColor: `${p.color}22` }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        {/* Category badge */}
-        <span style={{
-          fontSize: 10, fontFamily: "'DM Mono',monospace", letterSpacing: 2,
-          color: p.color, padding: "3px 10px", borderRadius: 100,
-          background: `${p.color}14`, border: `1px solid ${p.color}28`,
-        }}>
-          {p.category}
-        </span>
+const ProjectCard = ({ project: p, isActive, onEnter, onLeave, lang, viewLabel }) => {
+  const category    = (lang === "de" && p.category_de)    ? p.category_de    : p.category;
+  const subtitle    = (lang === "de" && p.subtitle_de)    ? p.subtitle_de    : p.subtitle;
+  const description = (lang === "de" && p.description_de) ? p.description_de : p.description;
+  const highlights  = (lang === "de" && p.highlights_de)  ? p.highlights_de  : p.highlights;
 
-        {/* GitHub link */}
-        <a
-          href={p.github}
-          target="_blank"
-          rel="noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          title="View on GitHub"
-          style={{ color: "var(--text-muted)", textDecoration: "none" }}
-        >
-          <GitHubIcon />
-        </a>
-      </div>
-
-      {/* Project ID + title */}
-      <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 11 }}>
-        <span style={{ fontSize: "1.85rem" }}>{p.emoji}</span>
-        <div>
-          <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: p.color, letterSpacing: 1, opacity: 0.7 }}>
-            {p.id}
-          </div>
-          <h3 style={{
-            fontFamily: "'Syne',sans-serif", fontWeight: 700,
-            fontSize: "clamp(0.98rem,2vw,1.1rem)", color: "var(--text)",
+  return (
+    <div
+      className={`project-card fade-up fade-up-delay-${(parseInt(p.id, 10) % 3) + 1}`}
+      style={{
+        boxShadow:   isActive ? `0 20px 60px ${p.color}20` : "none",
+        borderColor: isActive ? p.color : "var(--border)",
+      }}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+    >
+      {/* Header */}
+      <div className="project-card-header" style={{ borderBottomColor: `${p.color}22` }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          {/* Category badge */}
+          <span style={{
+            fontSize: 10, fontFamily: "'DM Mono',monospace", letterSpacing: 2,
+            color: p.color, padding: "3px 10px", borderRadius: 100,
+            background: `${p.color}14`, border: `1px solid ${p.color}28`,
           }}>
-            {p.title}
-          </h3>
-          <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'DM Mono',monospace" }}>
-            {p.subtitle}
+            {category}
+          </span>
+
+          {/* GitHub link */}
+          <a
+            href={p.github}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            title={viewLabel}
+            style={{ color: "var(--text-muted)", textDecoration: "none" }}
+          >
+            <GitHubIcon />
+          </a>
+        </div>
+
+        {/* Project ID + title */}
+        <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 11 }}>
+          <span style={{ fontSize: "1.85rem" }}>{p.emoji}</span>
+          <div>
+            <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, color: p.color, letterSpacing: 1, opacity: 0.7 }}>
+              {p.id}
+            </div>
+            <h3 style={{
+              fontFamily: "'Syne',sans-serif", fontWeight: 700,
+              fontSize: "clamp(0.98rem,2vw,1.1rem)", color: "var(--text)",
+            }}>
+              {p.title}
+            </h3>
+            <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'DM Mono',monospace" }}>
+              {subtitle}
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    {/* Body */}
-    <div className="project-card-body">
-      <p style={{ fontSize: "0.84rem", color: "var(--text-muted)", lineHeight: 1.74, marginBottom: 13, flex: 1 }}>
-        {p.description}
-      </p>
+      {/* Body */}
+      <div className="project-card-body">
+        <p style={{ fontSize: "0.84rem", color: "var(--text-muted)", lineHeight: 1.74, marginBottom: 13, flex: 1 }}>
+          {description}
+        </p>
 
-      {/* Tech pills */}
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 11 }}>
-        {p.tech.map((t) => (
-          <span key={t} className="skill-pill" style={{
-            fontSize: 10, color: p.color,
-            borderColor: `${p.color}28`, background: `${p.color}0e`,
-          }}>
-            {t}
-          </span>
-        ))}
+        {/* Tech pills — tool names are language-neutral */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 11 }}>
+          {p.tech.map((tech) => (
+            <span key={tech} className="skill-pill" style={{
+              fontSize: 10, color: p.color,
+              borderColor: `${p.color}28`, background: `${p.color}0e`,
+            }}>
+              {tech}
+            </span>
+          ))}
+        </div>
+
+        {/* Highlight badges */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {highlights.map((h) => (
+            <span key={h} style={{
+              fontSize: 10, padding: "3px 8px", borderRadius: 100,
+              background: "var(--accent-soft)", color: "var(--text-muted)",
+              fontFamily: "'DM Mono',monospace",
+            }}>
+              ✓ {h}
+            </span>
+          ))}
+        </div>
       </div>
-
-      {/* Highlight badges */}
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        {p.highlights.map((h) => (
-          <span key={h} style={{
-            fontSize: 10, padding: "3px 8px", borderRadius: 100,
-            background: "var(--accent-soft)", color: "var(--text-muted)",
-            fontFamily: "'DM Mono',monospace",
-          }}>
-            ✓ {h}
-          </span>
-        ))}
-      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /**
  * Projects section — responsive auto-fill grid.
  * Data comes from src/data/projects.json — add / remove entries there.
+ * All visible strings come from the active locale (t.projects).
  */
 const ProjectsSection = memo(() => {
   const [activeId, setActiveId] = useState(null);
+  const { lang, t } = useLanguage();
+  const pr = t.projects;
 
   return (
     <section id="projects" className="section">
@@ -115,9 +127,9 @@ const ProjectsSection = memo(() => {
         <div className="divider" />
 
         <div style={{ marginBottom: 46 }}>
-          <p className="section-tag fade-up">{"// portfolio"}</p>
+          <p className="section-tag fade-up">{pr.tag}</p>
           <h2 className="section-title fade-up fade-up-delay-1">
-            Featured<br />Projects
+            {pr.titleLine1}<br />{pr.titleLine2}
           </h2>
         </div>
 
@@ -132,6 +144,8 @@ const ProjectsSection = memo(() => {
               isActive={activeId === p.id}
               onEnter={() => setActiveId(p.id)}
               onLeave={() => setActiveId(null)}
+              lang={lang}
+              viewLabel={pr.viewOnGitHub}
             />
           ))}
         </div>
