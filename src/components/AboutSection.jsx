@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { useLanguage } from "../context/LanguageContext";
+import { useTranslation } from "react-i18next";
 
 const HIGHLIGHT_SKILLS = ["Python", "R", "SQL", "Angular", "Power BI", "TensorFlow"];
 
@@ -9,8 +9,11 @@ const HIGHLIGHT_SKILLS = ["Python", "R", "SQL", "Angular", "Power BI", "TensorFl
  * right → info cards (education, background, languages, focus)
  */
 const AboutSection = memo(() => {
-  const { t } = useLanguage();
-  const a = t.about;
+  const { t } = useTranslation();
+
+  const title = t("about.title", { returnObjects: true });
+  const cards = t("about.cards", { returnObjects: true });
+
   return (
   <section id="about" className="section">
     <div className="section-overlay" />
@@ -28,21 +31,21 @@ const AboutSection = memo(() => {
       >
         {/* ── Left: bio ───────────────────────────────────────────────────────── */}
         <div>
-          <p className="section-tag fade-up">{a.tag}</p>
+          <p className="section-tag fade-up">{t("about.tag")}</p>
           <h2 className="section-title fade-up fade-up-delay-1">
-            {a.title[0]}<br />{a.title[1]}
+            {title[0]}<br />{title[1]}
           </h2>
           <p
             style={{ color: "var(--text-muted)", lineHeight: 1.82, marginBottom: 18, fontSize: "0.95rem" }}
             className="fade-up fade-up-delay-2"
           >
-            {a.bio1}
+            {t("about.bio1")}
           </p>
           <p
             style={{ color: "var(--text-muted)", lineHeight: 1.82, fontSize: "0.95rem" }}
             className="fade-up fade-up-delay-3"
           >
-            {a.bio2}
+            {t("about.bio2")}
           </p>
 
           <div
@@ -57,9 +60,9 @@ const AboutSection = memo(() => {
 
         {/* ── Right: info cards ────────────────────────────────────────────────── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
-          {a.cards.map((item, i) => (
+          {cards.map((item, i) => (
             <div
-              key={item.title}
+              key={i}
               className={`card fade-up fade-up-delay-${i + 1}`}
               style={{ display: "flex", gap: 14, alignItems: "flex-start" }}
             >

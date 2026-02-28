@@ -1,0 +1,148 @@
+{
+  "nav": {
+    "about":      "Über mich",
+    "experience": "Erfahrung",
+    "projects":   "Projekte",
+    "skills":     "Fähigkeiten",
+    "contact":    "Kontakt"
+  },
+
+  "hero": {
+    "role":        "Softwareentwickler & Data Scientist",
+    "description": "Masterstudent in Business Intelligence & Data Analytics an der Hochschule Emden/Leer, mit über 4 Jahren Erfahrung in der Entwicklung datengetriebener Lösungen im Bank- und Gesundheitswesen.",
+    "cta":         "Kontakt aufnehmen",
+    "github":      "GitHub",
+    "stats": {
+      "yearsExp":  "Jahre Erf.",
+      "companies": "Firmen",
+      "languages": "Sprachen"
+    }
+  },
+
+  "about": {
+    "tag":   "// über mich",
+    "title": ["Der Mensch", "hinter dem Code"],
+    "bio1":  "Ich bin ein engagierter Softwareentwickler mit Spezialisierung auf robuste, responsive Anwendungen für den Finanz- und Gesundheitsbereich. Derzeit studiere ich Master of Engineering in Business Intelligence und Data Analytics an der Hochschule Emden/Leer, Deutschland.",
+    "bio2":  "Meine Kernkompetenzen umfassen Python, R, Angular, Salesforce, TypeScript, Power BI und Machine Learning. Ich begeistere mich für KI-gestützte Lösungen und den Aufbau von Datenpipelines, die echten Geschäftsnutzen liefern.",
+    "cards": [
+      { "icon": "🎓", "title": "Ausbildung",   "desc": "MEng Business Intelligence & Data Analytics — Hochschule Emden/Leer (Note: 1,45/5)" },
+      { "icon": "🏢", "title": "Hintergrund",  "desc": "Über 4 Jahre bei Infosys & Novigo Solutions im Bank- und Gesundheitsbereich" },
+      { "icon": "🌍", "title": "Sprachen",     "desc": "Englisch (C1) · Deutsch (B1) · Kannada (C1) · Hindi (C1) · Tulu (C2)" },
+      { "icon": "📊", "title": "Schwerpunkte", "desc": "ML/KI · Datenanalyse · Business Intelligence · Full-Stack-Entwicklung" }
+    ]
+  },
+
+  "experience": {
+    "tag":   "// beruflicher werdegang",
+    "title": ["Berufliche", "Erfahrung"],
+    "items": [
+      {
+        "type": "Vollzeit",
+        "highlights": [
+          "Leitung von Datenvisualisierung & API-Integration für eine groß angelegte Healthcare-Digitalisierungsplattform",
+          "Verbesserung der Dateninteroperabilität mit Angular, TypeScript und Salesforce",
+          "Vorantreiben agiler Entwicklung und funktionsübergreifender Zusammenarbeit mit Workflow-Management in Jira"
+        ]
+      },
+      {
+        "type": "Vollzeit",
+        "highlights": [
+          "Aufstieg von Systems Engineer zum Senior System Engineer innerhalb der Infosys Helix Healthcare-Division",
+          "Leitung von Datenvisualisierung und API-Integration, Entwicklung interaktiver Dashboards mit Angular, TypeScript, HTML/CSS und Spring Boot",
+          "Anwendung von Healthcare-Domänenwissen zur Entwicklung sicherer, compliance-konformer Datenkomponenten"
+        ]
+      },
+      {
+        "type": "Praktikum",
+        "highlights": [
+          "Agile Anwendungsentwicklung und Unternehmenskommunikationsberatung"
+        ]
+      }
+    ]
+  },
+
+  "projects": {
+    "tag":   "// portfolio",
+    "title": ["Ausgewählte", "Projekte"],
+    "items": [
+      {
+        "subtitle":    "LSTM & ARIMA-Prognosen",
+        "category":    "Maschinelles Lernen",
+        "description": "Entwicklung von LSTM- und ARIMA-Modellen zur Prognose von NIFTY-50-Eröffnungs- und Schlusskursen mit einem MAPE unter 3 %. Aufbau reproduzierbarer Datenpipelines, automatisierter Prognoseworkflows und eines Streamlit-Dashboards mit CI/CD über GitHub Actions.",
+        "highlights":  ["MAPE < 3 %", "CI/CD-Pipeline", "Streamlit-Dashboard"]
+      },
+      {
+        "subtitle":    "MQTT-basierte IoT-Messaging-Plattform",
+        "category":    "IoT / Full-Stack",
+        "description": "Eine IoT-Kommunikationsplattform auf Basis des MQTT-Protokolls – wie WhatsApp für Maschinen. Geräte veröffentlichen und abonnieren Topics in Echtzeit und ermöglichen so den sofortigen Signalaustausch über verteilte IoT-Knoten. Entwickelt zur Erkundung von leichtgewichtigem Pub/Sub-Messaging für eingebettete Systeme.",
+        "highlights":  ["Pub/Sub MQTT", "Echtzeit-IoT", "Leichtgewichtiges Protokoll"]
+      },
+      {
+        "subtitle":    "Intelligenter Inventar-Scanner",
+        "category":    "Anwendung",
+        "description": "Eine intelligente Barcode-Scan-Anwendung mit Lagerverwaltungsfunktionen. Unterstützt mehrere Barcodeformate, Echtzeit-Abfragen und Datenexport für Lager- und Einzelhandels-Workflows.",
+        "highlights":  ["Multiformatscan", "Inventar-Sync", "Berichte exportieren"]
+      },
+      {
+        "subtitle":    "Edge-KI auf Arduino",
+        "category":    "Eingebettete KI",
+        "description": "End-to-End-TinyML-Gesichtserkennung auf Arduino Nano 33 BLE Sense mit INT8-quantisierten CNN-Embeddings, TensorFlow Lite Micro und Cosinus-Ähnlichkeits-basierter adaptiver Schwellenwertbestimmung zur Zurückweisung unbekannter Gesichter.",
+        "highlights":  ["INT8-quantisiert", "Cosinus-Ähnlichkeit", "RGB-LED-Feedback"]
+      },
+      {
+        "subtitle":    "Angular Single-Page-Anwendung",
+        "category":    "Frontend",
+        "description": "Demonstration von Single-Page-Application-Routing-Mustern in TypeScript und Angular – Lazy Loading, Route Guards, State Management und verschachtelte Navigationsarchitekturen.",
+        "highlights":  ["Lazy Loading", "Route Guards", "State Management"]
+      },
+      {
+        "subtitle":    "Jupyter Data-Science-Notebooks",
+        "category":    "Data-Science",
+        "description": "Sammlung von Python-Data-Science-Notebooks mit statistischer Analyse, Datenbereinigung, Feature Engineering, Visualisierung und explorativer Datenanalyse an mehreren realen Datensätzen.",
+        "highlights":  ["EDA", "Statistische Analyse", "Visualisierung"]
+      }
+    ]
+  },
+
+  "skills": {
+    "tag":            "// technische fähigkeiten",
+    "title":          "Mein Werkzeugkasten",
+    "certifications": "Zertifizierungen",
+    "categoryNames":  ["Daten & ML", "Frontend & Backend", "Werkzeuge & DevOps"]
+  },
+
+  "contact": {
+    "tag":         "// kontakt",
+    "title":       ["Lass uns", "zusammenarbeiten"],
+    "description": "Offen für Möglichkeiten in Data Analytics, Business Intelligence und Softwareentwicklung. Wohnhaft in Berlin – offen für Remote- und Vor-Ort-Stellen.",
+    "labels": {
+      "email":    "E-Mail",
+      "phone":    "Telefon",
+      "github":   "GitHub",
+      "linkedin": "LinkedIn",
+      "location": "Standort"
+    }
+  },
+
+  "footer": {
+    "built": "Gebaut mit",
+    "by":    "von Nishan Poojary"
+  },
+
+  "chat": {
+    "header":          "Frag über Nishan",
+    "headerSub":       "RAG KI-Assistent · meist sofort",
+    "welcome":         "Hallo! Ich bin Nishans KI-Assistent. Frag mich nach seiner Erfahrung, seinen Projekten oder Fähigkeiten.",
+    "placeholder":     "Frag alles über Nishan...",
+    "faqLabel":        "Häufig gestellt",
+    "retry":           "Erneut versuchen",
+    "errorDefault":    "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+    "errorConnection": "Verbindungsfehler. Bitte versuche es erneut.",
+    "tooltip":         "KI-Assistent mit Zugriff auf Nishans Lebenslauf, Projekte und Fähigkeiten",
+    "faq": [
+      "Was ist deine Berufserfahrung?",
+      "Erzähl mir von deinen Projekten",
+      "Welche Fähigkeiten hast du?"
+    ]
+  }
+}

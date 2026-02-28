@@ -1,15 +1,19 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import skillsData from "../data/skills.json";
-import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Skills section — three category grids + certifications list.
- * Data comes from src/data/skills.json.
+ *
+ * Structural data (skill names, icons, certifications) from src/data/skills.json.
+ * Translated category names from src/i18n/en.json | de.json → skills.categoryNames[].
  */
 const SkillsSection = memo(() => {
   const { categories, certifications } = skillsData;
-  const { t, lang } = useLanguage();
-  const s = t.skills;
+  const { t } = useTranslation();
+
+  // Array of translated category name strings, e.g. ["Data & ML", "Frontend & Backend", "Tools & DevOps"]
+  const categoryNames = t("skills.categoryNames", { returnObjects: true });
 
   return (
     <section id="skills" className="section">
@@ -18,14 +22,14 @@ const SkillsSection = memo(() => {
         <div className="divider" />
 
         <div style={{ marginBottom: 46 }}>
-          <p className="section-tag fade-up">{s.tag}</p>
-          <h2 className="section-title fade-up fade-up-delay-1">{s.title}</h2>
+          <p className="section-tag fade-up">{t("skills.tag")}</p>
+          <h2 className="section-title fade-up fade-up-delay-1">{t("skills.title")}</h2>
         </div>
 
         {/* ── Skill category grids ──────────────────────────────────────────────── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 34 }}>
           {categories.map((cat, ci) => (
-            <div key={cat.name} className={`fade-up fade-up-delay-${ci + 1}`}>
+            <div key={ci} className={`fade-up fade-up-delay-${ci + 1}`}>
               {/* Category label */}
               <div style={{
                 fontFamily: "'DM Mono',monospace", fontSize: 10,
@@ -33,7 +37,7 @@ const SkillsSection = memo(() => {
                 color: "var(--text-muted)", marginBottom: 13,
               }}>
                 <span style={{ color: "var(--accent)" }}>{"// "}</span>
-                {(lang === 'de' && cat.name_de) ? cat.name_de : cat.name}
+                {categoryNames[ci] || ""}
               </div>
 
               {/* Icon grid */}
@@ -56,7 +60,8 @@ const SkillsSection = memo(() => {
             letterSpacing: 2, textTransform: "uppercase",
             color: "var(--text-muted)", marginBottom: 16,
           }}>
-            <span style={{ color: "var(--accent)" }}>{"// "}</span>{s.certifications}
+            <span style={{ color: "var(--accent)" }}>{"// "}</span>
+            {t("skills.certifications")}
           </div>
 
           <div

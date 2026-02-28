@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { useLanguage } from "../context/LanguageContext";
+import { useTranslation } from "react-i18next";
 
 const CONTACTS = [
   {
@@ -100,8 +100,11 @@ const ContactRow = ({ item, labels }) => {
  * Contact section — centred layout with a stacked list of contact methods.
  */
 const ContactSection = memo(() => {
-  const { t } = useLanguage();
-  const c = t.contact;
+  const { t } = useTranslation();
+
+  const title  = t("contact.title",  { returnObjects: true });
+  const labels = t("contact.labels", { returnObjects: true });
+
   return (
   <section id="contact" className="section">
     <div className="section-overlay" />
@@ -109,15 +112,15 @@ const ContactSection = memo(() => {
       <div className="divider" />
 
       <div style={{ maxWidth: 660, margin: "0 auto", textAlign: "center" }}>
-        <p className="section-tag fade-up" style={{ textAlign: "center" }}>{c.tag}</p>
+        <p className="section-tag fade-up" style={{ textAlign: "center" }}>{t("contact.tag")}</p>
         <h2 className="section-title fade-up fade-up-delay-1" style={{ textAlign: "center" }}>
-          {c.title[0]}<br />{c.title[1]}
+          {title[0]}<br />{title[1]}
         </h2>
         <p
           style={{ color: "var(--text-muted)", lineHeight: 1.82, marginBottom: 42, fontSize: "0.95rem" }}
           className="fade-up fade-up-delay-2"
         >
-          {c.description}
+          {t("contact.description")}
         </p>
 
         <div
@@ -125,7 +128,7 @@ const ContactSection = memo(() => {
           className="fade-up fade-up-delay-3"
         >
           {CONTACTS.map((item) => (
-            <ContactRow key={item.labelKey} item={item} labels={c.labels} />
+            <ContactRow key={item.labelKey} item={item} labels={labels} />
           ))}
         </div>
       </div>

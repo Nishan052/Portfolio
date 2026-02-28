@@ -1,12 +1,12 @@
 import { memo } from "react";
-import { useLanguage } from "../context/LanguageContext";
+import { useTranslation } from "react-i18next";
 
 /**
  * Site footer — minimal one-liner with copyright.
  */
 const Footer = memo(() => {
-  const { t } = useLanguage();
-  const f = t.footer;
+  const { t } = useTranslation();
+
   return (
   <footer style={{
     borderTop: "1px solid var(--border)",
@@ -22,7 +22,7 @@ const Footer = memo(() => {
     WebkitBackdropFilter: "blur(20px)",
   }}>
     <div>
-      {f.built} <span style={{ color: "var(--accent)" }}>♥</span> {f.by}
+      {t("footer.built")} <span style={{ color: "var(--accent)" }}>♥</span> {t("footer.by")}
     </div>
     <div style={{ marginTop: 4, opacity: 0.4, fontSize: 10 }}>
       © 2026 · Berlin, Germany

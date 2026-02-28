@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import './ChatWidget.css';
-import { useLanguage } from '../context/LanguageContext';
 
 // ─── Inline SVGs ──────────────────────────────────────────────────────────────
 const IconChat = () => (
@@ -38,8 +38,7 @@ const API_URL = '/api/chat';
 
 // ─── ChatWidget ───────────────────────────────────────────────────────────────
 function ChatWidget() {
-  const { lang, t } = useLanguage();
-  const ct = t.chat;
+  const { t, i18n } = useTranslation();
 
   const [isOpen,      setIsOpen]      = useState(false);
   const [messages,    setMessages]    = useState([]);
@@ -80,6 +79,8 @@ function ChatWidget() {
   const sendMessage = useCallback(async (text) => {
     const msg = (text || input).trim();
     if (!msg || isStreaming) return;
+
+    const lang = i18n.language;
 
     setInput('');
     setError(null);
@@ -170,7 +171,7 @@ function ChatWidget() {
     } finally {
       setIsStreaming(false);
     }
-  }, [input, isStreaming, messages, isOpen, lang, ct]);
+  }, [input, isStreaming, messages, isOpen, i18n]);
 
   // ─── Keyboard submit ──────────────────────────────────────────────────────
   const handleKeyDown = useCallback((e) => {
@@ -194,6 +195,9 @@ function ChatWidget() {
     }
   }, [messages, sendMessage]);
 
+  // ─── Shorthand for chat translations (re-evaluated on each render) ────────
+  const faq = t('chat.faq', { returnObjects: true });
+
   // ─── Render ───────────────────────────────────────────────────────────────
   const showWelcome = messages.length === 0 && !isStreaming;
 
@@ -213,8 +217,8 @@ function ChatWidget() {
               <IconBot />
             </div>
             <div>
-              <div className="chat-header-title">{ct.header}</div>
-              <div className="chat-header-sub">{ct.headerSub}</div>
+              <div className="chat-header-title">{t('chat.header')}</div>
+              <div className="chat-header-sub">{t('chat.headerSub')}</div>
             </div>
           </div>
           <button
@@ -233,7 +237,7 @@ function ChatWidget() {
           {showWelcome && (
             <div className="chat-welcome">
               <p className="chat-welcome-text">
-                {ct.welcome}
+                {t('chat.welcome')}
               </p>
             </div>
           )}
@@ -260,12 +264,12 @@ function ChatWidget() {
           {error && !isStreaming && (
             <div className="chat-error">
               <div className="chat-error-bubble">
-                {error === '__default__' ? ct.errorDefault
-                  : error === '__connection__' ? ct.errorConnection
+                {error === '__default__'    ? t('chat.errorDefault')
+                  : error === '__connection__' ? t('chat.errorConnection')
                   : error}
               </div>
               <button className="chat-retry-btn" onClick={retry}>
-                {ct.retry}
+                {t('chat.retry')}
               </button>
             </div>
           )}
@@ -275,11 +279,11 @@ function ChatWidget() {
 
         {/* Input area */}
         <div className="chat-input-area">
-          {/* FAQ chips — always visible */}
+          {/* FAQ chips */}
           <div className="chat-faq" role="group" aria-label="Frequently asked questions">
-            <span className="chat-faq-label">{ct.faqLabel}</span>
+            <span className="chat-faq-label">{t('chat.faqLabel')}</span>
             <div className="chat-faq-chips">
-              {ct.faq.map(q => (
+              {faq.map(q => (
                 <button
                   key={q}
                   className="chat-faq-chip"
@@ -297,7 +301,7 @@ function ChatWidget() {
             <textarea
               ref={inputRef}
               className="chat-input"
-              placeholder={ct.placeholder}
+              placeholder={t('chat.placeholder')}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -329,7 +333,7 @@ function ChatWidget() {
         {!isOpen && hasUnread && <span className="chat-toggle-dot" aria-hidden="true" />}
         {!isOpen && (
           <span className="chat-tooltip" role="tooltip">
-            {ct.tooltip}
+            {t('chat.tooltip')}
           </span>
         )}
       </button>

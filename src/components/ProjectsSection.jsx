@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import projects from "../data/projects.json";
-import { useLanguage } from "../context/LanguageContext";
 
 /** GitHub icon SVG (reusable inline) */
 const GitHubIcon = () => (
@@ -10,10 +10,11 @@ const GitHubIcon = () => (
 );
 
 /**
- * Project card renders one project from projects.json.
- * The active hover state is lifted to the parent for performance.
+ * Project card.
+ * Structural data (color, emoji, tech, github) comes from projects.json.
+ * Translated text (subtitle, category, description, highlights) comes from i18n.
  */
-const ProjectCard = ({ project: p, isActive, onEnter, onLeave, lang }) => (
+const ProjectCard = ({ project: p, tx, isActive, onEnter, onLeave }) => (
   <div
     className={`project-card fade-up fade-up-delay-${(parseInt(p.id, 10) % 3) + 1}`}
     style={{
@@ -32,7 +33,7 @@ const ProjectCard = ({ project: p, isActive, onEnter, onLeave, lang }) => (
           color: p.color, padding: "3px 10px", borderRadius: 100,
           background: `${p.color}14`, border: `1px solid ${p.color}28`,
         }}>
-          {(lang === 'de' && p.category_de) ? p.category_de : p.category}
+          {tx.category}
         </span>
 
         {/* GitHub link */}
@@ -62,7 +63,7 @@ const ProjectCard = ({ project: p, isActive, onEnter, onLeave, lang }) => (
             {p.title}
           </h3>
           <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'DM Mono',monospace" }}>
-            {(lang === 'de' && p.subtitle_de) ? p.subtitle_de : p.subtitle}
+            {tx.subtitle}
           </div>
         </div>
       </div>
@@ -71,24 +72,24 @@ const ProjectCard = ({ project: p, isActive, onEnter, onLeave, lang }) => (
     {/* Body */}
     <div className="project-card-body">
       <p style={{ fontSize: "0.84rem", color: "var(--text-muted)", lineHeight: 1.74, marginBottom: 13, flex: 1 }}>
-        {(lang === 'de' && p.description_de) ? p.description_de : p.description}
+        {tx.description}
       </p>
 
       {/* Tech pills */}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 11 }}>
-        {p.tech.map((t) => (
-          <span key={t} className="skill-pill" style={{
+        {p.tech.map((tech) => (
+          <span key={tech} className="skill-pill" style={{
             fontSize: 10, color: p.color,
             borderColor: `${p.color}28`, background: `${p.color}0e`,
           }}>
-            {t}
+            {tech}
           </span>
         ))}
       </div>
 
       {/* Highlight badges */}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        {((lang === 'de' && p.highlights_de) ? p.highlights_de : p.highlights).map((h) => (
+        {(tx.highlights || []).map((h) => (
           <span key={h} style={{
             fontSize: 10, padding: "3px 8px", borderRadius: 100,
             background: "var(--accent-soft)", color: "var(--text-muted)",
@@ -104,12 +105,16 @@ const ProjectCard = ({ project: p, isActive, onEnter, onLeave, lang }) => (
 
 /**
  * Projects section — responsive auto-fill grid.
- * Data comes from src/data/projects.json — add / remove entries there.
+ * Structural data: src/data/projects.json
+ * Translated text:  src/i18n/en.json | de.json → projects.items[]
  */
 const ProjectsSection = memo(() => {
   const [activeId, setActiveId] = useState(null);
-  const { t, lang } = useLanguage();
-  const p = t.projects;
+  const { t } = useTranslation();
+
+  const title     = t("projects.title", { returnObjects: true });
+  // Array of { subtitle, category, description, highlights[] }
+  const projItems = t("projects.items", { returnObjects: true });
 
   return (
     <section id="projects" className="section">
@@ -118,9 +123,9 @@ const ProjectsSection = memo(() => {
         <div className="divider" />
 
         <div style={{ marginBottom: 46 }}>
-          <p className="section-tag fade-up">{p.tag}</p>
+          <p className="section-tag fade-up">{t("projects.tag")}</p>
           <h2 className="section-title fade-up fade-up-delay-1">
-            {p.title[0]}<br />{p.title[1]}
+            {title[0]}<br />{title[1]}
           </h2>
         </div>
 
@@ -128,14 +133,14 @@ const ProjectsSection = memo(() => {
           className="projects-grid"
           style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))", gap: 18 }}
         >
-          {projects.map((p) => (
+          {projects.map((p, i) => (
             <ProjectCard
               key={p.id}
               project={p}
+              tx={projItems[i] || {}}
               isActive={activeId === p.id}
               onEnter={() => setActiveId(p.id)}
               onLeave={() => setActiveId(null)}
-              lang={lang}
             />
           ))}
         </div>

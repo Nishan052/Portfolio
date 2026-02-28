@@ -1,67 +1,35 @@
 [
   {
-    "role": "Senior Software Developer",
-    "company": "Novigo Solutions",
-    "period": "Jun 2023",
-    "end": "Feb 2025",
+    "role":     "Senior Software Developer",
+    "company":  "Novigo Solutions",
+    "period":   "Jun 2023",
+    "end":      "Feb 2025",
     "duration": "1 yr 9 mos",
     "location": "Mangaluru, India",
-    "type": "Full-time",
-    "type_de": "Vollzeit",
-    "skills": ["Angular", "TypeScript", "Salesforce", "Jira", "Agile", "GitHub", "Jenkins"],
-    "highlights": [
-      "Led data visualization & API integration for a large-scale healthcare digitization platform",
-      "Enhanced data interoperability using Angular, TypeScript, and Salesforce",
-      "Drove Agile development and cross-functional collaboration managing workflows in Jira"
-    ],
-    "highlights_de": [
-      "Leitung von Datenvisualisierung & API-Integration für eine groß angelegte Healthcare-Digitalisierungsplattform",
-      "Verbesserung der Dateninteroperabilität mit Angular, TypeScript und Salesforce",
-      "Vorantreiben agiler Entwicklung und funktionsübergreifender Zusammenarbeit mit Workflow-Management in Jira"
-    ],
+    "skills":   ["Angular", "TypeScript", "Salesforce", "Jira", "Agile", "GitHub", "Jenkins"],
     "subRoles": null
   },
   {
-    "role": "Systems Engineer  →   Senior System Engineer",
-    "company": "Infosys",
-    "period": "May 2021",
-    "end": "Jun 2023",
+    "role":     "Systems Engineer  →   Senior System Engineer",
+    "company":  "Infosys",
+    "period":   "May 2021",
+    "end":      "Jun 2023",
     "duration": "2 yrs 10 mos",
     "location": "Bangalore, India",
-    "type": "Full-time",
-    "type_de": "Vollzeit",
-    "skills": ["Angular", "TypeScript", "Spring Boot", "Java", "SQL", "GitHub", "CI/CD", "Jira"],
-    "highlights": [
-      "Progressed from Systems Engineer to Senior System Engineer within Infosys Helix healthcare division",
-      "Led data visualization and API integration, building interactive dashboards with Angular, TypeScript, HTML/CSS, and Spring Boot",
-      "Applied healthcare domain knowledge to design secure, compliant data components ensuring regulatory alignment"
-    ],
-    "highlights_de": [
-      "Aufstieg von Systems Engineer zum Senior System Engineer innerhalb der Infosys Helix Healthcare-Division",
-      "Leitung von Datenvisualisierung und API-Integration, Entwicklung interaktiver Dashboards mit Angular, TypeScript, HTML/CSS und Spring Boot",
-      "Anwendung von Healthcare-Domänenwissen zur Entwicklung sicherer, compliance-konformer Datenkomponenten"
-    ],
+    "skills":   ["Angular", "TypeScript", "Spring Boot", "Java", "SQL", "GitHub", "CI/CD", "Jira"],
     "subRoles": [
       { "title": "Systems Engineer",       "period": "May 2021 – Jan 2023" },
       { "title": "Senior System Engineer", "period": "Jan 2023 – Jun 2023" }
     ]
   },
   {
-    "role": "Consultant",
-    "company": "Softusvista",
-    "period": "Feb 2021",
-    "end": "Mar 2021",
+    "role":     "Consultant",
+    "company":  "Softusvista",
+    "period":   "Feb 2021",
+    "end":      "Mar 2021",
     "duration": "2 mos",
     "location": "Remote",
-    "type": "Internship",
-    "type_de": "Praktikum",
-    "skills": ["MS Office", "Agile", "Communication"],
-    "highlights": [
-      "Agile application development and business communication consulting"
-    ],
-    "highlights_de": [
-      "Agile Anwendungsentwicklung und Unternehmenskommunikationsberatung"
-    ],
+    "skills":   ["MS Office", "Agile", "Communication"],
     "subRoles": null
   }
 ]

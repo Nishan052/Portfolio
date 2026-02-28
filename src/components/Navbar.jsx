@@ -1,23 +1,28 @@
 import { useState, memo } from "react";
+import { useTranslation } from "react-i18next";
 import scrollTo from "../utils/scrollTo";
-import { useLanguage } from "../context/LanguageContext";
 
 const NAV_KEYS = ["about", "experience", "projects", "skills", "contact"];
 
 /**
  * Fixed top navigation bar.
+ * Language switching uses i18next directly — no lang/toggleLang props needed.
  *
  * Props:
  *  isDark        {boolean}  — current theme
  *  toggleTheme   {function} — flip isDark
- *  scrolled      {boolean}  — true when page has scrolled > 20px (shows border)
+ *  scrolled      {boolean}  — true when page has scrolled > 20px
  *  activeSection {string}   — id of the section currently in view
- *  lang          {string}   — "en" | "de"
- *  toggleLang    {function} — flip lang
  */
-const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection, lang, toggleLang }) => {
+const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { t } = useLanguage();
+  const { t, i18n } = useTranslation();
+
+  const currentLang = i18n.language;
+
+  const switchLang = (l) => {
+    if (currentLang !== l) i18n.changeLanguage(l);
+  };
 
   const handleNav = (id) => {
     scrollTo(id);
@@ -44,7 +49,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection, lang, toggl
           height: 64,
         }}>
 
-          {/* Logo — clicking goes to hero */}
+          {/* Logo */}
           <button className="logo-btn" onClick={() => scrollTo("hero")} aria-label="Go to top">
             <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "var(--accent)" }}>N</span>
             <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "var(--text)" }}>P</span>
@@ -59,12 +64,12 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection, lang, toggl
                 className={`nav-link ${activeSection === key ? "active" : ""}`}
                 onClick={() => handleNav(key)}
               >
-                {t.nav[key]}
+                {t(`nav.${key}`)}
               </button>
             ))}
           </div>
 
-          {/* Right controls: lang toggle + theme toggle + hamburger */}
+          {/* Right controls */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
 
             {/* Language toggle — segmented EN | DE pill */}
@@ -78,7 +83,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection, lang, toggl
               {["en", "de"].map((l) => (
                 <button
                   key={l}
-                  onClick={() => { if (lang !== l) toggleLang(); }}
+                  onClick={() => switchLang(l)}
                   title={l === "en" ? "Switch to English" : "Auf Deutsch wechseln"}
                   style={{
                     fontFamily: "'DM Mono',monospace",
@@ -87,9 +92,9 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection, lang, toggl
                     letterSpacing: "0.06em",
                     padding: "5px 11px",
                     border: "none",
-                    background: lang === l ? "var(--accent)" : "transparent",
-                    color: lang === l ? "#fff" : "var(--text-muted)",
-                    cursor: lang === l ? "default" : "pointer",
+                    background: currentLang === l ? "var(--accent)" : "transparent",
+                    color: currentLang === l ? "#fff" : "var(--text-muted)",
+                    cursor: currentLang === l ? "default" : "pointer",
                     transition: "background 0.2s, color 0.2s",
                     lineHeight: 1,
                   }}
@@ -135,11 +140,11 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection, lang, toggl
             }}>
               0{idx + 1}.
             </span>
-            {t.nav[key]}
+            {t(`nav.${key}`)}
           </button>
         ))}
 
-        {/* Language toggle in mobile menu — segmented pill */}
+        {/* Language toggle in mobile menu */}
         <div style={{ padding: "10px 24px" }}>
           <div style={{
             display: "inline-flex",
@@ -151,7 +156,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection, lang, toggl
             {["en", "de"].map((l) => (
               <button
                 key={l}
-                onClick={() => { if (lang !== l) toggleLang(); }}
+                onClick={() => switchLang(l)}
                 style={{
                   fontFamily: "'DM Mono',monospace",
                   fontSize: "0.75rem",
@@ -159,9 +164,9 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection, lang, toggl
                   letterSpacing: "0.08em",
                   padding: "6px 14px",
                   border: "none",
-                  background: lang === l ? "var(--accent)" : "transparent",
-                  color: lang === l ? "#fff" : "var(--text-muted)",
-                  cursor: lang === l ? "default" : "pointer",
+                  background: currentLang === l ? "var(--accent)" : "transparent",
+                  color: currentLang === l ? "#fff" : "var(--text-muted)",
+                  cursor: currentLang === l ? "default" : "pointer",
                   transition: "background 0.2s, color 0.2s",
                 }}
               >
