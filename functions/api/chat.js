@@ -19,18 +19,14 @@ import { streamGroq, extractGroqContent, hydeExpand } from './lib/llm.js';
 import { queryPinecone }    from './lib/pinecone.js';
 import { checkRateLimit, getExactCache, setExactCache } from './lib/cache.js';
 import { buildSystemPrompt, formatContext } from './lib/system-prompt.js';
-
-// Allowed origins — restrict to known portfolio domains + local dev
-const ALLOWED_ORIGINS = [
-  'https://nishanpoojary.com',
-  'https://www.nishanpoojary.com',
-  'https://portfolio-btv.pages.dev',
-  'http://localhost:8788',
-  'http://localhost:3000',
-];
-
-// Primary production domain used as fallback for unrecognised origins
-const PRIMARY_ORIGIN = 'https://nishanpoojary.com';
+import {
+  ALLOWED_ORIGINS,
+  PRIMARY_ORIGIN,
+  MAX_MESSAGE_LENGTH,
+  MAX_HISTORY_MESSAGES,
+  MAX_HISTORY_MESSAGE_LENGTH,
+  VECTOR_SEARCH_TOP_K,
+} from './lib/config.js';
 
 function getAllowedOrigin(request) {
   const origin = request.headers.get('Origin') || '';
@@ -93,9 +89,9 @@ export async function onRequestPost({ request, env }) {
             VALID_ROLES.has(m.role) &&
             typeof m.content === 'string' &&
             m.content.length > 0 &&
-            m.content.length <= 2000
+            m.content.length <= MAX_HISTORY_MESSAGE_LENGTH
           )
-          .slice(-6)
+          .slice(-MAX_HISTORY_MESSAGES)
       : [];
   } catch {
     return apiResponse(request, JSON.stringify({ error: 'Invalid JSON body' }), 400, {
@@ -109,8 +105,8 @@ export async function onRequestPost({ request, env }) {
       'Content-Type': 'application/json',
     });
   }
-  if (message.length > 500) {
-    return apiResponse(request, JSON.stringify({ error: 'Message too long (max 500 chars)' }), 400, {
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return apiResponse(request, JSON.stringify({ error: `Message too long (max ${MAX_MESSAGE_LENGTH} chars)` }), 400, {
       'Content-Type': 'application/json',
     });
   }
@@ -175,7 +171,7 @@ export async function onRequestPost({ request, env }) {
   let chunks = [];
   if (embedding) {
     try {
-      chunks = await queryPinecone(env, embedding, 5);
+      chunks = await queryPinecone(env, embedding, VECTOR_SEARCH_TOP_K);
     } catch (err) {
       console.error('Pinecone query failed:', err.message);
     }

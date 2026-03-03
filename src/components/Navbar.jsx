@@ -1,6 +1,7 @@
 import { useState, memo } from "react";
 import { useTranslation } from "react-i18next";
 import scrollTo from "../utils/scrollTo";
+import siteConfig from "../config/site";
 
 const NAV_KEYS = ["about", "experience", "projects", "skills", "contact"];
 
@@ -51,9 +52,9 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
 
           {/* Logo */}
           <button className="logo-btn" onClick={() => scrollTo("hero")} aria-label="Go to top">
-            <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "var(--accent)" }}>N</span>
-            <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "var(--text)" }}>P</span>
-            <span style={{ fontFamily: "'DM Mono',monospace", fontSize: "0.57rem", color: "var(--text-muted)", marginLeft: 3 }}>.dev</span>
+            <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "var(--accent)" }}>{siteConfig.profile.logoFirst}</span>
+            <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.15rem", color: "var(--text)" }}>{siteConfig.profile.logoSecond}</span>
+            <span style={{ fontFamily: "'DM Mono',monospace", fontSize: "0.57rem", color: "var(--text-muted)", marginLeft: 3 }}>{siteConfig.profile.logoDomain}</span>
           </button>
 
           {/* Desktop links */}

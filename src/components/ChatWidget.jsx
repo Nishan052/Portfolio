@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { useTranslation } from 'react-i18next';
+import siteConfig from '../config/site';
 import './ChatWidget.css';
 
 // ─── Inline SVGs ──────────────────────────────────────────────────────────────
@@ -34,7 +35,7 @@ const IconBot = () => (
 );
 
 // ─── API endpoint ─────────────────────────────────────────────────────────────
-const API_URL = '/api/chat';
+const API_URL = siteConfig.api.chatEndpoint;
 
 // ─── ChatWidget ───────────────────────────────────────────────────────────────
 function ChatWidget() {
@@ -207,7 +208,7 @@ function ChatWidget() {
       <div
         className={`chat-window${isOpen ? ' open' : ''}`}
         role="dialog"
-        aria-label="Chat with Nishan's AI assistant"
+        aria-label={`Chat with ${siteConfig.profile.firstName}'s AI assistant`}
         aria-modal="true"
       >
         {/* Header */}
@@ -326,7 +327,7 @@ function ChatWidget() {
       <button
         className={`chat-toggle${isOpen ? ' open' : ''}`}
         onClick={toggleChat}
-        aria-label={isOpen ? 'Close chat' : 'Open AI chat about Nishan'}
+        aria-label={isOpen ? 'Close chat' : `Open AI chat about ${siteConfig.profile.firstName}`}
         aria-expanded={isOpen}
       >
         {isOpen ? <IconClose /> : <IconChat />}

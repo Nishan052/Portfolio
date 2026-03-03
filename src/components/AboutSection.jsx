@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
-
-const HIGHLIGHT_SKILLS = ["Python", "R", "SQL", "Angular", "Power BI", "TensorFlow"];
+import siteConfig from "../config/site";
 
 /**
  * About section — two-column layout:
@@ -52,7 +51,7 @@ const AboutSection = memo(() => {
             style={{ marginTop: 22, display: "flex", gap: 9, flexWrap: "wrap" }}
             className="fade-up fade-up-delay-4"
           >
-            {HIGHLIGHT_SKILLS.map((s) => (
+            {siteConfig.about.highlightSkills.map((s) => (
               <span key={s} className="skill-pill">{s}</span>
             ))}
           </div>

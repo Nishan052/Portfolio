@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
+import siteConfig from "../config/site";
 
 /**
  * Site footer — minimal one-liner with copyright.
@@ -25,7 +26,7 @@ const Footer = memo(() => {
       {t("footer.built")} <span style={{ color: "var(--accent)" }}>♥</span> {t("footer.by")}
     </div>
     <div style={{ marginTop: 4, opacity: 0.4, fontSize: 10 }}>
-      © 2026 · Berlin, Germany
+      © {siteConfig.footer.copyrightYear} · {siteConfig.profile.location}
     </div>
   </footer>
   );
