@@ -6,16 +6,16 @@
  *   2. Parse & validate request body
  *   3. Rate limit check (Upstash, 10 req/min per IP)
  *   4. Exact cache check (Upstash Redis, 24h TTL)
- *   5. HyDE expand query → hypothetical answer (Groq, non-streaming, 150 tok)
- *   6. Embed expanded query (Workers AI, bge-base-en-v1.5, 768 dims)
- *   7. Vector search (Pinecone, top-5, minScore 0.55)
- *   8. Build messages with system prompt + context + history
+ *   5. Multi-query expansion → generate 10 sub-questions (Groq, non-streaming)
+ *   6. Embed all 11 queries in parallel (Workers AI, bge-base-en-v1.5, 768 dims)
+ *   7. Query Pinecone for each embedding in parallel, deduplicate top-10 chunks
+ *   8. Build messages with system prompt + merged context + history
  *   9. Stream Groq response → SSE to client
  *  10. Cache full response async (non-blocking)
  */
 
 import { embedText }        from './lib/embed.js';
-import { streamGroq, extractGroqContent, hydeExpand } from './lib/llm.js';
+import { streamGroq, extractGroqContent, expandToSubQueries } from './lib/llm.js';
 import { queryPinecone }    from './lib/pinecone.js';
 import { checkRateLimit, getExactCache, setExactCache } from './lib/cache.js';
 import { buildSystemPrompt, formatContext } from './lib/system-prompt.js';
@@ -147,34 +147,50 @@ export async function onRequestPost({ request, env }) {
     });
   }
 
-  // 5. HyDE: generate a hypothetical answer to embed instead of the raw question.
-  //    The hypothesis is semantically closer to stored chunks → better retrieval.
-  //    Non-fatal: falls back to embedding the raw message on any error.
-  let queryText = message;
+  // 5. Multi-query expansion: generate 10 sub-questions from the original question.
+  //    Original + sub-questions are all embedded and searched in parallel.
+  //    Non-fatal: falls back to just the original question on any error.
+  let allQueries = [message];
   try {
-    const hypothesis = await hydeExpand(env, message);
-    if (hypothesis) queryText = hypothesis;
+    const subQueries = await expandToSubQueries(env, message);
+    if (subQueries.length > 0) allQueries = [message, ...subQueries];
   } catch (err) {
-    console.error('HyDE expansion failed, using raw query:', err.message);
+    console.error('Sub-query expansion failed, using original query:', err.message);
   }
 
-  // 6. Embed the expanded query (or raw message if HyDE failed)
-  let embedding;
-  try {
-    embedding = await embedText(env, queryText);
-  } catch (err) {
-    console.error('Embedding failed:', err.message);
-    embedding = null;
-  }
+  // 6. Embed all queries in parallel
+  const embeddings = await Promise.all(
+    allQueries.map(q =>
+      embedText(env, q).catch(err => {
+        console.error(`Embedding failed for query "${q.slice(0, 40)}":`, err.message);
+        return null;
+      })
+    )
+  );
 
-  // 7. Vector search
+  // 7. Query Pinecone for each embedding in parallel, then deduplicate by source+text
   let chunks = [];
-  if (embedding) {
-    try {
-      chunks = await queryPinecone(env, embedding, VECTOR_SEARCH_TOP_K);
-    } catch (err) {
-      console.error('Pinecone query failed:', err.message);
+  try {
+    const allResults = await Promise.all(
+      embeddings
+        .filter(Boolean)
+        .map(emb => queryPinecone(env, emb, VECTOR_SEARCH_TOP_K).catch(() => []))
+    );
+
+    // Deduplicate chunks — keep highest score per unique text
+    const seen = new Map();
+    for (const results of allResults) {
+      for (const chunk of results) {
+        const key = chunk.source + '::' + chunk.text.slice(0, 80);
+        if (!seen.has(key) || seen.get(key).score < chunk.score) {
+          seen.set(key, chunk);
+        }
+      }
     }
+    // Sort by score descending, cap at top 10 most relevant chunks
+    chunks = [...seen.values()].sort((a, b) => b.score - a.score).slice(0, 10);
+  } catch (err) {
+    console.error('Pinecone multi-query failed:', err.message);
   }
 
   // 8. Build messages array

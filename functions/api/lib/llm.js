@@ -89,6 +89,69 @@ export async function hydeExpand(env, question) {
   return data.choices?.[0]?.message?.content?.trim() || null;
 }
 
+// System prompt used for multi-query sub-question generation
+const SUBQUERY_SYSTEM = `You are a query expansion assistant for a portfolio chatbot.
+Given a user's question about a software developer, generate exactly 10 distinct sub-questions
+that together cover all angles of the original question.
+Rules:
+- Output ONLY a JSON array of 10 strings, no other text
+- Each sub-question must be self-contained and specific
+- Vary the angle: skills, projects, experience, education, tools, achievements
+- Example output: ["What programming languages does the developer know?", ...]`;
+
+/**
+ * Multi-Query Expansion — generate 10 sub-questions from the original question.
+ * All 11 queries (original + subs) are later embedded and searched in parallel.
+ *
+ * Non-fatal: callers should catch and fall back to just the original question.
+ *
+ * @param {object} env      - Cloudflare environment (env.GROQ_API_KEY required)
+ * @param {string} question - The user's raw question
+ * @returns {Promise<string[]>} Array of sub-questions (up to 10)
+ */
+export async function expandToSubQueries(env, question) {
+  if (!env.GROQ_API_KEY) throw new Error('GROQ_API_KEY not set');
+
+  const response = await fetch(`${GROQ_BASE}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+      'Content-Type':  'application/json',
+    },
+    body: JSON.stringify({
+      model:       MODEL,
+      stream:      false,
+      max_tokens:  400,
+      temperature: 0.6,
+      messages: [
+        { role: 'system', content: SUBQUERY_SYSTEM },
+        { role: 'user',   content: question },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Sub-query expansion Groq error ${response.status}: ${err}`);
+  }
+
+  const data = await response.json();
+  const raw  = data.choices?.[0]?.message?.content?.trim() || '[]';
+
+  // Extract JSON array robustly — handle any surrounding prose
+  const match = raw.match(/\[[\s\S]*\]/);
+  if (!match) return [];
+
+  try {
+    const parsed = JSON.parse(match[0]);
+    return Array.isArray(parsed)
+      ? parsed.filter(q => typeof q === 'string' && q.trim()).slice(0, 10)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Extract text content from a Groq SSE data line.
  * @param {string} line - e.g. "data: {"choices":[{"delta":{"content":"hello"}}]}"

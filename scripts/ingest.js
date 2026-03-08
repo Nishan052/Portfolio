@@ -1,18 +1,17 @@
 #!/usr/bin/env node
 /**
  * ingest.js — RAG ingestion pipeline
- * Runs locally with Node.js. Reads portfolio data, creates contextual chunks,
- * embeds them with Ollama, and upserts to Pinecone.
+ * Runs locally with Node.js. Reads portfolio data, chunks text into semantic
+ * paragraphs, embeds them with Ollama nomic-embed-text, and upserts to Pinecone.
  *
  * Prerequisites:
  *   1. Ollama running: ollama serve
- *   2. Models pulled: ollama pull llama3.2:3b && ollama pull nomic-embed-text
+ *   2. Model pulled: ollama pull nomic-embed-text
  *   3. .env.local exists with PINECONE_API_KEY and PINECONE_HOST
  *
  * Usage:
- *   node scripts/ingest.js                     # skips if vectors already exist
- *   node scripts/ingest.js --force             # clears and re-ingests everything
- *   SKIP_CONTEXT=true node scripts/ingest.js   # skip LLM context generation (faster)
+ *   node scripts/ingest.js           # skips if vectors already exist
+ *   node scripts/ingest.js --force   # clears and re-ingests everything
  *
  * Sources ingested:
  *   - PDFs in data/
@@ -28,7 +27,6 @@ const fs = require('fs');
 const path = require('path');
 const { Pinecone } = require('@pinecone-database/pinecone');
 const { chunkText } = require('./lib/chunk');
-const { generateContextualChunk } = require('./lib/contextual');
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY;
@@ -36,7 +34,6 @@ const PINECONE_HOST    = process.env.PINECONE_HOST;
 const PINECONE_INDEX   = process.env.PINECONE_INDEX || 'portfolio-rag';
 const OLLAMA_BASE      = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
 const EMBED_MODEL      = process.env.EMBED_MODEL || 'nomic-embed-text';
-const SKIP_CONTEXT     = process.env.SKIP_CONTEXT === 'true';
 const FORCE            = process.argv.includes('--force');
 const CLEAR_FIRST      = process.argv.includes('--clear') || FORCE;
 const BATCH_SIZE       = 100;
@@ -79,16 +76,11 @@ async function checkOllama() {
     const data = await r.json();
     const models = (data.models || []).map(m => m.name);
     const hasEmbed = models.some(m => m.includes('nomic-embed'));
-    const hasLLM   = models.some(m => m.includes('llama3') || m.includes('llama'));
     console.log(`[OK] Ollama running. Models: ${models.join(', ')}`);
     if (!hasEmbed) {
       console.warn('[WARN] nomic-embed-text not found. Run: ollama pull nomic-embed-text');
     }
-    if (!hasLLM && !SKIP_CONTEXT) {
-      console.warn('[WARN] llama3.2:3b not found. Run: ollama pull llama3.2:3b');
-      console.warn('       Or set SKIP_CONTEXT=true to skip context generation');
-    }
-    return { hasEmbed, hasLLM };
+    return { hasEmbed };
   } catch {
     console.error('[ERROR] Ollama not running. Start it with: ollama serve');
     process.exit(1);
@@ -102,26 +94,23 @@ async function processSource(sourceId, sourceType, fullText, metadata = {}) {
 
   const vectors = [];
   for (const chunk of chunks) {
-    let text = chunk.text;
-
-    if (!SKIP_CONTEXT) {
-      process.stdout.write(`    chunk ${chunk.chunkIndex + 1}/${chunk.totalChunks} context... `);
-      text = await generateContextualChunk(fullText, chunk);
-      process.stdout.write('[OK]\n');
-    }
-
-    const embedding = await embedText(text);
+    process.stdout.write(`    chunk ${chunk.chunkIndex + 1}/${chunk.totalChunks} [${chunk.paragraphType}] embedding... `);
+    const embedding = await embedText(chunk.text);
+    process.stdout.write('[OK]\n');
 
     vectors.push({
       id: `${sourceId}_${chunk.chunkIndex}`,
       values: embedding,
       metadata: {
-        text,
-        source: sourceId,
-        type: sourceType,
-        chunkIndex: chunk.chunkIndex,
-        totalChunks: chunk.totalChunks,
-        timestamp: new Date().toISOString().split('T')[0],
+        text:          chunk.text,
+        keywords:      chunk.keywords,
+        keyTerms:      chunk.keyTerms,
+        paragraphType: chunk.paragraphType,
+        source:        sourceId,
+        type:          sourceType,
+        chunkIndex:    chunk.chunkIndex,
+        totalChunks:   chunk.totalChunks,
+        timestamp:     new Date().toISOString().split('T')[0],
         ...metadata,
       }
     });
@@ -179,7 +168,6 @@ async function loadPDFs() {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
   console.log('\nPortfolio RAG Ingestion Pipeline\n');
-  console.log(`Mode: ${SKIP_CONTEXT ? 'Fast (no context generation)' : 'Full (with Contextual Retrieval)'}`);
   console.log(`Force re-ingest: ${FORCE}\n`);
 
   // Check Ollama
@@ -201,8 +189,16 @@ async function main() {
   // Clear existing vectors if requested
   if (CLEAR_FIRST) {
     console.log('\nClearing existing vectors...');
-    await index.deleteAll();
-    console.log('[OK] Cleared all vectors');
+    try {
+      await index.deleteAll();
+      console.log('[OK] Cleared all vectors');
+    } catch (err) {
+      if (err.status === 404 || (err.message && err.message.includes('404'))) {
+        console.log('[OK] Namespace already empty');
+      } else {
+        throw err;
+      }
+    }
   }
 
   const allVectors = [];
@@ -227,11 +223,7 @@ Role: ${role.role}
 Company: ${role.company}
 Period: ${role.period} to ${role.end} (${role.duration})
 Location: ${role.location}
-Type: ${role.type}
 Skills: ${role.skills.join(', ')}
-
-Key Responsibilities and Achievements:
-${role.highlights.map(h => `- ${h}`).join('\n')}
 ${role.subRoles ? `\nProgression:\n${role.subRoles.map(r => `- ${r.title} (${r.period})`).join('\n')}` : ''}
       `.trim();
 
@@ -250,13 +242,7 @@ ${role.subRoles ? `\nProgression:\n${role.subRoles.map(r => `- ${r.title} (${r.p
     for (const project of projData) {
       const text = `
 Project: ${project.title}
-Subtitle: ${project.subtitle}
-Category: ${project.category}
-
-Description: ${project.description}
-
-Technologies used: ${project.tech.join(', ')}
-Key highlights: ${project.highlights.join(', ')}
+Technologies: ${project.tech.join(', ')}
 GitHub: ${project.github}
       `.trim();
 
@@ -275,8 +261,8 @@ GitHub: ${project.github}
     const skillsText = `
 Nishan Poojary's Technical Skills:
 
-${skillsData.categories.map(cat =>
-  `${cat.name}:\n${cat.skills.map(s => `- ${s.name}`).join(', ')}`
+${skillsData.categories.map((cat, i) =>
+  `Skills group ${i + 1}: ${cat.skills.map(s => s.name).join(', ')}`
 ).join('\n\n')}
 
 Certifications:
