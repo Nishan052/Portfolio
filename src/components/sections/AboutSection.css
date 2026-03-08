@@ -1,0 +1,53 @@
+/* ─── AboutSection ──────────────────────────────────────────────────────────── */
+.about-grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(28px, 5vw, 60px);
+  align-items: start;
+}
+
+.about-bio {
+  color: var(--text-muted);
+  line-height: 1.82;
+  font-size: 0.95rem;
+}
+
+.about-bio + .about-bio {
+  margin-top: 18px;
+}
+
+.about-skills-row {
+  margin-top: 22px;
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.about-cards-col {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.about-card-inner {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.about-card-icon {
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.about-card-title {
+  font-weight: 600;
+  margin-bottom: 3px;
+  font-size: 0.95rem;
+}
+
+.about-card-desc {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+}

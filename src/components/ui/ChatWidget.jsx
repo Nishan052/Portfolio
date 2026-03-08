@@ -1,31 +1,31 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import siteConfig from '../config/site';
+import siteConfig from '../../config/site';
 import './ChatWidget.css';
 
 // ─── Inline SVGs ──────────────────────────────────────────────────────────────
 const IconChat = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
   </svg>
 );
 
 const IconClose = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+  <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
     <line x1="18" y1="6" x2="6" y2="18"/>
     <line x1="6" y1="6" x2="18" y2="18"/>
   </svg>
 );
 
 const IconSend = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <line x1="22" y1="2" x2="11" y2="13"/>
     <polygon points="22 2 15 22 11 13 2 9 22 2"/>
   </svg>
 );
 
 const IconBot = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="11" width="18" height="10" rx="2"/>
     <circle cx="12" cy="5" r="2"/>
     <line x1="12" y1="7" x2="12" y2="11"/>
@@ -51,6 +51,9 @@ function ChatWidget() {
   const messagesEndRef     = useRef(null);
   const inputRef           = useRef(null);
   const abortControllerRef = useRef(null);
+  const toggleBtnRef       = useRef(null);
+  const chatWindowRef      = useRef(null);
+  const prevOpenRef        = useRef(false);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -65,6 +68,46 @@ function ChatWidget() {
       setTimeout(() => inputRef.current?.focus(), 150);
     }
     if (isOpen) setHasUnread(false);
+  }, [isOpen]);
+
+  // Return focus to toggle button when dialog closes
+  useEffect(() => {
+    if (prevOpenRef.current && !isOpen && toggleBtnRef.current) {
+      toggleBtnRef.current.focus();
+    }
+    prevOpenRef.current = isOpen;
+  }, [isOpen]);
+
+  // Focus trap: keep Tab/Shift+Tab within the dialog when open
+  useEffect(() => {
+    if (!isOpen || !chatWindowRef.current) return;
+    const dialog    = chatWindowRef.current;
+    const FOCUSABLE = 'button:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
+    const handleTabKey = (e) => {
+      if (e.key !== 'Tab') return;
+      const focusable = Array.from(dialog.querySelectorAll(FOCUSABLE));
+      if (focusable.length < 2) return;
+      const first = focusable[0];
+      const last  = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleTabKey);
+    return () => document.removeEventListener('keydown', handleTabKey);
+  }, [isOpen]);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Escape' && isOpen) setIsOpen(false);
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
   }, [isOpen]);
 
   // Cleanup abort controller on unmount
@@ -206,10 +249,12 @@ function ChatWidget() {
     <>
       {/* Chat Window */}
       <div
+        ref={chatWindowRef}
         className={`chat-window${isOpen ? ' open' : ''}`}
         role="dialog"
-        aria-label={`Chat with ${siteConfig.profile.firstName}'s AI assistant`}
+        aria-label={t('chat.header')}
         aria-modal="true"
+        aria-hidden={!isOpen}
       >
         {/* Header */}
         <div className="chat-header">
@@ -225,15 +270,20 @@ function ChatWidget() {
           <button
             className="chat-close-btn"
             onClick={toggleChat}
-            aria-label="Close chat"
+            aria-label={t('a11y.closeChat')}
+            type="button"
           >
             <IconClose />
           </button>
         </div>
 
         {/* Messages */}
-        <div className="chat-messages" role="log" aria-live="polite" aria-label="Chat messages">
-
+        <div
+          className="chat-messages"
+          role="log"
+          aria-live="polite"
+          aria-label={t('a11y.chatMessages')}
+        >
           {/* Welcome state */}
           {showWelcome && (
             <div className="chat-welcome">
@@ -254,22 +304,22 @@ function ChatWidget() {
 
           {/* Typing indicator */}
           {isStreaming && messages[messages.length - 1]?.content === '' && (
-            <div className="chat-typing" aria-label="AI is typing">
-              <div className="chat-typing-dot" />
-              <div className="chat-typing-dot" />
-              <div className="chat-typing-dot" />
+            <div className="chat-typing" role="status" aria-label={t('chat.headerSub')}>
+              <div className="chat-typing-dot" aria-hidden="true" />
+              <div className="chat-typing-dot" aria-hidden="true" />
+              <div className="chat-typing-dot" aria-hidden="true" />
             </div>
           )}
 
           {/* Error state */}
           {error && !isStreaming && (
-            <div className="chat-error">
+            <div className="chat-error" role="alert">
               <div className="chat-error-bubble">
                 {error === '__default__'    ? t('chat.errorDefault')
                   : error === '__connection__' ? t('chat.errorConnection')
                   : error}
               </div>
-              <button className="chat-retry-btn" onClick={retry}>
+              <button className="chat-retry-btn" onClick={retry} type="button">
                 {t('chat.retry')}
               </button>
             </div>
@@ -281,12 +331,13 @@ function ChatWidget() {
         {/* Input area */}
         <div className="chat-input-area">
           {/* FAQ chips */}
-          <div className="chat-faq" role="group" aria-label="Frequently asked questions">
+          <div className="chat-faq" role="group" aria-label={t('a11y.chatFAQ')}>
             <span className="chat-faq-label">{t('chat.faqLabel')}</span>
             <div className="chat-faq-chips">
               {faq.map(q => (
                 <button
                   key={q}
+                  type="button"
                   className="chat-faq-chip"
                   onClick={() => sendMessage(q)}
                   disabled={isStreaming}
@@ -308,14 +359,15 @@ function ChatWidget() {
               onKeyDown={handleKeyDown}
               rows={1}
               maxLength={500}
-              aria-label="Type your message"
+              aria-label={t('a11y.typeMessage')}
               disabled={isStreaming}
             />
             <button
+              type="button"
               className="chat-send-btn"
               onClick={() => sendMessage()}
               disabled={!input.trim() || isStreaming}
-              aria-label="Send message"
+              aria-label={t('a11y.sendMessage')}
             >
               <IconSend />
             </button>
@@ -325,10 +377,13 @@ function ChatWidget() {
 
       {/* Toggle Button */}
       <button
+        ref={toggleBtnRef}
+        type="button"
         className={`chat-toggle${isOpen ? ' open' : ''}`}
         onClick={toggleChat}
-        aria-label={isOpen ? 'Close chat' : `Open AI chat about ${siteConfig.profile.firstName}`}
+        aria-label={isOpen ? t('a11y.closeChat') : t('a11y.openChat')}
         aria-expanded={isOpen}
+        aria-controls="chat-window"
       >
         {isOpen ? <IconClose /> : <IconChat />}
         {!isOpen && hasUnread && <span className="chat-toggle-dot" aria-hidden="true" />}

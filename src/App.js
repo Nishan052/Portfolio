@@ -2,6 +2,8 @@
 import "./i18n/index.js";
 
 import { useState, useEffect, useCallback } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 // ── Context & theme ────────────────────────────────────────────────────────────
 import { ThemeContext, THEMES } from "./context/ThemeContext";
@@ -11,21 +13,29 @@ import useScrollAnimation from "./hooks/useScrollAnimation";
 import useParallax        from "./hooks/useParallax";
 import useActiveSection   from "./hooks/useActiveSection";
 
-// ── Components ─────────────────────────────────────────────────────────────────
-import ThreeBackground   from "./components/ThreeBackground";
-import FloatingOrbs      from "./components/FloatingOrbs";
-import Navbar            from "./components/Navbar";
-import HeroSection       from "./components/HeroSection";
-import AboutSection      from "./components/AboutSection";
-import ExperienceSection from "./components/ExperienceSection";
-import ProjectsSection   from "./components/ProjectsSection";
-import SkillsSection     from "./components/SkillsSection";
-import ContactSection    from "./components/ContactSection";
-import Footer            from "./components/Footer";
-import ChatWidget        from "./components/ChatWidget";
+// ── Layout ─────────────────────────────────────────────────────────────────────
+import ThreeBackground   from "./components/layout/ThreeBackground";
+import FloatingOrbs      from "./components/layout/FloatingOrbs";
+import Navbar            from "./components/layout/Navbar";
+
+// ── Sections ───────────────────────────────────────────────────────────────────
+import HeroSection       from "./components/sections/HeroSection";
+import AboutSection      from "./components/sections/AboutSection";
+import ExperienceSection from "./components/sections/ExperienceSection";
+import ProjectsSection   from "./components/sections/ProjectsSection";
+import SkillsSection     from "./components/sections/SkillsSection";
+import ContactSection    from "./components/sections/ContactSection";
+import Footer            from "./components/layout/Footer";
+
+// ── UI ─────────────────────────────────────────────────────────────────────────
+import ChatWidget        from "./components/ui/ChatWidget";
+
+// ── Pages ──────────────────────────────────────────────────────────────────────
+import BlogsList from "./pages/BlogsList/BlogsList";
+import BlogPost  from "./pages/BlogPost/BlogPost";
 
 // ── Global styles ──────────────────────────────────────────────────────────────
-import "./styles.css";
+import "./styles/global.css";
 
 /**
  * Injects CSS custom properties onto :root based on the active theme object.
@@ -45,15 +55,41 @@ function applyThemeVars(theme) {
   root.style.setProperty("--section-overlay", theme.sectionOverlay);
 }
 
+/**
+ * Home page — owns animation hooks so they re-run on every mount.
+ * This ensures fade-up elements animate correctly after navigating back from /blogs.
+ */
+function HomePage() {
+  useScrollAnimation();
+  useParallax();
+  return (
+    <main id="main-content" style={{ position: "relative", zIndex: 1 }}>
+      <HeroSection />
+      <AboutSection />
+      <ExperienceSection />
+      <ProjectsSection />
+      <SkillsSection />
+      <ContactSection />
+      <Footer />
+    </main>
+  );
+}
+
 export default function App() {
   const [isDark,   setIsDark]   = useState(true);
   const [scrolled, setScrolled] = useState(false);
+  const { t, i18n }             = useTranslation();
 
   const theme         = isDark ? THEMES.dark : THEMES.light;
   const activeSection = useActiveSection();
 
   // Apply CSS variables whenever theme changes
   useEffect(() => { applyThemeVars(theme); }, [theme]);
+
+  // Sync <html lang> attribute with i18n language (WCAG 3.1.1)
+  useEffect(() => {
+    document.documentElement.lang = i18n.language || "en";
+  }, [i18n.language]);
 
   // Scroll sentinel for nav border
   useEffect(() => {
@@ -64,38 +100,37 @@ export default function App() {
 
   const toggleTheme = useCallback(() => setIsDark((p) => !p), []);
 
-  // Global animation hooks
-  useScrollAnimation();
-  useParallax();
-
   return (
-    <ThemeContext.Provider value={theme}>
-      {/* Fixed canvas background */}
-      <ThreeBackground isDark={isDark} />
-      <FloatingOrbs    isDark={isDark} />
+    <BrowserRouter>
+      <ThemeContext.Provider value={theme}>
+        {/* Skip to main content link (WCAG 2.4.1) */}
+        <a href="#main-content" className="skip-link">
+          {t("a11y.skipToMain")}
+        </a>
 
-      {/* Navigation — language state is now managed by i18next internally */}
-      <Navbar
-        isDark={isDark}
-        toggleTheme={toggleTheme}
-        scrolled={scrolled}
-        activeSection={activeSection}
-      />
+        {/* Fixed canvas background — shown on all routes */}
+        <ThreeBackground isDark={isDark} />
+        <FloatingOrbs    isDark={isDark} />
 
-      {/* Page sections */}
-      <main style={{ position: "relative", zIndex: 1 }}>
-        <HeroSection />
-        <AboutSection />
-        <ExperienceSection />
-        <ProjectsSection />
-        <SkillsSection />
-        <ContactSection />
-      </main>
+        <Navbar
+          isDark={isDark}
+          toggleTheme={toggleTheme}
+          scrolled={scrolled}
+          activeSection={activeSection}
+        />
 
-      <Footer />
+        <Routes>
+          {/* ── Home page ─────────────────────────────────────────────── */}
+          <Route path="/" element={<HomePage />} />
 
-      {/* Floating AI chat widget — bottom right */}
-      <ChatWidget />
-    </ThemeContext.Provider>
+          {/* ── Blog routes ───────────────────────────────────────────── */}
+          <Route path="/blogs"      element={<BlogsList />} />
+          <Route path="/blogs/:slug" element={<BlogPost />} />
+        </Routes>
+
+        {/* Floating AI chat widget — shown on all routes */}
+        <ChatWidget />
+      </ThemeContext.Provider>
+    </BrowserRouter>
   );
 }

@@ -4,7 +4,8 @@
     "experience": "Experience",
     "projects":   "Projects",
     "skills":     "Skills",
-    "contact":    "Contact"
+    "contact":    "Contact",
+    "blog":       "Blog"
   },
 
   "hero": {
@@ -12,6 +13,7 @@
     "description": "Master's student in Business Intelligence & Data Analytics at Hochschule Emden/Leer, with 4+ years building data-driven solutions across banking and healthcare domain.",
     "cta":         "Get in Touch",
     "github":      "GitHub",
+    "scrollDown":  "Scroll down",
     "stats": {
       "yearsExp":  "Years Exp.",
       "companies": "Companies",
@@ -74,7 +76,7 @@
       {
         "subtitle":    "MQTT-based IoT Messaging Platform",
         "category":    "IoT / Full-Stack",
-        "description": "An IoT communication platform built around the MQTT protocol — like WhatsApp but for machines. Devices publish and subscribe to topics in real time, enabling instant signal exchange across distributed IoT nodes. Built to explore lightweight pub/sub messaging for embedded systems.",
+        "description": "An IoT communication platform built around the MQTT protocol — like WhatsApp but for machines. Devices publish and subscribe to topics in real time, enabling instant signal exchange across distributed IoT nodes.",
         "highlights":  ["Pub/Sub MQTT", "Real-time IoT", "Lightweight Protocol"]
       },
       {
@@ -144,5 +146,64 @@
       "Tell me about your projects",
       "What skills do you have?"
     ]
+  },
+
+  "blogs": {
+    "pageTitle":       "Blog",
+    "pageSubtitle":    "Deep-dives into my projects, AI/ML research breakdowns, and weekly advancements in data science — with proper citations.",
+    "backToPortfolio": "← Back to Portfolio",
+    "backToBlog":      "← Back to Blog",
+    "search":          "Search posts…",
+    "empty":           "No posts match your search.",
+    "readPost":        "Read post →",
+    "readSuffix":      "read",
+    "resultCount_one":   "1 post",
+    "resultCount_other": "{{count}} posts",
+    "tableOfContents": "Contents",
+    "references":      "References",
+    "relatedPosts":    "Related Posts",
+    "loadingDiagram":  "Loading diagram…",
+    "diagramError":    "Diagram error",
+    "filter": {
+      "all":      "All",
+      "project":  "Projects",
+      "research": "Research",
+      "news":     "AI News"
+    },
+    "categoryLabels": {
+      "project":  "Project Deep-Dive",
+      "research": "Research",
+      "news":     "AI News"
+    }
+  },
+
+  "a11y": {
+    "skipToMain":    "Skip to main content",
+    "primaryNav":    "Primary navigation",
+    "openMenu":      "Open navigation menu",
+    "closeMenu":     "Close navigation menu",
+    "switchToDark":  "Switch to dark mode",
+    "switchToLight": "Switch to light mode",
+    "switchToEn":    "Switch to English",
+    "switchToDe":    "Switch to German",
+    "openChat":      "Open AI assistant chat",
+    "closeChat":     "Close chat",
+    "sendMessage":   "Send message",
+    "typeMessage":   "Type your message",
+    "chatMessages":  "Chat messages",
+    "chatFAQ":       "Frequently asked questions",
+    "viewOnGitHub":  "View {{title}} on GitHub, opens in new tab",
+    "avatar":        "Profile avatar of Nishan Poojary",
+    "scrollDown":    "Scroll down to content",
+    "filterPosts":   "Filter blog posts by category",
+    "searchPosts":   "Search blog posts",
+    "tocNav":        "Table of contents",
+    "technologies":  "Technologies used",
+    "highlights":    "Project highlights",
+    "externalLink":  "opens in new tab",
+    "readMore":      "Read full post: {{title}}",
+    "heroStats":      "Key statistics",
+    "subRoles":       "Career progression",
+    "languageToggle": "Switch language"
   }
 }

@@ -4,7 +4,8 @@
     "experience": "Erfahrung",
     "projects":   "Projekte",
     "skills":     "Fähigkeiten",
-    "contact":    "Kontakt"
+    "contact":    "Kontakt",
+    "blog":       "Blog"
   },
 
   "hero": {
@@ -12,6 +13,7 @@
     "description": "Masterstudent in Business Intelligence & Data Analytics an der Hochschule Emden/Leer, mit über 4 Jahren Erfahrung in der Entwicklung datengetriebener Lösungen im Bank- und Gesundheitswesen.",
     "cta":         "Kontakt aufnehmen",
     "github":      "GitHub",
+    "scrollDown":  "Nach unten scrollen",
     "stats": {
       "yearsExp":  "Jahre Erf.",
       "companies": "Firmen",
@@ -74,7 +76,7 @@
       {
         "subtitle":    "MQTT-basierte IoT-Messaging-Plattform",
         "category":    "IoT / Full-Stack",
-        "description": "Eine IoT-Kommunikationsplattform auf Basis des MQTT-Protokolls – wie WhatsApp für Maschinen. Geräte veröffentlichen und abonnieren Topics in Echtzeit und ermöglichen so den sofortigen Signalaustausch über verteilte IoT-Knoten. Entwickelt zur Erkundung von leichtgewichtigem Pub/Sub-Messaging für eingebettete Systeme.",
+        "description": "Eine IoT-Kommunikationsplattform auf Basis des MQTT-Protokolls – wie WhatsApp für Maschinen. Geräte veröffentlichen und abonnieren Topics in Echtzeit und ermöglichen so den sofortigen Signalaustausch über verteilte IoT-Knoten.",
         "highlights":  ["Pub/Sub MQTT", "Echtzeit-IoT", "Leichtgewichtiges Protokoll"]
       },
       {
@@ -86,7 +88,7 @@
       {
         "subtitle":    "Edge-KI auf Arduino",
         "category":    "Eingebettete KI",
-        "description": "End-to-End-TinyML-Gesichtserkennung auf Arduino Nano 33 BLE Sense mit INT8-quantisierten CNN-Embeddings, TensorFlow Lite Micro und Cosinus-Ähnlichkeits-basierter adaptiver Schwellenwertbestimmung zur Zurückweisung unbekannter Gesichter.",
+        "description": "End-to-End-TinyML-Gesichtserkennung auf Arduino Nano 33 BLE Sense mit INT8-quantisierten CNN-Embeddings, TensorFlow Lite Micro und Cosinus-Ähnlichkeits-basierter adaptiver Schwellenwertbestimmung.",
         "highlights":  ["INT8-quantisiert", "Cosinus-Ähnlichkeit", "RGB-LED-Feedback"]
       },
       {
@@ -144,5 +146,64 @@
       "Erzähl mir von deinen Projekten",
       "Welche Fähigkeiten hast du?"
     ]
+  },
+
+  "blogs": {
+    "pageTitle":       "Blog",
+    "pageSubtitle":    "Detaillierte Einblicke in meine Projekte, KI/ML-Forschung und wöchentliche Fortschritte in der Datenwissenschaft – mit korrekten Quellenangaben.",
+    "backToPortfolio": "← Zurück zum Portfolio",
+    "backToBlog":      "← Zurück zum Blog",
+    "search":          "Beiträge suchen…",
+    "empty":           "Keine Beiträge gefunden.",
+    "readPost":        "Beitrag lesen →",
+    "readSuffix":      "Lesezeit",
+    "resultCount_one":   "1 Beitrag",
+    "resultCount_other": "{{count}} Beiträge",
+    "tableOfContents": "Inhalt",
+    "references":      "Literatur",
+    "relatedPosts":    "Ähnliche Beiträge",
+    "loadingDiagram":  "Diagramm lädt…",
+    "diagramError":    "Diagrammfehler",
+    "filter": {
+      "all":      "Alle",
+      "project":  "Projekte",
+      "research": "Forschung",
+      "news":     "KI-News"
+    },
+    "categoryLabels": {
+      "project":  "Projekt-Einblick",
+      "research": "Forschung",
+      "news":     "KI-News"
+    }
+  },
+
+  "a11y": {
+    "skipToMain":    "Zum Hauptinhalt springen",
+    "primaryNav":    "Hauptnavigation",
+    "openMenu":      "Navigationsmenü öffnen",
+    "closeMenu":     "Navigationsmenü schließen",
+    "switchToDark":  "Dunkelmodus aktivieren",
+    "switchToLight": "Hellmodus aktivieren",
+    "switchToEn":    "Zu Englisch wechseln",
+    "switchToDe":    "Zu Deutsch wechseln",
+    "openChat":      "KI-Assistenten-Chat öffnen",
+    "closeChat":     "Chat schließen",
+    "sendMessage":   "Nachricht senden",
+    "typeMessage":   "Nachricht eingeben",
+    "chatMessages":  "Chatnachrichten",
+    "chatFAQ":       "Häufig gestellte Fragen",
+    "viewOnGitHub":  "{{title}} auf GitHub ansehen, öffnet in neuem Tab",
+    "avatar":        "Profilavatar von Nishan Poojary",
+    "scrollDown":    "Zum Inhalt scrollen",
+    "filterPosts":   "Blogbeiträge nach Kategorie filtern",
+    "searchPosts":   "Blogbeiträge durchsuchen",
+    "tocNav":        "Inhaltsverzeichnis",
+    "technologies":  "Verwendete Technologien",
+    "highlights":    "Projekt-Highlights",
+    "externalLink":  "öffnet in neuem Tab",
+    "readMore":      "Ganzen Beitrag lesen: {{title}}",
+    "heroStats":      "Wichtige Statistiken",
+    "subRoles":       "Karriereverlauf",
+    "languageToggle": "Sprache wechseln"
   }
 }
