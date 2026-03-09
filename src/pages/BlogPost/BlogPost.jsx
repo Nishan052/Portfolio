@@ -184,12 +184,12 @@ export default function BlogPost() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="blog-link"
-                      aria-label={`${ref.text} (${t('a11y.externalLink')})`}
+                      aria-label={`${ref.text || ref.label} (${t('a11y.externalLink')})`}
                     >
-                      {ref.text}
+                      {ref.text || ref.label}
                     </a>
                   ) : (
-                    ref.text
+                    ref.text || ref.label
                   )}
                 </li>
               ))}

@@ -1,4 +1,5 @@
 const post = {
+  id:        1,
   slug:      'angular-spa-routing',
   title:     'Angular SPA Routing: Lazy Loading, Guards & Child Routes',
   category:  'project',

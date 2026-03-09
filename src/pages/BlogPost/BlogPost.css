@@ -1,33 +1,144 @@
 /* ─── Mermaid diagrams ───────────────────────────────────────────────────── */
 .mermaid-figure {
   margin: 2.4rem 0;
-  text-align: center;
+}
+
+/*
+ * .mermaid-frame  — position context for the expand button
+ * .mermaid-wrap   — the 480px scrollable diagram viewport
+ * .mermaid-expand-btn — absolutely pinned to bottom-right of the frame,
+ *   outside the scroll container so it never scrolls away
+ */
+.mermaid-figure {
+  margin: 2.4rem 0;
+}
+
+.mermaid-frame {
+  position: relative;
 }
 
 .mermaid-wrap {
   width: 100%;
-  overflow-x: auto;
+  min-width: 0;
+  height: 480px;
+  overflow: auto;
+  box-sizing: border-box;
   background: rgba(13, 17, 23, 0.7);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 28px 20px;
-  box-sizing: border-box;
+  padding: 24px;
+  /* center SVG when it is smaller than the frame */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.18s;
 }
 
-/* Force the rendered SVG to fill its container */
+.mermaid-frame:hover .mermaid-wrap {
+  border-color: var(--accent);
+}
+
+/* Inner div produced by dangerouslySetInnerHTML — must not shrink */
+.mermaid-wrap > div {
+  flex-shrink: 0;
+}
+
 .mermaid-wrap svg {
-  width: 100% !important;
-  max-width: 100% !important;
-  height: auto !important;
   display: block;
-  min-height: 120px;
+  height: auto !important;
+  width: auto !important;
+  max-width: none !important;
 }
 
-/* Mermaid text nodes — ensure legibility */
-.mermaid-wrap svg text,
-.mermaid-wrap svg .label {
-  font-size: 14px !important;
-  font-family: 'Outfit', sans-serif !important;
+/* Expand button — sits OUTSIDE .mermaid-wrap so it never scrolls.
+   Absolutely positioned relative to .mermaid-frame. */
+.mermaid-expand-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(13, 17, 23, 0.85);
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+  backdrop-filter: blur(4px);
+}
+.mermaid-expand-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0, 229, 255, 0.07);
+}
+
+/* ─── Diagram modal ──────────────────────────────────────────────────────── */
+.mermaid-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  cursor: pointer; /* click outside to close */
+}
+
+.mermaid-modal-content {
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  overflow: auto;
+  max-width: min(92vw, 1200px);
+  max-height: 88vh;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* SVG inside the modal — fit to screen, natural aspect ratio */
+.mermaid-modal-content svg {
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: calc(min(92vw, 1200px) - 64px) !important;
+  max-height: calc(88vh - 64px) !important;
+}
+
+.mermaid-modal-close {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+.mermaid-modal-close:hover {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .mermaid-caption {
@@ -166,6 +277,14 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 40px;
+}
+
+/* Grid items must have min-width: 0 — without this, a grid item containing
+   a wide element (SVG, table) expands beyond its 1fr cell and pushes the
+   entire page wider than the 820px container. */
+.blogpost-toc,
+.blogpost-content {
+  min-width: 0;
 }
 
 /* ─── Table of Contents ──────────────────────────────────────────────────── */

@@ -1,4 +1,5 @@
 const post = {
+  id:        6,
   slug:      'barcode-scanner-tinyml',
   title:     'TinyML Barcode Detection: From Keras to Microcontroller',
   category:  'project',

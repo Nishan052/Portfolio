@@ -1,4 +1,5 @@
 const post = {
+  id:        5,
   slug:      'tinyml-face-verification',
   title:     'TinyML Face Verification on Arduino with LiteRT',
   category:  'project',

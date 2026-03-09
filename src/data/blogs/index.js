@@ -1,35 +1,36 @@
 /**
  * src/data/blogs/index.js
  *
- * Auto-assembled blog registry.
+ * Auto-assembled blog registry — NO MANUAL EDITS NEEDED.
  *
  * To add a new blog post:
- *   1. Create a new file in this directory:  src/data/blogs/your-post-slug.js
- *   2. Export a default object matching the blog post shape (see any existing file).
- *   3. Import it below and add it to the `blogs` array (newest first).
+ *   1. Create a new file in this directory: src/data/blogs/your-post-slug.js
+ *   2. Export a default object with the required shape (see any existing file).
+ *   Done. It will appear automatically, sorted newest-first by the `date` field.
  *
- * Post shape:
- *   slug, title, category, emoji, color, date, readTime, tags,
- *   excerpt, content (markdown string), references (array), githubUrl (optional)
- *
- * Categories: "project" | "research" | "news"
+ * Required post shape:
+ *   slug       — string   URL-safe identifier e.g. 'my-post-title'
+ *   title      — string   Full display title
+ *   category   — string   'project' | 'research' | 'news'
+ *   emoji      — string   Single emoji shown in cards
+ *   color      — string   Hex accent colour e.g. '#6366f1'
+ *   date       — string   ISO date e.g. '2026-03-08'  ← controls sort order
+ *   readTime   — string   e.g. '10 min'
+ *   tags       — string[] e.g. ['AI', 'RAG']
+ *   excerpt    — string   One-sentence description shown in list view
+ *   content    — string   Full markdown content (supports mermaid fences)
+ *   references — { label, url }[]  Links shown at the bottom
+ *   githubUrl  — string   Optional GitHub link
  */
 
-import nifty50          from './nifty50-stock-prediction';
-import signaldock       from './signaldock-mqtt-iot';
-import barcodeScanner   from './barcode-scanner-tinyml';
-import faceVerification from './tinyml-face-verification';
-import angularRouting   from './angular-spa-routing';
-import pythonData       from './python-data-analysis';
+// webpack require.context — auto-imports every .js file in this directory
+// except index.js itself. No manual import needed when adding a new post.
+const ctx = require.context('./', false, /^\.\/(?!index).*\.js$/);
 
-// ── Add new posts at the TOP (newest first) ─────────────────────────────────
-const blogs = [
-  nifty50,
-  signaldock,
-  barcodeScanner,
-  faceVerification,
-  angularRouting,
-  pythonData,
-];
+const blogs = ctx
+  .keys()
+  .map(key => ctx(key).default)
+  .filter(Boolean)
+  .sort((a, b) => (b.id ?? 0) - (a.id ?? 0)); // highest id first = newest
 
 export default blogs;

@@ -1,4 +1,5 @@
 const post = {
+  id:        2,
   slug:      'python-data-analysis',
   title:     'Python Data Analysis: EDA, Visualisation & Statistical Inference',
   category:  'project',

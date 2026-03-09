@@ -1,4 +1,5 @@
 const post = {
+  id:        4,
   slug:      'signaldock-mqtt-iot',
   title:     'SignalDock: Containerised MQTT Messaging with Docker',
   category:  'project',

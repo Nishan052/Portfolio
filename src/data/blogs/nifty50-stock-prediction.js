@@ -1,4 +1,5 @@
 const post = {
+  id:        3,
   slug:      'nifty50-stock-prediction',
   title:     'NIFTY 50 Stock Price Prediction: ARIMA vs LSTM',
   category:  'project',
