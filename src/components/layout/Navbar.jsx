@@ -90,7 +90,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
           {/* Logo */}
           <button
             className="logo-btn"
-            onClick={() => scrollTo("hero")}
+            onClick={() => handleNav("hero")}
             aria-label={`${siteConfig.profile.firstName} ${siteConfig.profile.lastName} — ${t("a11y.scrollDown")}`}
             type="button"
           >
@@ -99,51 +99,55 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
             <span className="logo-domain">{siteConfig.profile.logoDomain}</span>
           </button>
 
-          {/* Desktop links */}
-          <div className="nav-desktop">
-            {NAV_KEYS.map((key) => (
+          {/* Desktop links — hidden on blog pages */}
+          {!isOnBlog && (
+            <div className="nav-desktop">
+              {NAV_KEYS.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={`nav-link ${!isOnBlog && activeSection === key ? "active" : ""}`}
+                  onClick={() => handleNav(key)}
+                  aria-current={!isOnBlog && activeSection === key ? "page" : undefined}
+                >
+                  {t(`nav.${key}`)}
+                </button>
+              ))}
               <button
-                key={key}
                 type="button"
-                className={`nav-link ${!isOnBlog && activeSection === key ? "active" : ""}`}
-                onClick={() => handleNav(key)}
-                aria-current={!isOnBlog && activeSection === key ? "page" : undefined}
+                className={`nav-blog-btn ${isOnBlog ? "active" : ""}`}
+                onClick={handleBlogsClick}
+                aria-current={isOnBlog ? "page" : undefined}
               >
-                {t(`nav.${key}`)}
+                ✦ {t("nav.blog")}
               </button>
-            ))}
-            <button
-              type="button"
-              className={`nav-blog-btn ${isOnBlog ? "active" : ""}`}
-              onClick={handleBlogsClick}
-              aria-current={isOnBlog ? "page" : undefined}
-            >
-              ✦ {t("nav.blog")}
-            </button>
-          </div>
+            </div>
+          )}
 
           {/* Right controls */}
           <div className="nav-controls">
 
-            {/* Language toggle — segmented EN | DE pill */}
-            <div
-              role="group"
-              aria-label={t("a11y.languageToggle")}
-              className="lang-toggle"
-            >
-              {["en", "de"].map((l) => (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => switchLang(l)}
-                  aria-label={l === "en" ? t("a11y.switchToEn") : t("a11y.switchToDe")}
-                  aria-pressed={currentLang === l}
-                  className={`lang-btn ${currentLang === l ? "lang-btn--active" : "lang-btn--inactive"}`}
-                >
-                  {l.toUpperCase()}
-                </button>
-              ))}
-            </div>
+            {/* Language toggle — hidden on blog pages */}
+            {!isOnBlog && (
+              <div
+                role="group"
+                aria-label={t("a11y.languageToggle")}
+                className="lang-toggle"
+              >
+                {["en", "de"].map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => switchLang(l)}
+                    aria-label={l === "en" ? t("a11y.switchToEn") : t("a11y.switchToDe")}
+                    aria-pressed={currentLang === l}
+                    className={`lang-btn ${currentLang === l ? "lang-btn--active" : "lang-btn--inactive"}`}
+                  >
+                    {l.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <button
               type="button"
@@ -157,19 +161,22 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
               </div>
             </button>
 
-            <button
-              ref={hamburgerRef}
-              type="button"
-              className={`hamburger ${menuOpen ? "open" : ""}`}
-              onClick={() => setMenuOpen((p) => !p)}
-              aria-expanded={menuOpen}
-              aria-controls="mobile-menu"
-              aria-label={menuOpen ? t("a11y.closeMenu") : t("a11y.openMenu")}
-            >
-              <span aria-hidden="true" />
-              <span aria-hidden="true" />
-              <span aria-hidden="true" />
-            </button>
+            {/* Hamburger — hidden on blog pages */}
+            {!isOnBlog && (
+              <button
+                ref={hamburgerRef}
+                type="button"
+                className={`hamburger ${menuOpen ? "open" : ""}`}
+                onClick={() => setMenuOpen((p) => !p)}
+                aria-expanded={menuOpen}
+                aria-controls="mobile-menu"
+                aria-label={menuOpen ? t("a11y.closeMenu") : t("a11y.openMenu")}
+              >
+                <span aria-hidden="true" />
+                <span aria-hidden="true" />
+                <span aria-hidden="true" />
+              </button>
+            )}
           </div>
         </div>
       </nav>

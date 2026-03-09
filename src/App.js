@@ -2,7 +2,7 @@
 import "./i18n/index.js";
 
 import { useState, useEffect, useCallback } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 // ── Context & theme ────────────────────────────────────────────────────────────
@@ -75,13 +75,70 @@ function HomePage() {
   );
 }
 
-export default function App() {
-  const [isDark,   setIsDark]   = useState(true);
-  const [scrolled, setScrolled] = useState(false);
-  const { t, i18n }             = useTranslation();
+/**
+ * Renders ChatWidget only when not on a blog page.
+ * Must be inside BrowserRouter to use useLocation.
+ */
+function BlogAwareChatWidget() {
+  const location = useLocation();
+  if (location.pathname.startsWith("/blogs")) return null;
+  return <ChatWidget />;
+}
 
-  const theme         = isDark ? THEMES.dark : THEMES.light;
+/**
+ * Inner shell — must be inside BrowserRouter so hooks like
+ * useActiveSection (which calls useLocation) work correctly.
+ */
+function AppShell({ isDark, toggleTheme }) {
+  const [scrolled, setScrolled] = useState(false);
+  const { t }         = useTranslation();
   const activeSection = useActiveSection();
+
+  // Scroll sentinel for nav border
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  return (
+    <>
+      {/* Skip to main content link (WCAG 2.4.1) */}
+      <a href="#main-content" className="skip-link">
+        {t("a11y.skipToMain")}
+      </a>
+
+      {/* Fixed canvas background — shown on all routes */}
+      <ThreeBackground isDark={isDark} />
+      <FloatingOrbs    isDark={isDark} />
+
+      <Navbar
+        isDark={isDark}
+        toggleTheme={toggleTheme}
+        scrolled={scrolled}
+        activeSection={activeSection}
+      />
+
+      <Routes>
+        {/* ── Home page ─────────────────────────────────────────────── */}
+        <Route path="/" element={<HomePage />} />
+
+        {/* ── Blog routes ───────────────────────────────────────────── */}
+        <Route path="/blogs"      element={<BlogsList />} />
+        <Route path="/blogs/:slug" element={<BlogPost />} />
+      </Routes>
+
+      {/* Floating AI chat widget — hidden on blog pages */}
+      <BlogAwareChatWidget />
+    </>
+  );
+}
+
+export default function App() {
+  const [isDark, setIsDark] = useState(true);
+  const { i18n }            = useTranslation();
+
+  const theme = isDark ? THEMES.dark : THEMES.light;
 
   // Apply CSS variables whenever theme changes
   useEffect(() => { applyThemeVars(theme); }, [theme]);
@@ -91,45 +148,12 @@ export default function App() {
     document.documentElement.lang = i18n.language || "en";
   }, [i18n.language]);
 
-  // Scroll sentinel for nav border
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
-  }, []);
-
   const toggleTheme = useCallback(() => setIsDark((p) => !p), []);
 
   return (
     <BrowserRouter>
       <ThemeContext.Provider value={theme}>
-        {/* Skip to main content link (WCAG 2.4.1) */}
-        <a href="#main-content" className="skip-link">
-          {t("a11y.skipToMain")}
-        </a>
-
-        {/* Fixed canvas background — shown on all routes */}
-        <ThreeBackground isDark={isDark} />
-        <FloatingOrbs    isDark={isDark} />
-
-        <Navbar
-          isDark={isDark}
-          toggleTheme={toggleTheme}
-          scrolled={scrolled}
-          activeSection={activeSection}
-        />
-
-        <Routes>
-          {/* ── Home page ─────────────────────────────────────────────── */}
-          <Route path="/" element={<HomePage />} />
-
-          {/* ── Blog routes ───────────────────────────────────────────── */}
-          <Route path="/blogs"      element={<BlogsList />} />
-          <Route path="/blogs/:slug" element={<BlogPost />} />
-        </Routes>
-
-        {/* Floating AI chat widget — shown on all routes */}
-        <ChatWidget />
+        <AppShell isDark={isDark} toggleTheme={toggleTheme} />
       </ThemeContext.Provider>
     </BrowserRouter>
   );
