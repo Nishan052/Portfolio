@@ -68,7 +68,7 @@ flowchart LR
     style L fill:#9333ea,color:#fff
 \`\`\`
 
-No magic. No black box. You're just doing an **open-book exam** — finding the right page before answering.
+No magic. No black box. You're doing an **open-book exam** — finding the right page before answering.
 
 Pinecone, Weaviate, Chroma, pgvector — all of these tools exist purely to make **Step 1** (search) faster and more accurate. That's their entire job.
 
@@ -233,6 +233,8 @@ flowchart LR
     style P fill:#10b981,color:#fff
 \`\`\`
 
+On the output side, React escapes LLM responses by default when rendering — standard JSX behaviour. This covers the most common output rendering risk without any extra code.
+
 ---
 
 ## The Full Production Blueprint
@@ -275,10 +277,10 @@ flowchart TD
 | Frontend | React + SSE | Render streaming tokens live | Response appears all at once after 8s — users leave |
 | Edge runtime | Cloudflare Pages | Near-zero cold start, runs near user | Latency spikes globally |
 | Rate limiting | Upstash Redis | Prevent API abuse | One script bankrupts you overnight |
-| Caching | Upstash Redis | Avoid repeated LLM costs | 10× higher costs on popular questions |
+| Caching | Upstash Redis (same instance) | Avoid repeated LLM costs | 10× higher costs on popular questions |
 | Query expansion | Groq LLM | Bridge phrasing gap | Retrieval misses relevant chunks |
 | Embedding | Workers AI | Convert meaning to searchable numbers | Can't do semantic search at all |
-| Vector DB | Pinecone | Fast nearest-neighbour search | Have to compare every document on every query |
+| Vector database | Pinecone | Fast nearest-neighbour search | Have to compare every document on every query |
 | Grounding | Retrieved context | Anchor answers to real source documents | LLM confidently invents plausible lies |
 | Answer LLM | Groq llama-3.1-8b | Synthesize facts into language | You return raw document chunks, not answers |
 | Streaming | Server-Sent Events | Perceived latency | User stares at a spinner for 8 seconds |
@@ -291,7 +293,7 @@ flowchart TD
 
 ## Why This Exact Combination
 
-Every tool was chosen for **zero infrastructure at production scale**:
+Every tool was chosen to eliminate infrastructure overhead — no servers to provision, no containers to orchestrate, no capacity to plan:
 
 \`\`\`mermaid
 flowchart LR
@@ -303,6 +305,20 @@ flowchart LR
 \`\`\`
 
 The entire stack costs **$0/month** at personal portfolio scale — well within every component's free tier. No Docker. No Kubernetes. No servers. Each piece scales automatically; you only start paying when traffic grows beyond hobby use.
+
+---
+
+## The Tradeoffs
+
+No architecture solves every problem. This one has known limits worth understanding.
+
+**RAG reduces hallucination — it doesn't eliminate it.** The LLM still writes the final answer in its own words. It can misread a retrieved chunk, draw a wrong inference, or apply context that doesn't quite fit the question. Grounding narrows the failure mode; it doesn't close it entirely.
+
+**Semantic search can match the wrong meaning.** Embeddings capture statistical similarity, not logical equivalence. A document about Python snakes could outscore a Python programming chunk for the wrong query. Retrieval quality depends on how well your documents are written, chunked, and indexed — not just the embedding model.
+
+**Query expansion costs two LLM calls per user question.** One call generates the sub-questions; a second generates the answer. At portfolio traffic volumes this is negligible. At scale it doubles your LLM API spend compared to a single-query pipeline.
+
+**The free tiers have real ceilings.** Groq, Upstash, and Pinecone's free tiers handle portfolio traffic comfortably. A sudden spike — a link going viral, a bot scan — can exhaust daily limits in minutes. There is no built-in graceful degradation: once a limit is hit, the chat widget returns an error until the quota resets.
 
 ---
 
