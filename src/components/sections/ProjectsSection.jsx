@@ -1,7 +1,23 @@
 import { memo, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { LuCheck, LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight } from "react-icons/lu";
+import { SiPython } from "react-icons/si";
 import projects from "../../data/projects.json";
 import "./ProjectsSection.css";
+
+const PROJECT_ICON_MAP = {
+  TrendingUp:     LuTrendingUp,
+  Radio:          LuRadio,
+  ScanSearch:     LuScanSearch,
+  Bot:            LuBot,
+  ArrowLeftRight: LuArrowLeftRight,
+  Python:         SiPython,
+};
+
+function ProjectIcon({ iconKey }) {
+  const Icon = PROJECT_ICON_MAP[iconKey];
+  return Icon ? <Icon size={30} aria-hidden="true" /> : null;
+}
 
 /** GitHub icon SVG (reusable inline) */
 const GitHubIcon = () => (
@@ -55,7 +71,7 @@ const ProjectCard = ({ project: p, tx, isActive, onEnter, onLeave }) => {
 
       {/* Project ID + title */}
       <div className="project-title-row">
-        <span aria-hidden="true" className="project-emoji">{p.emoji}</span>
+        <span aria-hidden="true" className="project-emoji"><ProjectIcon iconKey={p.iconKey} /></span>
         <div>
           <div aria-hidden="true" className="project-id-label" style={{ color: p.color }}>
             {p.id}
@@ -89,7 +105,7 @@ const ProjectCard = ({ project: p, tx, isActive, onEnter, onLeave }) => {
       <div className="project-highlights" aria-label={t("a11y.highlights")}>
         {(tx.highlights || []).map((h) => (
           <span key={h} className="project-highlight-badge">
-            <span aria-hidden="true">✓</span> {h}
+            <LuCheck size={12} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", marginRight: 3 }} /> {h}
           </span>
         ))}
       </div>

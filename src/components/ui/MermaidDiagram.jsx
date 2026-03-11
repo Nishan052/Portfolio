@@ -1,5 +1,6 @@
 import { useEffect, useState, useId } from 'react';
 import { createPortal } from 'react-dom';
+import { LuX } from 'react-icons/lu';
 
 // ── Initialize Mermaid once at module level ──────────────────────────────────
 // Calling mermaid.initialize() inside each component causes race conditions
@@ -150,7 +151,7 @@ export default function MermaidDiagram({ definition, caption }) {
             onClick={() => setOpen(false)}
             aria-label="Close diagram"
           >
-            ✕
+            <LuX size={16} aria-hidden="true" />
           </button>
           <div
             className="mermaid-modal-content"

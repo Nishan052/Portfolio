@@ -1,12 +1,29 @@
 import { useEffect, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight, LuBrain } from 'react-icons/lu';
+import { SiPython } from 'react-icons/si';
 import siteConfig from '../../config/site';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import MermaidDiagram from '../../components/ui/MermaidDiagram';
 import blogs from '../../data/blogs/index';
 import './BlogPost.css';
+
+const BLOG_ICON_MAP = {
+  TrendingUp:     LuTrendingUp,
+  Radio:          LuRadio,
+  ScanSearch:     LuScanSearch,
+  Bot:            LuBot,
+  ArrowLeftRight: LuArrowLeftRight,
+  Brain:          LuBrain,
+  Python:         SiPython,
+};
+
+function BlogIcon({ iconKey }) {
+  const Icon = BLOG_ICON_MAP[iconKey];
+  return Icon ? <Icon size={48} aria-hidden="true" /> : null;
+}
 
 // Custom markdown components — renders mermaid fenced blocks as diagrams
 function mdComponents() {
@@ -113,7 +130,7 @@ export default function BlogPost() {
             <span className="blogpost-read">{blog.readTime} {t('blogs.readSuffix')}</span>
           </div>
 
-          <span className="blogpost-emoji" aria-hidden="true">{blog.emoji}</span>
+          <span className="blogpost-emoji" aria-hidden="true"><BlogIcon iconKey={blog.iconKey} /></span>
           <h1 id="post-title" className="blogpost-title">{blog.title}</h1>
           <p className="blogpost-excerpt">{blog.excerpt}</p>
 

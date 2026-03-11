@@ -27,10 +27,10 @@
     "bio1":  "I'm a dedicated software developer specializing in robust, responsive applications for the financial and healthcare sectors. Currently pursuing a Master of Engineering in Business Intelligence and Data Analytics at Hochschule Emden/Leer, Germany.",
     "bio2":  "My core skills span Python, R, Angular, Salesforce, TypeScript, Power BI, and Machine Learning. I'm passionate about AI-driven solutions and building data pipelines that deliver real business insights.",
     "cards": [
-      { "icon": "🎓", "title": "Education",   "desc": "MEng Business Intelligence & Data Analytics — Hochschule Emden/Leer (Grade: 1.45/5)" },
-      { "icon": "🏢", "title": "Background",  "desc": "4+ years at Infosys & Novigo Solutions in banking & healthcare domains" },
-      { "icon": "🌍", "title": "Languages",   "desc": "English (C1) · German (B1) · Kannada (C1) · Hindi (C1) · Tulu (C2)" },
-      { "icon": "📊", "title": "Focus Areas", "desc": "ML/AI · Data Analytics · Business Intelligence · Full-Stack Engineering" }
+      { "icon": "graduation", "title": "Education",   "desc": "MEng Business Intelligence & Data Analytics — Hochschule Emden/Leer (Grade: 1.45/5)" },
+      { "icon": "background", "title": "Background",  "desc": "4+ years at Infosys & Novigo Solutions in banking & healthcare domains" },
+      { "icon": "languages",  "title": "Languages",   "desc": "English (C1) · German (B1) · Kannada (C1) · Hindi (C1) · Tulu (C2)" },
+      { "icon": "focus",      "title": "Focus Areas", "desc": "ML/AI · Data Analytics · Business Intelligence · Full-Stack Engineering" }
     ]
   },
 
@@ -127,7 +127,7 @@
   },
 
   "footer": {
-    "built": "Built with",
+    "built": "Built",
     "by":    "by Nishan Poojary"
   },
 

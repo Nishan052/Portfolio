@@ -3,7 +3,7 @@ const post = {
   slug:      'signaldock-mqtt-iot',
   title:     'SignalDock: Containerised MQTT Messaging with Docker',
   category:  'project',
-  emoji:     '📡',
+  iconKey:   'Radio',
   color:     '#a855f7',
   date:      '2026-03-08',
   readTime:  '10 min',

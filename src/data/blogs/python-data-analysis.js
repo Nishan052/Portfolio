@@ -3,7 +3,7 @@ const post = {
   slug:      'python-data-analysis',
   title:     'Python Data Analysis: EDA, Visualisation & Statistical Inference',
   category:  'project',
-  emoji:     '🐍',
+  iconKey:   'Python',
   color:     '#ec4899',
   date:      '2026-03-08',
   readTime:  '8 min',

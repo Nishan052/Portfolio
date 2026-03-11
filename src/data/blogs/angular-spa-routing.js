@@ -3,7 +3,7 @@ const post = {
   slug:      'angular-spa-routing',
   title:     'Angular SPA Routing: Lazy Loading, Guards & Child Routes',
   category:  'project',
-  emoji:     '🔀',
+  iconKey:   'ArrowLeftRight',
   color:     '#3b82f6',
   date:      '2026-03-08',
   readTime:  '9 min',

@@ -95,7 +95,7 @@ Rules:
       keyTerms,
     };
   } catch (err) {
-    console.warn(`  ⚠ Enrichment failed for chunk ${chunk.chunkIndex}: ${err.message}`);
+    console.warn(`  [WARN] Enrichment failed for chunk ${chunk.chunkIndex}: ${err.message}`);
     console.warn('    Falling back to raw chunk (no context / keyPoints / keyTerms)');
     return {
       contextualText: chunk.text,

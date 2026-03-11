@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
+import { LuCode, LuMapPin } from "react-icons/lu";
 import siteConfig from "../../config/site";
 import "./HeroSection.css";
 
@@ -87,9 +88,9 @@ const HeroSection = memo(() => {
           className="parallax-slow hero-avatar hero-avatar-col"
         >
           <div aria-hidden="true" className="hero-avatar-circle">
-            {siteConfig.profile.avatarEmoji}
+            {<LuCode size={80} aria-hidden="true" />}
           </div>
-          <span className="skill-pill"><span aria-hidden="true">📍</span> {siteConfig.profile.location}</span>
+          <span className="skill-pill"><LuMapPin size={13} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", marginRight: 3 }} /> {siteConfig.profile.location}</span>
         </div>
       </div>
 

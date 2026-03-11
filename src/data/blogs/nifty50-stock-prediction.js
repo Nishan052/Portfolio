@@ -3,7 +3,7 @@ const post = {
   slug:      'nifty50-stock-prediction',
   title:     'NIFTY 50 Stock Price Prediction: ARIMA vs LSTM',
   category:  'project',
-  emoji:     '📈',
+  iconKey:   'TrendingUp',
   color:     '#00e5ff',
   date:      '2026-03-08',
   readTime:  '14 min',

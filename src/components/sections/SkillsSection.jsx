@@ -1,7 +1,40 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
+import { LuTrophy, LuDatabase, LuWrench, LuChartColumn, LuChartBar, LuRadio, LuEye, LuCloud } from "react-icons/lu";
+import { SiPython, SiR, SiTensorflow, SiPytorch, SiAngular, SiTypescript, SiHtml5, SiNodedotjs, SiSpringboot, SiSalesforce, SiSap, SiGithub, SiJira, SiStreamlit, SiArduino, SiJenkins } from "react-icons/si";
 import skillsData from "../../data/skills.json";
 import "./SkillsSection.css";
+
+const SKILL_ICON_MAP = {
+  Python:       SiPython,
+  R:            SiR,
+  SQL:          LuDatabase,
+  'Power BI':   LuChartColumn,
+  Tableau:      LuChartBar,
+  KNIME:        LuWrench,
+  TensorFlow:   SiTensorflow,
+  PyTorch:      SiPytorch,
+  Angular:      SiAngular,
+  TypeScript:   SiTypescript,
+  'HTML/CSS':   SiHtml5,
+  'Node.js':    SiNodedotjs,
+  'Spring Boot':SiSpringboot,
+  Salesforce:   SiSalesforce,
+  'SAP S/4HANA':SiSap,
+  GitHub:       SiGithub,
+  Jira:         SiJira,
+  Streamlit:    SiStreamlit,
+  MQTT:         LuRadio,
+  OpenCV:       LuEye,
+  Arduino:      SiArduino,
+  Jenkins:      SiJenkins,
+  AWS:          LuCloud,
+};
+
+function SkillIcon({ name }) {
+  const Icon = SKILL_ICON_MAP[name];
+  return Icon ? <Icon size={26} aria-hidden="true" /> : null;
+}
 
 /**
  * Skills section — three category grids + certifications list.
@@ -41,7 +74,7 @@ const SkillsSection = memo(() => {
               <ul className="skills-grid">
                 {cat.skills.map((s) => (
                   <li key={s.name} className="skill-item">
-                    <span aria-hidden="true" className="skill-icon">{s.icon}</span>
+                    <span aria-hidden="true" className="skill-icon"><SkillIcon name={s.name} /></span>
                     <span className="skill-name">{s.name}</span>
                   </li>
                 ))}
@@ -61,7 +94,7 @@ const SkillsSection = memo(() => {
             {certifications.map((c) => (
               <div key={c.title} className="card cert-card">
                 <div className="cert-title">
-                  <span aria-hidden="true">🏆</span> {c.title}
+                  <LuTrophy size={14} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} /> {c.title}
                 </div>
                 <div className="cert-org">{c.org}</div>
               </div>

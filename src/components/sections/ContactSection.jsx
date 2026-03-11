@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
+import { LuMapPin } from "react-icons/lu";
 import siteConfig from "../../config/site";
 import "./ContactSection.css";
 
@@ -56,7 +57,7 @@ const CONTACTS = [
     value: siteConfig.profile.location,
     href:  null,
     external: false,
-    icon:  <span aria-hidden="true" style={{ fontSize: "1.1rem" }}>📍</span>,
+    icon:  <LuMapPin size={17} color="var(--accent)" aria-hidden="true" />,
   },
 ];
 

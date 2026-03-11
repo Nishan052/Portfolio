@@ -3,7 +3,7 @@ const post = {
   slug:      'barcode-scanner-tinyml',
   title:     'TinyML Barcode Detection: From Keras to Microcontroller',
   category:  'project',
-  emoji:     '🔍',
+  iconKey:   'ScanSearch',
   color:     '#f59e0b',
   date:      '2026-03-08',
   readTime:  '12 min',

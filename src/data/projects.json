@@ -3,7 +3,7 @@
     "id":     "01",
     "title":  "Stock Market Price Prediction",
     "color":  "#00e5ff",
-    "emoji":  "📈",
+    "iconKey": "TrendingUp",
     "tech":   ["Python", "Pandas", "NumPy", "LSTM", "ARIMA", "Streamlit", "GitHub Actions"],
     "github": "https://github.com/Nishan052/Stock-Price-Prediction"
   },
@@ -11,7 +11,7 @@
     "id":     "02",
     "title":  "SignalDock",
     "color":  "#a855f7",
-    "emoji":  "📡",
+    "iconKey": "Radio",
     "tech":   ["MQTT", "Angular", "TypeScript", "WebSockets", "Python", "IoT", "Broker"],
     "github": "https://github.com/Nishan052/SignalDock"
   },
@@ -19,7 +19,7 @@
     "id":     "03",
     "title":  "Barcode Scanner",
     "color":  "#f59e0b",
-    "emoji":  "🔍",
+    "iconKey": "ScanSearch",
     "tech":   ["Python", "OpenCV", "ZBar", "SQLite", "GUI", "REST API"],
     "github": "https://github.com/Nishan052/barcodeScanner"
   },
@@ -27,7 +27,7 @@
     "id":     "04",
     "title":  "TinyML Face Verification",
     "color":  "#10b981",
-    "emoji":  "🤖",
+    "iconKey": "Bot",
     "tech":   ["Python", "TensorFlow Lite", "PyTorch", "Arduino", "C", "LiteRT"],
     "github": "https://github.com/Nishan052"
   },
@@ -35,7 +35,7 @@
     "id":     "05",
     "title":  "SPA Routing App",
     "color":  "#3b82f6",
-    "emoji":  "🔀",
+    "iconKey": "ArrowLeftRight",
     "tech":   ["TypeScript", "Angular", "RxJS", "Lazy Loading"],
     "github": "https://github.com/Nishan052/Routing-app"
   },
@@ -43,7 +43,7 @@
     "id":     "06",
     "title":  "Python Data Projects",
     "color":  "#ec4899",
-    "emoji":  "🐍",
+    "iconKey": "Python",
     "tech":   ["Python", "Jupyter", "Pandas", "Matplotlib", "NumPy", "Seaborn"],
     "github": "https://github.com/Nishan052/python"
   }

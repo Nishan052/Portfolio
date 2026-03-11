@@ -1,7 +1,20 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
+import { LuGraduationCap, LuBuilding2, LuGlobe, LuChartColumn } from "react-icons/lu";
 import siteConfig from "../../config/site";
 import "./AboutSection.css";
+
+const ABOUT_ICON_MAP = {
+  graduation: LuGraduationCap,
+  background: LuBuilding2,
+  languages:  LuGlobe,
+  focus:      LuChartColumn,
+};
+
+function AboutIcon({ iconKey }) {
+  const Icon = ABOUT_ICON_MAP[iconKey];
+  return Icon ? <Icon size={22} aria-hidden="true" /> : null;
+}
 
 /**
  * About section — two-column layout:
@@ -44,7 +57,7 @@ const AboutSection = memo(() => {
               key={i}
               className={`card about-card-inner fade-up fade-up-delay-${i + 1}`}
             >
-              <span aria-hidden="true" className="about-card-icon">{item.icon}</span>
+              <span aria-hidden="true" className="about-card-icon"><AboutIcon iconKey={item.icon} /></span>
               <div>
                 <div className="about-card-title">{item.title}</div>
                 <div className="about-card-desc">{item.desc}</div>

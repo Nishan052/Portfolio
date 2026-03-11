@@ -3,7 +3,7 @@ const post = {
   slug:      'tinyml-face-verification',
   title:     'TinyML Face Verification on Arduino with LiteRT',
   category:  'project',
-  emoji:     '🤖',
+  iconKey:   'Bot',
   color:     '#10b981',
   date:      '2026-03-08',
   readTime:  '11 min',

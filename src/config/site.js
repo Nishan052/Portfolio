@@ -14,7 +14,6 @@ const siteConfig = {
   profile: {
     firstName:    "Nishan",
     lastName:     "Poojary",
-    avatarEmoji:  "👨‍💻",
     location:     "Berlin, Germany",
     /** Two initials shown in the navbar logo, e.g. N + P → "NP" */
     logoFirst:    "N",

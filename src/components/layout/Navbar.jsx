@@ -1,6 +1,7 @@
 import { useState, memo, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
+import { LuSparkles, LuMoon, LuSun } from "react-icons/lu";
 import scrollTo from "../../utils/scrollTo";
 import siteConfig from "../../config/site";
 import "./Navbar.css";
@@ -119,7 +120,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
                 onClick={handleBlogsClick}
                 aria-current={isOnBlog ? "page" : undefined}
               >
-                ✦ {t("nav.blog")}
+                <LuSparkles aria-hidden="true" size={13} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} /> {t("nav.blog")}
               </button>
             </div>
           )}
@@ -157,7 +158,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
               aria-pressed={isDark}
             >
               <div className={`theme-toggle-knob ${isDark ? "right" : ""}`} aria-hidden="true">
-                {isDark ? "🌙" : "☀️"}
+                {isDark ? <LuMoon size={14} /> : <LuSun size={14} />}
               </div>
             </button>
 
@@ -210,7 +211,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
           style={{ color: "var(--accent)", fontFamily: "'DM Mono',monospace", fontWeight: 700 }}
         >
           <span aria-hidden="true" className="mobile-nav-num">0{NAV_KEYS.length + 1}.</span>
-          ✦ {t("nav.blog")}
+          <LuSparkles aria-hidden="true" size={13} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} /> {t("nav.blog")}
         </button>
 
         {/* Language toggle in mobile menu */}

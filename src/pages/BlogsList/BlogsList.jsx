@@ -1,8 +1,25 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight, LuBrain } from 'react-icons/lu';
+import { SiPython } from 'react-icons/si';
 import blogs from '../../data/blogs/index';
 import './BlogsList.css';
+
+const BLOG_ICON_MAP = {
+  TrendingUp:     LuTrendingUp,
+  Radio:          LuRadio,
+  ScanSearch:     LuScanSearch,
+  Bot:            LuBot,
+  ArrowLeftRight: LuArrowLeftRight,
+  Brain:          LuBrain,
+  Python:         SiPython,
+};
+
+function BlogIcon({ iconKey }) {
+  const Icon = BLOG_ICON_MAP[iconKey];
+  return Icon ? <Icon size={36} aria-hidden="true" /> : null;
+}
 
 const CATEGORIES = ['all', 'project', 'research', 'news'];
 
@@ -127,8 +144,8 @@ function BlogCard({ blog }) {
         className="blog-card"
         aria-label={t('a11y.readMore', { title: blog.title })}
       >
-        {/* Emoji column */}
-        <div className="blog-card-emoji-col" aria-hidden="true">{blog.emoji}</div>
+        {/* Icon column */}
+        <div className="blog-card-emoji-col" aria-hidden="true"><BlogIcon iconKey={blog.iconKey} /></div>
 
         {/* Content */}
         <div className="blog-card-content">

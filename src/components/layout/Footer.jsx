@@ -12,7 +12,7 @@ const Footer = memo(() => {
   return (
   <footer className="site-footer" role="contentinfo">
     <div>
-      {t("footer.built")} <span aria-hidden="true" className="footer-heart">♥</span> {t("footer.by")}
+      {t("footer.built")} {t("footer.by")}
     </div>
     <div className="footer-copy">
       © {siteConfig.footer.copyrightYear} · {siteConfig.profile.location}

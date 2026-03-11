@@ -161,7 +161,7 @@
   min-height: 100%;
 }
 
-/* ─── Emoji column ───────────────────────────────────────────────────────── */
+/* ─── Icon column ────────────────────────────────────────────────────────── */
 .blog-card-emoji-col {
   flex-shrink: 0;
   width: 52px;
@@ -171,8 +171,6 @@
   justify-content: center;
   background: rgba(255,255,255,0.04);
   border-radius: 10px;
-  font-size: 1.7rem;
-  line-height: 1;
 }
 
 /* ─── Content column ─────────────────────────────────────────────────────── */
@@ -272,6 +270,6 @@
   .blogs-controls { flex-direction: column; align-items: stretch; }
   .blogs-search   { min-width: unset; }
 
-  .blog-card-emoji-col { width: 40px; height: 40px; font-size: 1.3rem; }
+  .blog-card-emoji-col { width: 40px; height: 40px; }
   .blog-card-title { font-size: 0.95rem; }
 }

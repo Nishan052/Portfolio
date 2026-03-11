@@ -3,7 +3,7 @@ const post = {
   slug:      'production-RAG-architecture',
   title:     'Building Production-Ready RAG: The Architecture Nobody Talks About',
   category:  'research',
-  emoji:     '🧠',
+  iconKey:   'Brain',
   color:     '#6366f1',
   date:      '2026-03-08',
   readTime:  '14 min',

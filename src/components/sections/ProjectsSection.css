@@ -65,7 +65,8 @@
 }
 
 .project-emoji {
-  font-size: 1.85rem;
+  display: flex;
+  align-items: center;
 }
 
 .project-id-label {

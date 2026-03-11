@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
+import { LuMapPin } from "react-icons/lu";
 import experiences from "../../data/experience.json";
 import "./ExperienceSection.css";
 
@@ -95,7 +96,7 @@ const ExperienceSection = memo(() => {
                   </div>
                   <div className="exp-meta-duration">{exp.duration}</div>
                   <div className="exp-meta-location">
-                    <span aria-hidden="true">📍</span> {exp.location}
+                    <LuMapPin size={13} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", marginRight: 3 }} /> {exp.location}
                   </div>
                 </div>
               </div>

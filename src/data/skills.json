@@ -2,37 +2,37 @@
   "categories": [
     {
       "skills": [
-        { "name": "Python",     "icon": "🐍" },
-        { "name": "R",          "icon": "📊" },
-        { "name": "SQL",        "icon": "🗄️" },
-        { "name": "Power BI",   "icon": "📈" },
-        { "name": "Tableau",    "icon": "📉" },
-        { "name": "KNIME",      "icon": "🔧" },
-        { "name": "TensorFlow", "icon": "🧠" },
-        { "name": "PyTorch",    "icon": "🔥" }
+        { "name": "Python"     },
+        { "name": "R"          },
+        { "name": "SQL"        },
+        { "name": "Power BI"   },
+        { "name": "Tableau"    },
+        { "name": "KNIME"      },
+        { "name": "TensorFlow" },
+        { "name": "PyTorch"    }
       ]
     },
     {
       "skills": [
-        { "name": "Angular",     "icon": "🅰️" },
-        { "name": "TypeScript",  "icon": "🔷" },
-        { "name": "HTML/CSS",    "icon": "🌐" },
-        { "name": "Node.js",     "icon": "💚" },
-        { "name": "Spring Boot", "icon": "🍃" },
-        { "name": "Salesforce",  "icon": "☁️" },
-        { "name": "SAP S/4HANA", "icon": "🏢" }
+        { "name": "Angular"     },
+        { "name": "TypeScript"  },
+        { "name": "HTML/CSS"    },
+        { "name": "Node.js"     },
+        { "name": "Spring Boot" },
+        { "name": "Salesforce"  },
+        { "name": "SAP S/4HANA" }
       ]
     },
     {
       "skills": [
-        { "name": "GitHub",    "icon": "⎔" },
-        { "name": "Jira",      "icon": "📋" },
-        { "name": "Streamlit", "icon": "🚀" },
-        { "name": "MQTT",      "icon": "📡" },
-        { "name": "OpenCV",    "icon": "👁️" },
-        { "name": "Arduino",   "icon": "🔌" },
-        { "name": "Jenkins",   "icon": "🔁" },
-        { "name": "AWS",       "icon": "☁️" }
+        { "name": "GitHub"    },
+        { "name": "Jira"      },
+        { "name": "Streamlit" },
+        { "name": "MQTT"      },
+        { "name": "OpenCV"    },
+        { "name": "Arduino"   },
+        { "name": "Jenkins"   },
+        { "name": "AWS"       }
       ]
     }
   ],

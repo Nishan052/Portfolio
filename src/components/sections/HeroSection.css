@@ -68,7 +68,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 4.5rem;
   box-shadow: 0 0 60px var(--accent-soft), 0 0 100px rgba(168,85,247,0.1);
   animation: float 4s ease-in-out infinite;
 }
