@@ -1,0 +1,24 @@
+/* ─── Footer ────────────────────────────────────────────────────────────────── */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 26px 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  position: relative;
+  z-index: 1;
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.footer-heart {
+  color: var(--accent);
+}
+
+.footer-copy {
+  margin-top: 4px;
+  opacity: 0.4;
+  font-size: 10px;
+}

@@ -22,6 +22,12 @@
     "start": "react-scripts start",
     "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test": "react-scripts test",
+    "test:retrieval": "node tests/retrieval-quality.test.js --verbose",
+    "test:hallucination": "node tests/hallucination-detection.test.js --verbose",
+    "test:quality": "node tests/answer-quality.test.js --verbose",
+    "test:quality-gate": "node tests/quality-gate.js",
+    "test:all": "npm run test:quality-gate",
+    "validate:deployment": "node scripts/validate-deployment.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -42,6 +48,10 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "dotenv": "^17.3.1",
     "pdf-parse": "^2.4.5",
     "wrangler": "^4.68.1"

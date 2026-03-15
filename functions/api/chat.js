@@ -27,6 +27,8 @@ import {
   MAX_HISTORY_MESSAGE_LENGTH,
   VECTOR_SEARCH_TOP_K,
 } from './lib/config.js';
+import { RequestLogger, generateRequestId, Timer, calculateCost, estimateTokens } from './lib/structured-logger.js';
+import { detectHallucination, detectRefusal } from './lib/quality-detectors.js';
 
 function getAllowedOrigin(request) {
   const origin = request.headers.get('Origin') || '';
@@ -59,6 +61,13 @@ function apiResponse(request, body, status = 200, extraHeaders = {}) {
 // Only roles from the client we trust in the conversation history
 const VALID_ROLES = new Set(['user', 'assistant']);
 
+// Monitoring & observability flag (enable structured logging)
+const STRUCTURED_LOGGING_ENABLED = true;
+
+// Cold start detection: track when container was initialized  
+const CONTAINER_INIT_TIME = Date.now();
+let FIRST_REQUEST = true;
+
 // Strip HTML tags from user input to prevent prompt injection via markup
 function sanitizeInput(text) {
   return text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
@@ -74,6 +83,20 @@ export async function onRequestOptions({ request }) {
 
 // ─── POST /api/chat ───────────────────────────────────────────────────────────
 export async function onRequestPost({ request, env }) {
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PHASE 1 MONITORING: Initialize request logger & detect cold start
+  // ═══════════════════════════════════════════════════════════════════════════
+  const requestId = generateRequestId();
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const logger = STRUCTURED_LOGGING_ENABLED ? new RequestLogger(requestId, ip) : null;
+
+  // D1: Detect cold start
+  const now = Date.now();
+  const isColdStart = FIRST_REQUEST;
+  const coldStartDuration = now - CONTAINER_INIT_TIME;
+  if (FIRST_REQUEST) FIRST_REQUEST = false;
+  if (logger) logger.setColdStart(isColdStart, coldStartDuration);
+
   // 1. Parse body
   let message, history, lang;
   try {
@@ -99,6 +122,9 @@ export async function onRequestPost({ request, env }) {
     });
   }
 
+  // Set question in logger for logging
+  if (logger) logger.setQuestion(message, lang);
+
   // 2. Validate message
   if (!message) {
     return apiResponse(request, JSON.stringify({ error: 'Message is required' }), 400, {
@@ -112,7 +138,6 @@ export async function onRequestPost({ request, env }) {
   }
 
   // 3. Rate limit
-  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
   const { success, remaining } = await checkRateLimit(env, ip);
   if (!success) {
     return apiResponse(
@@ -124,9 +149,16 @@ export async function onRequestPost({ request, env }) {
   }
 
   // 4. Exact cache check — key includes lang so EN/DE responses don't collide
+  // M2: Cache hit/miss tracking
   const cacheKey = lang === 'de' ? `de:${message}` : message;
   const cached = await getExactCache(env, cacheKey);
   if (cached) {
+    if (logger) {
+      logger.setCache(cacheKey, true);
+      logger.setStatus('success');
+      logger.log();
+    }
+
     const encoder = new TextEncoder();
     const stream  = new ReadableStream({
       start(controller) {
@@ -143,22 +175,36 @@ export async function onRequestPost({ request, env }) {
         'Cache-Control': 'no-cache',
         'X-Cache':       'HIT',
         'X-Remaining':   String(remaining),
+        'X-Request-ID':  requestId,
       },
     });
   }
 
+  if (logger) logger.setCache(cacheKey, false);
+
   // 5. Multi-query expansion: generate 10 sub-questions from the original question.
-  //    Original + sub-questions are all embedded and searched in parallel.
-  //    Non-fatal: falls back to just the original question on any error.
+  // M3: Latency tracking for query expansion
+  const expansionTimer = new Timer('query-expansion');
   let allQueries = [message];
+  let subQueriesCount = 0;
   try {
     const subQueries = await expandToSubQueries(env, message);
-    if (subQueries.length > 0) allQueries = [message, ...subQueries];
+    if (subQueries.length > 0) {
+      allQueries = [message, ...subQueries];
+      subQueriesCount = subQueries.length;
+    }
   } catch (err) {
     console.error('Sub-query expansion failed, using original query:', err.message);
   }
+  const expansionMs = expansionTimer.end().durationMs;
+  if (logger) {
+    logger.setLatency('query-expansion', expansionMs);
+    logger.setRetrieval({ subQueriesGenerated: subQueriesCount });
+  }
 
   // 6. Embed all queries in parallel
+  // M3: Latency tracking for embedding
+  const embeddingTimer = new Timer('embedding');
   const embeddings = await Promise.all(
     allQueries.map(q =>
       embedText(env, q).catch(err => {
@@ -167,8 +213,12 @@ export async function onRequestPost({ request, env }) {
       })
     )
   );
+  const embeddingMs = embeddingTimer.end().durationMs;
+  if (logger) logger.setLatency('embedding', embeddingMs);
 
   // 7. Query Pinecone for each embedding in parallel, then deduplicate by source+text
+  // M3: Latency tracking for search
+  const searchTimer = new Timer('search');
   let chunks = [];
   try {
     const allResults = await Promise.all(
@@ -192,6 +242,8 @@ export async function onRequestPost({ request, env }) {
   } catch (err) {
     console.error('Pinecone multi-query failed:', err.message);
   }
+  const searchMs = searchTimer.end().durationMs;
+  if (logger) logger.setRetrieval({ chunksRetrieved: chunks.length, vectorSearchDurationMs: searchMs });
 
   // 8. Build messages array
   const context   = formatContext(chunks);
@@ -208,16 +260,21 @@ export async function onRequestPost({ request, env }) {
     groqResponse = await streamGroq(env, messages);
   } catch (err) {
     console.error('Groq streaming failed:', err.message);
+    if (logger) {
+      logger.setStatus('error', `Groq API error: ${err.message}`);
+      logger.log();
+    }
     return apiResponse(
       request,
       JSON.stringify({ error: 'AI service unavailable. Please try again shortly.' }),
       503,
-      { 'Content-Type': 'application/json' }
+      { 'Content-Type': 'application/json', 'X-Request-ID': requestId }
     );
   }
 
   const encoder    = new TextEncoder();
   const fullChunks = [];
+  const generationTimer = new Timer('generation');
 
   const { readable, writable } = new TransformStream();
   const writer = writable.getWriter();
@@ -266,9 +323,28 @@ export async function onRequestPost({ request, env }) {
       await writer.close();
     }
 
-    // 10. Cache the full response async (non-blocking)
+    // ═════════════════════════════════════════════════════════════════════════
+    // PHASE 1 MONITORING: Process and log full response
+    // ═════════════════════════════════════════════════════════════════════════
+    const generationMs = generationTimer.end().durationMs;
+    if (logger) logger.setLatency('generation', generationMs);
+
     if (fullChunks.length > 0) {
       const fullResponse = fullChunks.join('');
+
+      // M4: Hallucination detection
+      // M5: Refusal detection
+      if (logger) {
+        const hallucResult = detectHallucination(fullResponse, context);
+        const refusalResult = detectRefusal(fullResponse);
+        
+        logger.setHallucination(hallucResult.detected, hallucResult.confidence);
+        logger.setRefusal(refusalResult.detected, refusalResult.confidence);
+        logger.setStatus('success');
+        logger.log();
+      }
+
+      // 10. Cache the full response async (non-blocking)
       setExactCache(env, cacheKey, fullResponse).catch(() => {});
     }
   })();
@@ -281,6 +357,7 @@ export async function onRequestPost({ request, env }) {
       'Cache-Control': 'no-cache',
       'X-Cache':       'MISS',
       'X-Remaining':   String(remaining),
+      'X-Request-ID':  requestId,
     },
   });
 }
