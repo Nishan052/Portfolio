@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useEnglishTranslation } from '../../i18n/index';
 import { LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight, LuBrain } from 'react-icons/lu';
 import { SiPython } from 'react-icons/si';
 import siteConfig from '../../config/site';
@@ -96,7 +96,7 @@ function extractToc(content) {
 
 export default function BlogPost() {
   const { slug } = useParams();
-  const { t }    = useTranslation();
+  const { t }    = useEnglishTranslation();
   const blog     = useMemo(() => blogs.find(b => b.slug === slug), [slug]);
 
   // Scroll to top and set page title when post changes

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useEnglishTranslation } from '../../i18n/index';
 import { LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight, LuBrain } from 'react-icons/lu';
 import { SiPython } from 'react-icons/si';
 import blogs from '../../data/blogs/index';
@@ -24,7 +24,7 @@ function BlogIcon({ iconKey }) {
 const CATEGORIES = ['all', 'project', 'research', 'news'];
 
 export default function BlogsList() {
-  const { t } = useTranslation();
+  const { t } = useEnglishTranslation();
   const [activeCategory, setActiveCategory] = useState('all');
   const [search, setSearch]                 = useState('');
 

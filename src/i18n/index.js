@@ -20,6 +20,7 @@
 
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { useCallback } from 'react';
 
 import en from './en.json';
 import de from './de.json';
@@ -44,5 +45,40 @@ i18n
 i18n.on('languageChanged', (lng) => {
   localStorage.setItem('lang', lng);
 });
+
+/**
+ * Hook for blog pages to always return English translations
+ * regardless of the global language setting.
+ * 
+ * Usage: const { t } = useEnglishTranslation();
+ */
+export function useEnglishTranslation() {
+  const t = useCallback((key, options = {}) => {
+    // Nested object lookup
+    const keys = key.split('.');
+    let value = en;
+    
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in value) {
+        value = value[k];
+      } else {
+        return key; // Return key if not found
+      }
+    }
+    
+    // Handle interpolation if needed
+    if (typeof value === 'string' && options && Object.keys(options).length > 0) {
+      let result = value;
+      for (const [key, val] of Object.entries(options)) {
+        result = result.replace(`{{${key}}}`, val);
+      }
+      return result;
+    }
+    
+    return value;
+  }, []);
+  
+  return { t };
+}
 
 export default i18n;
