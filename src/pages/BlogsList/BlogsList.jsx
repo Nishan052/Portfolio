@@ -129,7 +129,7 @@ export default function BlogsList() {
 }
 
 function BlogCard({ blog }) {
-  const { t } = useTranslation();
+  const { t } = useEnglishTranslation();
   const categoryLabel = t(`blogs.categoryLabels.${blog.category}`, blog.category);
   const filterLabels  = {
     project:  t('blogs.filter.project'),

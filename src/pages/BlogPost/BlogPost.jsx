@@ -222,7 +222,7 @@ export default function BlogPost() {
 }
 
 function RelatedPosts({ current }) {
-  const { t } = useTranslation();
+  const { t } = useEnglishTranslation();
 
   const related = blogs
     .filter(b => b.slug !== current.slug && (
