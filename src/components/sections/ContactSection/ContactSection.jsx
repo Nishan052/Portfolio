@@ -113,8 +113,8 @@ const ContactSection = memo(() => {
       <div className="divider" aria-hidden="true" />
 
       <div className="contact-center">
-        <p className="section-tag fade-up" data-reveal data-reveal-display="block" style={{ textAlign: "center" }}>{t("contact.tag")}</p>
-        <h2 id="contact-heading" className="section-title fade-up fade-up-delay-1" data-reveal data-reveal-display="block" style={{ textAlign: "center" }}>
+        <p className="section-tag fade-up" style={{ textAlign: "center" }}>{t("contact.tag")}</p>
+        <h2 id="contact-heading" className="section-title fade-up fade-up-delay-1" style={{ textAlign: "center" }}>
           {title[0]}<br />{title[1]}
         </h2>
         <p className="contact-description fade-up fade-up-delay-2">

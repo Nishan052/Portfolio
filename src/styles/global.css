@@ -233,29 +233,6 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
   filter: blur(90px); pointer-events: none; z-index: 0;
 }
 
-/* ─── Text Reveal Animation ─────────────────────────────────────────────────── */
-.reveal-wrapper {
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-  vertical-align: top;
-}
-
-.reveal-block {
-  position: absolute;
-  inset: 0;
-  background: var(--reveal-block, var(--accent));
-  transform: translateY(0%);
-  transition: transform 0.75s cubic-bezier(0.76, 0, 0.24, 1);
-  transform-origin: top;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.reveal-block--drop {
-  transform: translateY(105%);
-}
-
 /* ─── Reduced motion (WCAG 2.3.3) ──────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

@@ -15,9 +15,6 @@ export const THEMES = {
     navBg:          "rgba(2,5,15,0.96)",
     sectionOverlay: "rgba(3,7,18,0.55)",
     bgRaw:          "#030712",
-    revealBlock:    "#00e5ff",
-    neonGlow:       "0 0 18px rgba(0,229,255,0.7), 0 0 40px rgba(0,229,255,0.3)",
-    loaderBg:       "#030712",
   },
   light: {
     bg:             "#f8faff",
@@ -32,9 +29,6 @@ export const THEMES = {
     navBg:          "rgba(248,250,255,0.96)",
     sectionOverlay: "rgba(248,250,255,0.0)",
     bgRaw:          "#f8faff",
-    revealBlock:    "#2563eb",
-    neonGlow:       "0 0 18px rgba(37,99,235,0.6), 0 0 40px rgba(37,99,235,0.2)",
-    loaderBg:       "#f8faff",
   },
 };
 

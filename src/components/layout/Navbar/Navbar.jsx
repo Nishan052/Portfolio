@@ -4,8 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { LuSparkles, LuMoon, LuSun } from "react-icons/lu";
 import scrollTo from "../../../utils/scrollTo";
 import siteConfig from "../../../config/site";
-import { useLoader } from "../../../context/LoaderContext";
-import useMagneticEffect from "../../../hooks/useMagneticEffect";
 import "./Navbar.css";
 
 const NAV_KEYS = ["about", "experience", "projects", "skills", "contact"];
@@ -18,10 +16,6 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
   const hamburgerRef  = useRef(null);
   const mobileMenuRef = useRef(null);
   const prevMenuOpen  = useRef(false);
-  const navLinkRefs   = useRef([]);
-  const { loaderDone } = useLoader();
-
-  useMagneticEffect(navLinkRefs, 0.3);
 
   const currentLang = i18n.language;
   const isOnBlog    = location.pathname.startsWith("/blogs");
@@ -90,7 +84,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
       {/* ── Desktop / main nav bar ─────────────────────────────────────────────── */}
       <nav
         aria-label={t("a11y.primaryNav")}
-        className={`navbar${scrolled ? " navbar--scrolled" : ""}${loaderDone ? " navbar--assembled" : ""}`}
+        className={`navbar${scrolled ? " navbar--scrolled" : ""}`}
       >
         <div className="navbar-inner">
 
@@ -109,12 +103,10 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
           {/* Desktop links — hidden on blog pages */}
           {!isOnBlog && (
             <div className="nav-desktop">
-              {NAV_KEYS.map((key, idx) => (
+              {NAV_KEYS.map((key) => (
                 <button
                   key={key}
-                  ref={(el) => { navLinkRefs.current[idx] = el; }}
                   type="button"
-                  style={{ "--nav-idx": idx }}
                   className={`nav-link ${!isOnBlog && activeSection === key ? "active" : ""}`}
                   onClick={() => handleNav(key)}
                   aria-current={!isOnBlog && activeSection === key ? "page" : undefined}
@@ -123,9 +115,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
                 </button>
               ))}
               <button
-                ref={(el) => { navLinkRefs.current[NAV_KEYS.length] = el; }}
                 type="button"
-                style={{ "--nav-idx": NAV_KEYS.length }}
                 className={`nav-blog-btn ${isOnBlog ? "active" : ""}`}
                 onClick={handleBlogsClick}
                 aria-current={isOnBlog ? "page" : undefined}

@@ -204,27 +204,6 @@
     "readMore":      "Read full post: {{title}}",
     "heroStats":      "Key statistics",
     "subRoles":       "Career progression",
-    "languageToggle": "Switch language",
-    "loader":         "Loading portfolio",
-    "cookieBanner":   "Cookie consent",
-    "remoteControl":  "Open phone remote control"
-  },
-  "loader": {
-    "loading": "Loading"
-  },
-  "cookies": {
-    "message": "This site uses cookies to improve your experience.",
-    "accept":  "Accept",
-    "decline": "Decline"
-  },
-  "remote": {
-    "title":        "Remote",
-    "scanQr":       "Scan to control scroll",
-    "connected":    "Phone connected",
-    "instructions": "Swipe up/down on your phone to scroll this page",
-    "connecting":   "Connecting…",
-    "error":        "Connection failed",
-    "noConfig":     "Remote control not configured",
-    "swipe":        "Swipe"
+    "languageToggle": "Switch language"
   }
 }
