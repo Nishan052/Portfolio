@@ -46,7 +46,7 @@
   border: 1px solid var(--border);
   border-radius: 20px;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
   display: flex;
   flex-direction: column;
   backdrop-filter: blur(20px);
@@ -56,14 +56,6 @@
   scroll-snap-align: center;
   /* 3D tilt managed by useCarouselTilt hook */
   will-change: transform, opacity;
-}
-
-/* Stagger entrance — delay based on card index */
-.project-card.fade-up {
-  transition-delay: calc(0.09s * var(--card-idx, 0));
-}
-.project-card.fade-up.visible {
-  transition-delay: calc(0.09s * var(--card-idx, 0));
 }
 
 @media (max-width: 768px) {

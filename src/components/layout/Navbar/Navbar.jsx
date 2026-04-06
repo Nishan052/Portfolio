@@ -118,7 +118,6 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
                   className={`nav-link ${!isOnBlog && activeSection === key ? "active" : ""}`}
                   onClick={() => handleNav(key)}
                   aria-current={!isOnBlog && activeSection === key ? "page" : undefined}
-                  data-label={t(`nav.${key}`)}
                 >
                   {t(`nav.${key}`)}
                 </button>
@@ -200,39 +199,33 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
         className={`mobile-menu ${menuOpen ? "open" : ""}`}
         aria-hidden={!menuOpen}
       >
-        <div className="mobile-menu-links">
-          {NAV_KEYS.map((key, idx) => (
-            <button
-              key={key}
-              type="button"
-              className={`mobile-nav-link ${!isOnBlog && activeSection === key ? "active" : ""}`}
-              style={{ "--mobile-idx": idx }}
-              onClick={() => handleNav(key)}
-              aria-current={!isOnBlog && activeSection === key ? "page" : undefined}
-              tabIndex={menuOpen ? 0 : -1}
-            >
-              <span aria-hidden="true" className="mobile-nav-num">0{idx + 1}</span>
-              <span className="mobile-nav-label">{t(`nav.${key}`)}</span>
-            </button>
-          ))}
+        {NAV_KEYS.map((key, idx) => (
           <button
+            key={key}
             type="button"
-            className={`mobile-nav-link mobile-nav-link--blog ${isOnBlog ? "active" : ""}`}
-            style={{ "--mobile-idx": NAV_KEYS.length }}
-            onClick={handleBlogsClick}
-            aria-current={isOnBlog ? "page" : undefined}
+            className={`mobile-nav-link ${!isOnBlog && activeSection === key ? "active" : ""}`}
+            onClick={() => handleNav(key)}
+            aria-current={!isOnBlog && activeSection === key ? "page" : undefined}
             tabIndex={menuOpen ? 0 : -1}
           >
-            <span aria-hidden="true" className="mobile-nav-num">0{NAV_KEYS.length + 1}</span>
-            <span className="mobile-nav-label">
-              <LuSparkles aria-hidden="true" size={16} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />
-              {t("nav.blog")}
-            </span>
+            <span aria-hidden="true" className="mobile-nav-num">0{idx + 1}.</span>
+            {t(`nav.${key}`)}
           </button>
-        </div>
+        ))}
+        <button
+          type="button"
+          className={`mobile-nav-link ${isOnBlog ? "active" : ""}`}
+          onClick={handleBlogsClick}
+          aria-current={isOnBlog ? "page" : undefined}
+          tabIndex={menuOpen ? 0 : -1}
+          style={{ color: "var(--accent)", fontFamily: "'DM Mono',monospace", fontWeight: 700 }}
+        >
+          <span aria-hidden="true" className="mobile-nav-num">0{NAV_KEYS.length + 1}.</span>
+          <LuSparkles aria-hidden="true" size={13} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} /> {t("nav.blog")}
+        </button>
 
-        {/* Bottom controls */}
-        <div className="mobile-menu-footer">
+        {/* Language toggle in mobile menu */}
+        <div className="mobile-lang-row">
           <div
             role="group"
             aria-label={t("a11y.languageToggle")}
