@@ -1,17 +1,19 @@
 // Initialise i18next BEFORE anything else renders
 import "./i18n/index.js";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 // ── Context & theme ────────────────────────────────────────────────────────────
 import { ThemeContext, THEMES } from "./context/ThemeContext";
+import { LoaderProvider, useLoader } from "./context/LoaderContext";
 
 // ── Hooks ──────────────────────────────────────────────────────────────────────
 import useScrollAnimation from "./hooks/useScrollAnimation";
 import useParallax        from "./hooks/useParallax";
 import useActiveSection   from "./hooks/useActiveSection";
+import useTextReveal      from "./hooks/useTextReveal";
 
 // ── Layout ─────────────────────────────────────────────────────────────────────
 import ThreeBackground   from "./components/layout/ThreeBackground";
@@ -28,11 +30,15 @@ import ContactSection    from "./components/sections/ContactSection";
 import Footer            from "./components/layout/Footer";
 
 // ── UI ─────────────────────────────────────────────────────────────────────────
-import ChatWidget        from "./components/ui/ChatWidget";
+import ChatWidget     from "./components/ui/ChatWidget";
+import PageLoader     from "./components/ui/PageLoader/PageLoader";
+import CookieBanner   from "./components/ui/CookieBanner/CookieBanner";
+import RemoteControl  from "./components/ui/RemoteControl/RemoteControl";
 
 // ── Pages ──────────────────────────────────────────────────────────────────────
 import BlogsList from "./pages/BlogsList/BlogsList";
 import BlogPost  from "./pages/BlogPost/BlogPost";
+const RemotePage = lazy(() => import("./pages/RemotePage/RemotePage"));
 
 // ── Global styles ──────────────────────────────────────────────────────────────
 import "./styles/global.css";
@@ -53,17 +59,22 @@ function applyThemeVars(theme) {
   root.style.setProperty("--border",          theme.border);
   root.style.setProperty("--nav-bg",          theme.navBg);
   root.style.setProperty("--section-overlay", theme.sectionOverlay);
+  root.style.setProperty("--reveal-block",    theme.revealBlock);
+  root.style.setProperty("--neon-glow",       theme.neonGlow);
+  root.style.setProperty("--loader-bg",       theme.loaderBg);
 }
 
 /**
  * Home page — owns animation hooks so they re-run on every mount.
- * This ensures fade-up elements animate correctly after navigating back from /blogs.
+ * Hooks are gated behind loaderDone so fade-ups don't fire under the loader.
  */
 function HomePage() {
-  useScrollAnimation();
-  useParallax();
+  const { loaderDone } = useLoader();
+  useScrollAnimation(loaderDone);
+  useParallax(loaderDone);
+  useTextReveal(loaderDone);
   return (
-    <main id="main-content" style={{ position: "relative", zIndex: 1 }}>
+    <main id="main-content" tabIndex={-1} style={{ position: "relative", zIndex: 1 }}>
       <HeroSection />
       <AboutSection />
       <ExperienceSection />
@@ -76,12 +87,12 @@ function HomePage() {
 }
 
 /**
- * Renders ChatWidget only when not on a blog page.
- * Must be inside BrowserRouter to use useLocation.
+ * Renders ChatWidget only when not on a blog or remote page.
  */
 function BlogAwareChatWidget() {
   const location = useLocation();
   if (location.pathname.startsWith("/blogs")) return null;
+  if (location.pathname.startsWith("/remote")) return null;
   return <ChatWidget />;
 }
 
@@ -93,6 +104,8 @@ function AppShell({ isDark, toggleTheme }) {
   const [scrolled, setScrolled] = useState(false);
   const { t }         = useTranslation();
   const activeSection = useActiveSection();
+  const location      = useLocation();
+  const isRemote      = location.pathname.startsWith("/remote");
 
   // Scroll sentinel for nav border
   useEffect(() => {
@@ -103,32 +116,50 @@ function AppShell({ isDark, toggleTheme }) {
 
   return (
     <>
+      {/* Page loader overlay */}
+      <PageLoader />
+
       {/* Skip to main content link (WCAG 2.4.1) */}
       <a href="#main-content" className="skip-link">
         {t("a11y.skipToMain")}
       </a>
 
-      {/* Fixed canvas background — shown on all routes */}
-      <ThreeBackground isDark={isDark} />
-      <FloatingOrbs    isDark={isDark} />
+      {/* Fixed canvas background — hidden on remote page */}
+      {!isRemote && <ThreeBackground isDark={isDark} />}
+      {!isRemote && <FloatingOrbs    isDark={isDark} />}
 
-      <Navbar
-        isDark={isDark}
-        toggleTheme={toggleTheme}
-        scrolled={scrolled}
-        activeSection={activeSection}
-      />
+      {!isRemote && (
+        <Navbar
+          isDark={isDark}
+          toggleTheme={toggleTheme}
+          scrolled={scrolled}
+          activeSection={activeSection}
+        />
+      )}
 
       <Routes>
         {/* ── Home page ─────────────────────────────────────────────── */}
         <Route path="/" element={<HomePage />} />
 
         {/* ── Blog routes ───────────────────────────────────────────── */}
-        <Route path="/blogs"      element={<BlogsList />} />
+        <Route path="/blogs"       element={<BlogsList />} />
         <Route path="/blogs/:slug" element={<BlogPost />} />
+
+        {/* ── QR phone remote control ───────────────────────────────── */}
+        <Route path="/remote" element={
+          <Suspense fallback={<div style={{ color: "var(--text)", padding: "2rem", textAlign: "center" }}>Loading…</div>}>
+            <RemotePage />
+          </Suspense>
+        } />
       </Routes>
 
-      {/* Floating AI chat widget — hidden on blog pages */}
+      {/* Cookie consent banner */}
+      <CookieBanner />
+
+      {/* QR phone remote control — hidden on blog/remote pages */}
+      {!isRemote && <RemoteControl />}
+
+      {/* Floating AI chat widget — hidden on blog/remote pages */}
       <BlogAwareChatWidget />
     </>
   );
@@ -152,9 +183,11 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <ThemeContext.Provider value={theme}>
-        <AppShell isDark={isDark} toggleTheme={toggleTheme} />
-      </ThemeContext.Provider>
+      <LoaderProvider>
+        <ThemeContext.Provider value={theme}>
+          <AppShell isDark={isDark} toggleTheme={toggleTheme} />
+        </ThemeContext.Provider>
+      </LoaderProvider>
     </BrowserRouter>
   );
 }

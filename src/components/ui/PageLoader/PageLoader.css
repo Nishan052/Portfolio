@@ -1,0 +1,82 @@
+/* ── Page Loader Overlay ───────────────────────────────────────────────────── */
+.page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--loader-bg, #030712);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  opacity: 1;
+  transition: opacity 0.7s cubic-bezier(0.76, 0, 0.24, 1);
+  pointer-events: all;
+}
+
+.page-loader--exit {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── 3D Cube ───────────────────────────────────────────────────────────────── */
+.loader-cube-wrapper {
+  perspective: 600px;
+  width: 60px;
+  height: 60px;
+}
+
+.loader-cube {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: cube-spin 1.8s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+
+.loader-face {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--accent, #00e5ff);
+  background: rgba(0, 229, 255, 0.04);
+  backface-visibility: hidden;
+}
+
+.loader-face--front  { transform: translateZ(30px); }
+.loader-face--back   { transform: rotateY(180deg) translateZ(30px); }
+.loader-face--left   { transform: rotateY(-90deg) translateZ(30px); }
+.loader-face--right  { transform: rotateY(90deg) translateZ(30px); }
+.loader-face--top    { transform: rotateX(90deg) translateZ(30px); }
+.loader-face--bottom { transform: rotateX(-90deg) translateZ(30px); }
+
+@keyframes cube-spin {
+  0%   { transform: rotateX(0deg)   rotateY(0deg);   }
+  33%  { transform: rotateX(120deg) rotateY(90deg);  }
+  66%  { transform: rotateX(240deg) rotateY(200deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+/* ── Label ─────────────────────────────────────────────────────────────────── */
+.loader-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent, #00e5ff);
+  opacity: 0.7;
+  margin: 0;
+  animation: loader-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes loader-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1;   }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .loader-cube { animation: none; }
+  .loader-label { animation: none; opacity: 0.8; }
+  .page-loader--exit { transition: opacity 0.2s ease; }
+}

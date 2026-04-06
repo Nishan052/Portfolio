@@ -4,9 +4,12 @@ import { useEffect } from "react";
  * Observes every element with the class "fade-up" and adds
  * the class "visible" when it enters the viewport.
  * The 120 ms delay lets React finish painting before we attach observers.
+ * Pass enabled=false to skip (e.g. while the page loader is still visible).
  */
-const useScrollAnimation = () => {
+const useScrollAnimation = (enabled = true) => {
   useEffect(() => {
+    if (!enabled) return;
+
     const observer = new IntersectionObserver(
       (entries) =>
         entries.forEach((e) => {
@@ -23,7 +26,7 @@ const useScrollAnimation = () => {
       clearTimeout(timer);
       observer.disconnect();
     };
-  }, []);
+  }, [enabled]);
 };
 
 export default useScrollAnimation;

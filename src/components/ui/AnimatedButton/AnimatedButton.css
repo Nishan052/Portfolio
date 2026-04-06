@@ -1,0 +1,97 @@
+/* ── AnimatedButton ─────────────────────────────────────────────────────────── */
+.animated-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 28px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  overflow: hidden;
+  isolation: isolate;
+  letter-spacing: 0.3px;
+  border: none;
+  transition: box-shadow 0.3s ease, transform 0.15s ease;
+}
+
+/* Liquid fill layer */
+.animated-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.76, 0, 0.24, 1);
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.animated-btn:hover::before {
+  transform: scaleX(1);
+}
+
+.animated-btn__label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.3s ease;
+}
+
+/* ── Primary variant ── */
+.animated-btn--primary {
+  background: var(--accent);
+  color: #000;
+  animation: neon-pulse 2.8s ease-in-out infinite;
+}
+
+.animated-btn--primary::before {
+  background: var(--accent2);
+}
+
+.animated-btn--primary:hover {
+  animation-play-state: paused;
+  box-shadow: 0 8px 32px rgba(168, 85, 247, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ── Ghost variant ── */
+.animated-btn--ghost {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--border);
+}
+
+.animated-btn--ghost::before {
+  background: var(--accent-soft);
+}
+
+.animated-btn--ghost:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+/* ── Neon pulse keyframes ── */
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px var(--accent), 0 0 20px rgba(0, 229, 255, 0.2);
+  }
+  50% {
+    box-shadow: var(--neon-glow, 0 0 18px var(--accent), 0 0 40px rgba(0, 229, 255, 0.3));
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animated-btn {
+    animation: none !important;
+  }
+  .animated-btn::before {
+    transition: none;
+  }
+}

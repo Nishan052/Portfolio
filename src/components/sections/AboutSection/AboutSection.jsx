@@ -36,8 +36,8 @@ const AboutSection = memo(() => {
       <div className="about-grid about-grid-container">
         {/* ── Left: bio ───────────────────────────────────────────────────────── */}
         <div>
-          <p className="section-tag fade-up">{t("about.tag")}</p>
-          <h2 id="about-heading" className="section-title fade-up fade-up-delay-1">
+          <p className="section-tag fade-up" data-reveal data-reveal-display="block">{t("about.tag")}</p>
+          <h2 id="about-heading" className="section-title fade-up fade-up-delay-1" data-reveal data-reveal-display="block">
             {title[0]}<br />{title[1]}
           </h2>
           <p className="about-bio fade-up fade-up-delay-2">{t("about.bio1")}</p>

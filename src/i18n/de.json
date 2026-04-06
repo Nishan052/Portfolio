@@ -204,6 +204,27 @@
     "readMore":      "Ganzen Beitrag lesen: {{title}}",
     "heroStats":      "Wichtige Statistiken",
     "subRoles":       "Karriereverlauf",
-    "languageToggle": "Sprache wechseln"
+    "languageToggle": "Sprache wechseln",
+    "loader":         "Portfolio wird geladen",
+    "cookieBanner":   "Cookie-Zustimmung",
+    "remoteControl":  "Telefon-Fernsteuerung öffnen"
+  },
+  "loader": {
+    "loading": "Lädt"
+  },
+  "cookies": {
+    "message": "Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.",
+    "accept":  "Akzeptieren",
+    "decline": "Ablehnen"
+  },
+  "remote": {
+    "title":        "Fernsteuerung",
+    "scanQr":       "QR scannen zum Scrollen",
+    "connected":    "Telefon verbunden",
+    "instructions": "Wischen Sie auf Ihrem Telefon, um diese Seite zu scrollen",
+    "connecting":   "Verbinde…",
+    "error":        "Verbindung fehlgeschlagen",
+    "noConfig":     "Fernsteuerung nicht konfiguriert",
+    "swipe":        "Wischen"
   }
 }
