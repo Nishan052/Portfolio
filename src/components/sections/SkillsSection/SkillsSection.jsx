@@ -4,6 +4,7 @@ import { LuTrophy, LuDatabase, LuWrench, LuChartColumn, LuChartBar, LuRadio, LuE
 import { SiPython, SiR, SiTensorflow, SiPytorch, SiAngular, SiTypescript, SiHtml5, SiNodedotjs, SiSpringboot, SiSalesforce, SiSap, SiGithub, SiJira, SiStreamlit, SiArduino, SiJenkins } from "react-icons/si";
 import skillsData from "../../../data/skills.json";
 import usePhysicsSkills from "../../../hooks/usePhysicsSkills";
+import RevealText from "../../ui/RevealText/RevealText";
 import "./SkillsSection.css";
 
 const SKILL_ICON_MAP = {
@@ -82,8 +83,8 @@ const SkillsSection = memo(() => {
         <div className="divider" aria-hidden="true" />
 
         <div style={{ marginBottom: 46 }}>
-          <p className="section-tag fade-up" data-reveal data-reveal-display="block">{t("skills.tag")}</p>
-          <h2 id="skills-heading" className="section-title fade-up fade-up-delay-1" data-reveal data-reveal-display="block">{t("skills.title")}</h2>
+          <RevealText as="p" className="section-tag fade-up">{t("skills.tag")}</RevealText>
+          <RevealText as="h2" id="skills-heading" className="section-title fade-up fade-up-delay-1">{t("skills.title")}</RevealText>
         </div>
 
         <div className="skills-categories">

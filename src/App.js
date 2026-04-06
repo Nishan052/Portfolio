@@ -13,7 +13,6 @@ import { LoaderProvider, useLoader } from "./context/LoaderContext";
 import useScrollAnimation from "./hooks/useScrollAnimation";
 import useParallax        from "./hooks/useParallax";
 import useActiveSection   from "./hooks/useActiveSection";
-import useTextReveal      from "./hooks/useTextReveal";
 
 // ── Layout ─────────────────────────────────────────────────────────────────────
 import ThreeBackground   from "./components/layout/ThreeBackground";
@@ -73,7 +72,6 @@ function HomePage() {
   const { loaderDone } = useLoader();
   useScrollAnimation(loaderDone);
   useParallax(loaderDone);
-  useTextReveal(loaderDone);
   return (
     <main id="main-content" tabIndex={-1} style={{ position: "relative", zIndex: 1 }}>
       <HeroSection />

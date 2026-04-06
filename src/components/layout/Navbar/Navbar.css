@@ -5,11 +5,7 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: linear-gradient(
-    to bottom,
-    var(--nav-bg) 0%,
-    color-mix(in srgb, var(--nav-bg) 88%, transparent) 100%
-  );
+  background: var(--nav-bg);
   backdrop-filter: blur(28px) saturate(1.4);
   -webkit-backdrop-filter: blur(28px) saturate(1.4);
   border-bottom: 1px solid transparent;
@@ -98,17 +94,6 @@
   padding: 6px 2px;
   font-family: 'Outfit', sans-serif;
   position: relative;
-  /* Start hidden; animation reveals when --assembled is added */
-  opacity: 0;
-}
-
-/* If reduced motion: skip stagger, show immediately */
-@media (prefers-reduced-motion: reduce) {
-  .nav-link,
-  .nav-blog-btn {
-    opacity: 1 !important;
-    animation: none !important;
-  }
 }
 
 .nav-link::after {
@@ -152,7 +137,6 @@
   color: var(--accent);
   cursor: pointer;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  opacity: 0;
 }
 
 .nav-blog-btn:hover {

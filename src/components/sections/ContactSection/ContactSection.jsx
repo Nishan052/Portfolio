@@ -2,6 +2,7 @@ import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { LuMapPin } from "react-icons/lu";
 import siteConfig from "../../../config/site";
+import RevealText from "../../ui/RevealText/RevealText";
 import "./ContactSection.css";
 
 const CONTACTS = [
@@ -113,10 +114,10 @@ const ContactSection = memo(() => {
       <div className="divider" aria-hidden="true" />
 
       <div className="contact-center">
-        <p className="section-tag fade-up" data-reveal data-reveal-display="block" style={{ textAlign: "center" }}>{t("contact.tag")}</p>
-        <h2 id="contact-heading" className="section-title fade-up fade-up-delay-1" data-reveal data-reveal-display="block" style={{ textAlign: "center" }}>
+        <RevealText as="p" className="section-tag fade-up" style={{ textAlign: "center" }}>{t("contact.tag")}</RevealText>
+        <RevealText as="h2" id="contact-heading" className="section-title fade-up fade-up-delay-1" style={{ textAlign: "center" }}>
           {title[0]}<br />{title[1]}
-        </h2>
+        </RevealText>
         <p className="contact-description fade-up fade-up-delay-2">
           {t("contact.description")}
         </p>

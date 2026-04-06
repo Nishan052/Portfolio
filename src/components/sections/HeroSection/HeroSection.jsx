@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { LuCode, LuMapPin } from "react-icons/lu";
 import siteConfig from "../../../config/site";
 import AnimatedButton from "../../ui/AnimatedButton/AnimatedButton";
+import RevealText from "../../ui/RevealText/RevealText";
 import "./HeroSection.css";
 
 const HeroCanvas = lazy(() => import("./HeroCanvas"));
@@ -43,13 +44,13 @@ const HeroSection = memo(() => {
       <div className="hero-grid">
         {/* ── Left: text content ──────────────────────────────────────────────── */}
         <div>
-          <p className="hero-role fade-up" data-reveal data-reveal-display="block">{t("hero.role")}</p>
+          <RevealText as="p" className="hero-role fade-up">{t("hero.role")}</RevealText>
           <div className="glow-line fade-up fade-up-delay-1" aria-hidden="true" />
 
-          <h1 id="hero-name" className="hero-name fade-up fade-up-delay-1" data-reveal data-reveal-display="block">
+          <RevealText as="h1" id="hero-name" className="hero-name fade-up fade-up-delay-1">
             <span style={{ color: "var(--text)" }}>{siteConfig.profile.firstName}</span><br />
             <span className="hero-name-accent">{siteConfig.profile.lastName}</span>
-          </h1>
+          </RevealText>
 
           <p className="hero-description fade-up fade-up-delay-2">
             {t("hero.description")}
