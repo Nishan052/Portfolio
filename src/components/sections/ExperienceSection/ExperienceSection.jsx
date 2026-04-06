@@ -2,7 +2,6 @@ import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { LuMapPin } from "react-icons/lu";
 import experiences from "../../../data/experience.json";
-import RevealText from "../../ui/RevealText/RevealText";
 import "./ExperienceSection.css";
 
 /**
@@ -28,10 +27,10 @@ const ExperienceSection = memo(() => {
       <div className="divider" aria-hidden="true" />
 
       <div style={{ marginBottom: 46 }}>
-        <RevealText as="p" className="section-tag fade-up">{t("experience.tag")}</RevealText>
-        <RevealText as="h2" id="experience-heading" className="section-title fade-up fade-up-delay-1">
+        <p className="section-tag fade-up" data-reveal data-reveal-display="block">{t("experience.tag")}</p>
+        <h2 id="experience-heading" className="section-title fade-up fade-up-delay-1" data-reveal data-reveal-display="block">
           {title[0]}<br />{title[1]}
-        </RevealText>
+        </h2>
       </div>
 
       <div className="exp-list">

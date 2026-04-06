@@ -27,9 +27,7 @@ export default function HeroCanvas() {
       powerPreference:  "low-power",
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    const w = canvas.clientWidth  || 220;
-    const h = canvas.clientHeight || 220;
-    renderer.setSize(w, h, false);
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
 
     // ── Scene / Camera ────────────────────────────────────────────────────────
     const scene  = new THREE.Scene();

@@ -4,7 +4,6 @@ import { LuCheck, LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight }
 import { SiPython } from "react-icons/si";
 import projects from "../../../data/projects.json";
 import useCarouselTilt from "../../../hooks/useCarouselTilt";
-import RevealText from "../../ui/RevealText/RevealText";
 import "./ProjectsSection.css";
 
 const PROJECT_ICON_MAP = {
@@ -115,10 +114,10 @@ const ProjectsSection = memo(() => {
         <div className="divider" aria-hidden="true" />
 
         <div style={{ marginBottom: 46 }}>
-          <RevealText as="p" className="section-tag fade-up">{t("projects.tag")}</RevealText>
-          <RevealText as="h2" id="projects-heading" className="section-title fade-up fade-up-delay-1">
+          <p className="section-tag fade-up" data-reveal data-reveal-display="block">{t("projects.tag")}</p>
+          <h2 id="projects-heading" className="section-title fade-up fade-up-delay-1" data-reveal data-reveal-display="block">
             {title[0]}<br />{title[1]}
-          </RevealText>
+          </h2>
         </div>
 
         {/* Horizontal carousel — desktop only via CSS, grid on mobile */}

@@ -237,7 +237,8 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
 .reveal-wrapper {
   position: relative;
   overflow: hidden;
-  display: block;
+  display: inline-block;
+  vertical-align: top;
 }
 
 .reveal-block {
@@ -251,13 +252,8 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
   pointer-events: none;
 }
 
-/* Triggered by IntersectionObserver in RevealText.jsx */
-.reveal-wrapper.is-revealed .reveal-block {
+.reveal-block--drop {
   transform: translateY(105%);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal-block { display: none; }
 }
 
 /* ─── Reduced motion (WCAG 2.3.3) ──────────────────────────────────────────── */

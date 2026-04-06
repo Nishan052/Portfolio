@@ -2,7 +2,6 @@ import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { LuGraduationCap, LuBuilding2, LuGlobe, LuChartColumn } from "react-icons/lu";
 import siteConfig from "../../../config/site";
-import RevealText from "../../ui/RevealText/RevealText";
 import "./AboutSection.css";
 
 const ABOUT_ICON_MAP = {
@@ -37,10 +36,10 @@ const AboutSection = memo(() => {
       <div className="about-grid about-grid-container">
         {/* ── Left: bio ───────────────────────────────────────────────────────── */}
         <div>
-          <RevealText as="p" className="section-tag fade-up">{t("about.tag")}</RevealText>
-          <RevealText as="h2" id="about-heading" className="section-title fade-up fade-up-delay-1">
+          <p className="section-tag fade-up" data-reveal data-reveal-display="block">{t("about.tag")}</p>
+          <h2 id="about-heading" className="section-title fade-up fade-up-delay-1" data-reveal data-reveal-display="block">
             {title[0]}<br />{title[1]}
-          </RevealText>
+          </h2>
           <p className="about-bio fade-up fade-up-delay-2">{t("about.bio1")}</p>
           <p className="about-bio fade-up fade-up-delay-3">{t("about.bio2")}</p>
 
