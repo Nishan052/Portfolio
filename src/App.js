@@ -13,6 +13,7 @@ import { LoaderProvider, useLoader } from "./context/LoaderContext";
 import useScrollAnimation from "./hooks/useScrollAnimation";
 import useParallax        from "./hooks/useParallax";
 import useActiveSection   from "./hooks/useActiveSection";
+import useLerpScroll      from "./hooks/useLerpScroll";
 
 // ── Layout ─────────────────────────────────────────────────────────────────────
 import ThreeBackground   from "./components/layout/ThreeBackground";
@@ -31,7 +32,6 @@ import Footer            from "./components/layout/Footer";
 // ── UI ─────────────────────────────────────────────────────────────────────────
 import ChatWidget     from "./components/ui/ChatWidget";
 import PageLoader     from "./components/ui/PageLoader/PageLoader";
-import CookieBanner   from "./components/ui/CookieBanner/CookieBanner";
 import RemoteControl  from "./components/ui/RemoteControl/RemoteControl";
 
 // ── Pages ──────────────────────────────────────────────────────────────────────
@@ -72,6 +72,7 @@ function HomePage() {
   const { loaderDone } = useLoader();
   useScrollAnimation(loaderDone);
   useParallax(loaderDone);
+  useLerpScroll();
   return (
     <main id="main-content" tabIndex={-1} style={{ position: "relative", zIndex: 1 }}>
       <HeroSection />
@@ -151,9 +152,6 @@ function AppShell({ isDark, toggleTheme }) {
           </Suspense>
         } />
       </Routes>
-
-      {/* Cookie consent banner */}
-      <CookieBanner />
 
       {/* QR phone remote control — hidden on blog/remote pages */}
       {!isRemote && <RemoteControl />}

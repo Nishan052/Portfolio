@@ -27,13 +27,14 @@ const GitHubIcon = () => (
   </svg>
 );
 
-const ProjectCard = ({ project: p, tx, isActive, onEnter, onLeave, cardRef }) => {
+const ProjectCard = ({ project: p, tx, isActive, onEnter, onLeave, cardRef, cardIdx }) => {
   const { t } = useTranslation();
   return (
   <article
     ref={cardRef}
-    className={`project-card`}
+    className={`project-card fade-up`}
     style={{
+      "--card-idx": cardIdx,
       boxShadow:   isActive ? `0 20px 60px ${p.color}20` : "none",
       borderColor: isActive ? p.color : "var(--border)",
     }}
@@ -136,6 +137,7 @@ const ProjectsSection = memo(() => {
               onEnter={() => handleEnter(p.id)}
               onLeave={handleLeave}
               cardRef={(el) => { cardRefs.current[i] = el; }}
+              cardIdx={i}
             />
           ))}
         </div>
