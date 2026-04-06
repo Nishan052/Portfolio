@@ -38,11 +38,10 @@ import RemoteControl  from "./components/ui/RemoteControl/RemoteControl";
 // ── Pages ──────────────────────────────────────────────────────────────────────
 import BlogsList from "./pages/BlogsList/BlogsList";
 import BlogPost  from "./pages/BlogPost/BlogPost";
+const RemotePage = lazy(() => import("./pages/RemotePage/RemotePage"));
 
 // ── Global styles ──────────────────────────────────────────────────────────────
 import "./styles/global.css";
-
-const RemotePage = lazy(() => import("./pages/RemotePage/RemotePage"));
 
 /**
  * Injects CSS custom properties onto :root based on the active theme object.
