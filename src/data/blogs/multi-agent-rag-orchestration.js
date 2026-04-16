@@ -2,7 +2,7 @@ const post = {
   id: 10,
   slug: 'agentic-rag-complete-systems-guide',
   title: 'Agentic RAG: Complete Systems Guide from Architecture to Production',
-  category: 'technical',
+  category: 'research',
   iconKey: 'Workflow',
   color: '#3B82F6',
   date: '2026-04-15',
