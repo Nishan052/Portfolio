@@ -33,7 +33,7 @@ const HeroSection = memo(() => {
           <p className="hero-role fade-up">{t("hero.role")}</p>
           <div className="glow-line fade-up fade-up-delay-1" aria-hidden="true" />
 
-          <h1 id="hero-name" className="hero-name fade-up fade-up-delay-1">
+          <h1 id="hero-name" className="hero-name hero-name-lcp">
             <span style={{ color: "var(--text)" }}>{siteConfig.profile.firstName}</span><br />
             <span className="hero-name-accent">{siteConfig.profile.lastName}</span>
           </h1>

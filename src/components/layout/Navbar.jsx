@@ -92,7 +92,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
           <button
             className="logo-btn"
             onClick={() => handleNav("hero")}
-            aria-label={`${siteConfig.profile.firstName} ${siteConfig.profile.lastName} — ${t("a11y.scrollDown")}`}
+            aria-label={`${siteConfig.profile.logoFirst}${siteConfig.profile.logoSecond}${siteConfig.profile.logoDomain} — ${siteConfig.profile.firstName} ${siteConfig.profile.lastName}, ${t("a11y.scrollDown")}`}
             type="button"
           >
             <span className="logo-first">{siteConfig.profile.logoFirst}</span>
@@ -140,7 +140,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
                     key={l}
                     type="button"
                     onClick={() => switchLang(l)}
-                    aria-label={l === "en" ? t("a11y.switchToEn") : t("a11y.switchToDe")}
+                    aria-label={l === "en" ? `EN — ${t("a11y.switchToEn")}` : `DE — ${t("a11y.switchToDe")}`}
                     aria-pressed={currentLang === l}
                     className={`lang-btn ${currentLang === l ? "lang-btn--active" : "lang-btn--inactive"}`}
                   >

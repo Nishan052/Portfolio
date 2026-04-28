@@ -255,6 +255,7 @@ function ChatWidget() {
         aria-label={t('chat.header')}
         aria-modal="true"
         aria-hidden={!isOpen}
+        {...(!isOpen && { inert: '' })}
       >
         {/* Header */}
         <div className="chat-header">

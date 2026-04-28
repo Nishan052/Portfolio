@@ -1,7 +1,7 @@
 // Initialise i18next BEFORE anything else renders
 import "./i18n/index.js";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -14,7 +14,6 @@ import useParallax        from "./hooks/useParallax";
 import useActiveSection   from "./hooks/useActiveSection";
 
 // ── Layout ─────────────────────────────────────────────────────────────────────
-import ThreeBackground   from "./components/layout/ThreeBackground";
 import FloatingOrbs      from "./components/layout/FloatingOrbs";
 import Navbar            from "./components/layout/Navbar";
 
@@ -36,6 +35,9 @@ import BlogPost  from "./pages/BlogPost/BlogPost";
 
 // ── Global styles ──────────────────────────────────────────────────────────────
 import "./styles/global.css";
+
+// ThreeBackground is lazy-loaded — Three.js (304 KiB) should not block initial render
+const ThreeBackground = lazy(() => import("./components/layout/ThreeBackground"));
 
 /**
  * Injects CSS custom properties onto :root based on the active theme object.
@@ -108,9 +110,11 @@ function AppShell({ isDark, toggleTheme }) {
         {t("a11y.skipToMain")}
       </a>
 
-      {/* Fixed canvas background — shown on all routes */}
-      <ThreeBackground isDark={isDark} />
-      <FloatingOrbs    isDark={isDark} />
+      {/* Fixed canvas background — lazy-loaded so Three.js doesn't block LCP */}
+      <Suspense fallback={null}>
+        <ThreeBackground isDark={isDark} />
+      </Suspense>
+      <FloatingOrbs isDark={isDark} />
 
       <Navbar
         isDark={isDark}
