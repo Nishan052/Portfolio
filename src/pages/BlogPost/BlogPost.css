@@ -27,9 +27,11 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 24px;
-  /* center SVG when it is smaller than the frame */
+  /* align-items: flex-start so overflow starts at the top of the scroll
+     container — center pushes content above scrollTop:0, making the top
+     unreachable since scrollTop cannot go negative */
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   transition: border-color 0.18s;
 }

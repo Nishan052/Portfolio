@@ -14,7 +14,7 @@ function getMermaid() {
         startOnLoad: false,
         theme: 'dark',
         fontSize: 15,
-        flowchart: { nodeSpacing: 50, rankSpacing: 60, padding: 15, useMaxWidth: false },
+        flowchart: { nodeSpacing: 50, rankSpacing: 60, padding: 20, useMaxWidth: false },
         sequence:  { useMaxWidth: false },
         themeVariables: {
           background:          '#0d1117',
@@ -25,7 +25,7 @@ function getMermaid() {
           secondaryColor:      '#1e293b',
           tertiaryColor:       '#1e293b',
           edgeLabelBackground: '#0d1117',
-          fontFamily:          "'Outfit', sans-serif",
+          fontFamily:          'Arial, sans-serif',
           fontSize:            '15px',
         },
       });
