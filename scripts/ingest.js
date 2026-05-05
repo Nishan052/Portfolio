@@ -26,8 +26,10 @@
  *   Groq enrich:      GROQ_API_KEY
  *
  * Usage:
- *   node scripts/ingest.js           # skips if vectors already exist
- *   node scripts/ingest.js --force   # clears index and re-ingests everything
+ *   node scripts/ingest.js                             # skips if vectors already exist
+ *   node scripts/ingest.js --force                     # clears index and re-ingests everything
+ *   node scripts/ingest.js --blog-slugs=my-new-blog    # incremental: only that blog
+ *   node scripts/ingest.js --pdf-files=Report.pdf      # incremental: only that PDF
  *
  * Sources ingested:
  *   - PDFs in data/
@@ -62,6 +64,16 @@ const CLEAR_FIRST       = process.argv.includes('--clear') || FORCE;
 const BATCH_SIZE        = 100;
 // Only relevant when ENRICH_PROVIDER=groq to avoid hitting free-tier RPM
 const ENRICH_DELAY_MS   = parseInt(process.env.ENRICH_DELAY_MS || '0', 10);
+
+// ─── Incremental / partial ingest flags ──────────────────────────────────────
+// --blog-slugs=slug1,slug2   only process those blog files (comma-separated, no .js)
+// --pdf-files=a.pdf,b.pdf    only process those PDF files (comma-separated)
+// When either flag is set: skip all other sources, never clear the index.
+const _blogSlugsArg = process.argv.find(a => a.startsWith('--blog-slugs='));
+const BLOG_SLUGS    = _blogSlugsArg ? _blogSlugsArg.split('=')[1].split(',').map(s => s.trim()).filter(Boolean) : null;
+const _pdfFilesArg  = process.argv.find(a => a.startsWith('--pdf-files='));
+const PDF_FILES     = _pdfFilesArg  ? _pdfFilesArg.split('=')[1].split(',').map(s => s.trim()).filter(Boolean)  : null;
+const INCREMENTAL   = BLOG_SLUGS !== null || PDF_FILES !== null;
 
 // ─── Validate ─────────────────────────────────────────────────────────────────
 if (!PINECONE_API_KEY) {
@@ -280,16 +292,22 @@ async function main() {
   const index = pc.index(PINECONE_INDEX, PINECONE_HOST);
   console.log(`[OK] Connected to Pinecone index: ${PINECONE_INDEX}`);
 
-  // Skip guard — exit early if vectors already exist and --force not passed
-  const stats = await index.describeIndexStats();
-  const existing = stats.totalRecordCount ?? 0;
-  if (existing > 0 && !FORCE) {
-    console.log(`\nPinecone already has ${existing} vectors. Run with --force to re-ingest.\n`);
-    process.exit(0);
+  // Skip guard — only applies to full ingestion runs, not incremental
+  if (!INCREMENTAL) {
+    const stats = await index.describeIndexStats();
+    const existing = stats.totalRecordCount ?? 0;
+    if (existing > 0 && !FORCE) {
+      console.log(`\nPinecone already has ${existing} vectors. Run with --force to re-ingest.\n`);
+      process.exit(0);
+    }
   }
 
-  // Clear existing vectors if requested
-  if (CLEAR_FIRST) {
+  if (INCREMENTAL) {
+    console.log(`\n[INCREMENTAL] blog-slugs: ${BLOG_SLUGS ? BLOG_SLUGS.join(', ') : 'all'} | pdf-files: ${PDF_FILES ? PDF_FILES.join(', ') : 'all'}`);
+  }
+
+  // Clear existing vectors if requested (never on incremental)
+  if (CLEAR_FIRST && !INCREMENTAL) {
     console.log('\nClearing existing vectors...');
     try {
       await index.deleteAll();
@@ -306,21 +324,26 @@ async function main() {
   const allVectors = [];
 
   // ── Source 1: PDFs ──────────────────────────────────────────────────────────
-  console.log('\nLoading PDFs from data/...');
-  const pdfs = await loadPDFs();
-  for (const pdf of pdfs) {
-    console.log(`\n  Processing: ${pdf.id}`);
-    const vecs = await processSource(pdf.id, pdf.type, pdf.text, pdf.metadata);
-    allVectors.push(...vecs);
+  if (!INCREMENTAL || PDF_FILES !== null) {
+    console.log('\nLoading PDFs from data/...');
+    const pdfs = await loadPDFs();
+    for (const pdf of pdfs) {
+      // In incremental mode, skip PDFs not in the --pdf-files list
+      if (PDF_FILES && !PDF_FILES.includes(pdf.metadata?.file)) continue;
+      console.log(`\n  Processing: ${pdf.id}`);
+      const vecs = await processSource(pdf.id, pdf.type, pdf.text, pdf.metadata);
+      allVectors.push(...vecs);
+    }
   }
 
-  // ── Source 2: experience.json ──────────────────────────────────────────────
-  console.log('\nLoading experience.json...');
-  const expPath = path.join(__dirname, '..', 'src', 'data', 'experience.json');
-  if (fs.existsSync(expPath)) {
-    const expData = JSON.parse(fs.readFileSync(expPath, 'utf-8'));
-    for (const role of expData) {
-      const text = `
+  // ── Source 2: experience.json (skipped in incremental mode) ─────────────────
+  if (!INCREMENTAL) {
+    console.log('\nLoading experience.json...');
+    const expPath = path.join(__dirname, '..', 'src', 'data', 'experience.json');
+    if (fs.existsSync(expPath)) {
+      const expData = JSON.parse(fs.readFileSync(expPath, 'utf-8'));
+      for (const role of expData) {
+        const text = `
 Role: ${role.role}
 Company: ${role.company}
 Period: ${role.period} to ${role.end} (${role.duration})
@@ -329,38 +352,42 @@ Skills: ${role.skills.join(', ')}
 ${role.subRoles ? `\nProgression:\n${role.subRoles.map(r => `- ${r.title} (${r.period})`).join('\n')}` : ''}
       `.trim();
 
-      const id = `experience_${role.company.replace(/\s+/g, '_').toLowerCase()}`;
-      console.log(`\n  Processing: ${id}`);
-      const vecs = await processSource(id, 'work_experience', text, { company: role.company });
-      allVectors.push(...vecs);
+        const id = `experience_${role.company.replace(/\s+/g, '_').toLowerCase()}`;
+        console.log(`\n  Processing: ${id}`);
+        const vecs = await processSource(id, 'work_experience', text, { company: role.company });
+        allVectors.push(...vecs);
+      }
     }
   }
 
-  // ── Source 3: projects.json ────────────────────────────────────────────────
-  console.log('\nLoading projects.json...');
-  const projPath = path.join(__dirname, '..', 'src', 'data', 'projects.json');
-  if (fs.existsSync(projPath)) {
-    const projData = JSON.parse(fs.readFileSync(projPath, 'utf-8'));
-    for (const project of projData) {
-      const text = `
+  // ── Source 3: projects.json (skipped in incremental mode) ──────────────────
+  if (!INCREMENTAL) {
+    console.log('\nLoading projects.json...');
+    const projPath = path.join(__dirname, '..', 'src', 'data', 'projects.json');
+    if (fs.existsSync(projPath)) {
+      const projData = JSON.parse(fs.readFileSync(projPath, 'utf-8'));
+      for (const project of projData) {
+        const text = `
 Project: ${project.title}
 Technologies: ${project.tech.join(', ')}
 GitHub: ${project.github}
       `.trim();
 
-      const id = `project_${project.title.replace(/\s+/g, '_').toLowerCase().slice(0, 30)}`;
-      console.log(`\n  Processing: ${id}`);
-      const vecs = await processSource(id, 'project', text, { projectTitle: project.title });
-      allVectors.push(...vecs);
+        const id = `project_${project.title.replace(/\s+/g, '_').toLowerCase().slice(0, 30)}`;
+        console.log(`\n  Processing: ${id}`);
+        const vecs = await processSource(id, 'project', text, { projectTitle: project.title });
+        allVectors.push(...vecs);
+      }
     }
   }
 
-  // ── Source 4: skills.json ──────────────────────────────────────────────────
-  console.log('\nLoading skills.json...');
-  const skillsPath = path.join(__dirname, '..', 'src', 'data', 'skills.json');
-  if (fs.existsSync(skillsPath)) {
-    const skillsData = JSON.parse(fs.readFileSync(skillsPath, 'utf-8'));
-    const skillsText = `
+  // ── Source 4: skills.json (skipped in incremental mode) ───────────────────
+  if (!INCREMENTAL) {
+    console.log('\nLoading skills.json...');
+    const skillsPath = path.join(__dirname, '..', 'src', 'data', 'skills.json');
+    if (fs.existsSync(skillsPath)) {
+      const skillsData = JSON.parse(fs.readFileSync(skillsPath, 'utf-8'));
+      const skillsText = `
 Nishan Poojary's Technical Skills:
 
 ${skillsData.categories.map((cat, i) =>
@@ -371,16 +398,26 @@ Certifications:
 ${skillsData.certifications.map(c => `- ${c.title} — ${c.org}`).join('\n')}
     `.trim();
 
-    console.log('\n  Processing: skills_data');
-    const vecs = await processSource('skills_data', 'skills', skillsText);
-    allVectors.push(...vecs);
+      console.log('\n  Processing: skills_data');
+      const vecs = await processSource('skills_data', 'skills', skillsText);
+      allVectors.push(...vecs);
+    }
   }
 
   // ── Source 5: blog posts ───────────────────────────────────────────────────
-  console.log('\nLoading blog posts...');
-  const blogsDir = path.join(__dirname, '..', 'src', 'data', 'blogs');
-  if (fs.existsSync(blogsDir)) {
-    const blogFiles = fs.readdirSync(blogsDir).filter(f => f.endsWith('.js') && f !== 'index.js');
+  // In incremental mode, BLOG_SLUGS filters which files are processed.
+  if (!INCREMENTAL || BLOG_SLUGS !== null) {
+    console.log('\nLoading blog posts...');
+    const blogsDir = path.join(__dirname, '..', 'src', 'data', 'blogs');
+    if (fs.existsSync(blogsDir)) {
+      const allBlogFiles = fs.readdirSync(blogsDir).filter(f => f.endsWith('.js') && f !== 'index.js');
+      const blogFiles    = BLOG_SLUGS
+        ? allBlogFiles.filter(f => BLOG_SLUGS.includes(f.replace('.js', '')))
+        : allBlogFiles;
+
+      if (BLOG_SLUGS && blogFiles.length === 0) {
+        console.warn(`  [WARN] No matching blog files found for slugs: ${BLOG_SLUGS.join(', ')}`);
+      }
     for (const file of blogFiles) {
       const raw = fs.readFileSync(path.join(blogsDir, file), 'utf-8');
 
@@ -428,9 +465,11 @@ ${content.trim()}
       });
       allVectors.push(...vecs);
     }
-  }
+    } // end if (fs.existsSync(blogsDir))
+  } // end if (!INCREMENTAL || BLOG_SLUGS !== null)
 
-  // ── Source 6: cv.json ──────────────────────────────────────────────────────
+  // ── Source 6: cv.json (skipped in incremental mode) ─────────────────────
+  if (!INCREMENTAL) {
   console.log('\nLoading cv.json...');
   const cvPath = path.join(__dirname, '..', 'src', 'data', 'cv.json');
   if (fs.existsSync(cvPath)) {
@@ -526,9 +565,11 @@ Skills Demonstrated: ${(proj.skills_demonstrated || []).join(', ')}
       console.log(`\n  Processing: ${id}`);
       allVectors.push(...await processSource(id, 'project', projText, { projectTitle: proj.name }));
     }
-  }
+  } // end if (fs.existsSync(cvPath))
+  } // end if (!INCREMENTAL)
 
-  // ── Source 7: profile.json ─────────────────────────────────────────────────
+  // ── Source 7: profile.json (skipped in incremental mode) ─────────────────
+  if (!INCREMENTAL) {
   console.log('\nLoading profile.json...');
   const profilePath = path.join(__dirname, '..', 'src', 'data', 'profile.json');
   if (fs.existsSync(profilePath)) {
@@ -557,7 +598,8 @@ Location Flexibility: ${prof.compensation.location_flexibility}
 
     console.log('\n  Processing: profile_narrative');
     allVectors.push(...await processSource('profile_narrative', 'profile', profileText));
-  }
+  } // end if (fs.existsSync(profilePath))
+  } // end if (!INCREMENTAL)
 
   // ── Upsert all to Pinecone ─────────────────────────────────────────────────
   console.log(`\nUpserting ${allVectors.length} vectors to Pinecone...`);

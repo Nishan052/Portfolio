@@ -1,0 +1,81 @@
+name: Ingest new content to Pinecone
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'src/data/blogs/**'
+      - 'data/**'
+
+jobs:
+  ingest:
+    name: Embed & upsert new files
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2   # need HEAD and HEAD~1 to detect added files
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Detect newly added blog files ──────────────────────────────────────
+      - name: Detect new blog slugs
+        id: new_blogs
+        run: |
+          SLUGS=$(git diff --name-only --diff-filter=A HEAD~1 HEAD \
+            | grep '^src/data/blogs/.*\.js$' \
+            | grep -v 'index\.js' \
+            | sed 's|src/data/blogs/||; s|\.js$||' \
+            | paste -sd ',' -)
+          echo "slugs=$SLUGS" >> "$GITHUB_OUTPUT"
+          echo "New blog slugs: $SLUGS"
+
+      # ── Detect newly added PDF files ────────────────────────────────────────
+      - name: Detect new PDF files
+        id: new_pdfs
+        run: |
+          PDFS=$(git diff --name-only --diff-filter=A HEAD~1 HEAD \
+            | grep '^data/.*\.pdf$' \
+            | sed 's|data/||' \
+            | paste -sd ',' -)
+          echo "files=$PDFS" >> "$GITHUB_OUTPUT"
+          echo "New PDF files: $PDFS"
+
+      # ── Ingest new blogs ────────────────────────────────────────────────────
+      - name: Ingest new blog posts
+        if: steps.new_blogs.outputs.slugs != ''
+        env:
+          PINECONE_API_KEY:        ${{ secrets.PINECONE_API_KEY }}
+          PINECONE_HOST:           ${{ secrets.PINECONE_HOST }}
+          PINECONE_INDEX:          ${{ secrets.PINECONE_INDEX }}
+          CLOUDFLARE_ACCOUNT_ID:   ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN:    ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          GROQ_API_KEY:            ${{ secrets.GROQ_API_KEY }}
+          EMBED_PROVIDER:          cloudflare
+          ENRICH_PROVIDER:         groq
+          ENRICH_DELAY_MS:         '2000'
+        run: |
+          node scripts/ingest.js --blog-slugs=${{ steps.new_blogs.outputs.slugs }}
+
+      # ── Ingest new PDFs ─────────────────────────────────────────────────────
+      - name: Ingest new PDF files
+        if: steps.new_pdfs.outputs.files != ''
+        env:
+          PINECONE_API_KEY:        ${{ secrets.PINECONE_API_KEY }}
+          PINECONE_HOST:           ${{ secrets.PINECONE_HOST }}
+          PINECONE_INDEX:          ${{ secrets.PINECONE_INDEX }}
+          CLOUDFLARE_ACCOUNT_ID:   ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN:    ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          GROQ_API_KEY:            ${{ secrets.GROQ_API_KEY }}
+          EMBED_PROVIDER:          cloudflare
+          ENRICH_PROVIDER:         groq
+          ENRICH_DELAY_MS:         '2000'
+        run: |
+          node scripts/ingest.js --pdf-files=${{ steps.new_pdfs.outputs.files }}

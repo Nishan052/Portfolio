@@ -4,7 +4,7 @@
  */
 
 const TOP_K     = 5;
-const MIN_SCORE = 0.55; // Minimum cosine similarity threshold
+const MIN_SCORE = 0.40; // nomic-embed-text-v1.5 produces lower raw cosine scores than bge; 0.40 is the right floor
 
 /**
  * Query Pinecone for semantically similar chunks.
