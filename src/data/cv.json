@@ -1,0 +1,512 @@
+{
+  "personal_information": {
+    "name": "Nishan Chandrashekar Poojary",
+    "location": "Berlin, Germany",
+    "work_authorization": "established, valid EU work permit",
+    "email": "nishanchandrashekarpoojary@gmail.com",
+    "phone": "+49 1556 3374276",
+    "github": "Nishan052",
+    "github_url": "https://github.com/Nishan052",
+    "linkedin": "Nishan Poojary",
+    "linkedin_url": "https://www.linkedin.com/in/nishan-chandrashekar-poojary-756147184/",
+    "portfolio": "https://nishanpoojary.com",
+    "blog": "Weekly technical posts documenting learning, AI advancements, and systematic reflection"
+  },
+
+  "education": [
+    {
+      "degree": "Master of Science",
+      "field": "Business Intelligence and Data Analytics",
+      "institution": "Hochschule Emden/Leer",
+      "city": "Emden",
+      "country": "Germany",
+      "start": "03/2025",
+      "end": "present",
+      "grade": "1.45/5"
+    },
+    {
+      "degree": "Bachelor of Engineering",
+      "field": "Mechanical Engineering",
+      "institution": "Shri Madhwa Vadiraja Institute of Technology and Management",
+      "city": "Udupi",
+      "country": "India",
+      "start": "06/2016",
+      "end": "06/2020",
+      "grade": "2.6/5"
+    }
+  ],
+
+  "certifications": [
+    {
+      "title": "Data Analytics Foundations Certificate",
+      "issuer": "Google"
+    },
+    {
+      "title": "Python for Data Science, AI and Development Certificate",
+      "issuer": "Coursera"
+    },
+    {
+      "title": "Python Data Structures Certificate",
+      "issuer": "Coursera"
+    },
+    {
+      "title": "Java Spring and Angular Full Stack Developer Certificate",
+      "issuer": "Infosys Foundation Program"
+    }
+  ],
+
+  "languages": [
+    {
+      "language": "English",
+      "level": "C1"
+    },
+    {
+      "language": "German",
+      "level": "A2",
+      "notes": "actively improving through daily practice"
+    }
+  ],
+
+  "professional_summary": {
+    "years_of_experience": "4+",
+    "description": "4+ years of production software engineering experience combining full-stack development, data science, and enterprise system integration. Demonstrated expertise shipping reliable systems in regulated environments (banking, healthcare). Strong foundation in problem-understanding before technology selection, enabling rapid adaptation to new technical stacks and domains.",
+    "core_philosophy": [
+      "Problem first, technology second",
+      "Production thinking from day one (not optimization as afterthought)",
+      "Constraint-aware engineering",
+      "Systematic documentation and learning",
+      "Measurable outcomes and quantified results"
+    ]
+  },
+
+  "work_experience": [
+    {
+      "title": "Senior Software Developer",
+      "company": "Novigo Solutions",
+      "city": "Mangalore",
+      "country": "India",
+      "start": "06/2023",
+      "end": "02/2025",
+      "domain": "Banking and Financial Services: Digital Onboarding Platform",
+      "responsibilities": [
+        "Engineered end-to-end digital customer onboarding applications for multiple US-based banks covering complete product lifecycle from business requirements analysis through production deployment",
+        "Translated complex banking and financial services requirements into scalable, maintainable technical solutions",
+        "Developed interactive banking applications using Angular, TypeScript, and modern frontend frameworks",
+        "Integrated with enterprise Salesforce systems for customer data management and workflow automation",
+        "Managed full deployment pipeline across local development, QA, and production environments ensuring stable releases for compliance-sensitive banking applications",
+        "Drove product optimization and feature development within Agile and Jira workflows",
+        "Demonstrated expertise in banking compliance requirements, secure data handling, and enterprise application architecture"
+      ],
+      "key_skills": [
+        "Full-stack development",
+        "Enterprise integration",
+        "Regulatory compliance",
+        "Banking systems",
+        "API design",
+        "Production deployment",
+        "Team leadership",
+        "Agile methodology",
+        "Requirement translation"
+      ]
+    },
+    {
+      "title": "Senior Software Engineer",
+      "company": "Infosys Helix",
+      "city": "Bangalore",
+      "country": "India",
+      "start": "05/2021",
+      "end": "06/2023",
+      "domain": "Healthcare Digitalization Platform",
+      "responsibilities": [
+        "Developed comprehensive healthcare digitalization platform as frontend engineer building interactive dashboards and data-driven UI components using Angular, TypeScript, and HTML/CSS",
+        "Designed components to improve clinical data accessibility and support clinical decision-making processes",
+        "Built and consumed RESTful APIs using Spring Boot framework with Swagger API documentation and comprehensive testing",
+        "Contributed across full technology stack from frontend UI development to backend API integration",
+        "Automated manual deployment processes and implemented CI/CD pipeline infrastructure significantly reducing release overhead and improving deployment reliability",
+        "Participated in converting healthcare business requirements into technical specifications ensuring regulatory alignment and healthcare data compliance",
+        "Demonstrated understanding of healthcare data governance, compliance requirements, and patient data security"
+      ],
+      "key_skills": [
+        "Full-stack development",
+        "Healthcare systems",
+        "RESTful APIs",
+        "CI/CD implementation",
+        "Regulatory compliance",
+        "Component-driven architecture",
+        "Agile development",
+        "Spring Boot",
+        "System automation"
+      ]
+    }
+  ],
+
+  "projects": [
+    {
+      "name": "RAG (Retrieval-Augmented Generation) Production System",
+      "status": "Completed, Production Deployment",
+      "timeline": "01/2026 — 03/2026",
+      "production_url": "https://nishanpoojary.com",
+      "github": null,
+      "github_note": "private / not listed",
+      "problems_solved": [
+        "Expensive and slow repeated API queries to LLM services",
+        "Hallucination risk in LLM responses (factual accuracy concerns)",
+        "Compliance and PII protection requirements for enterprise deployment",
+        "Cost optimization for production systems"
+      ],
+      "technical_implementation": [
+        "Python backend with semantic caching (Upstash Redis)",
+        "Custom query expansion algorithms for improved retrieval",
+        "Response grounding layer architecture for hallucination prevention",
+        "Rate limiting and intelligent cost optimization",
+        "Enterprise compliance considerations and data protection"
+      ],
+      "deployment_architecture": {
+        "frontend": "Cloudflare Pages (React application)",
+        "backend": "Cloudflare Workers Edge Functions",
+        "embedding_model_production": "Cloudflare Workers AI bge-base-en-v1.5",
+        "embedding_model_local_dev": "Ollama nomic-embed-text",
+        "llm_provider_production": "Groq API",
+        "llm_provider_local_dev": "Ollama",
+        "vector_database": "Pinecone (serverless, 5k vectors)",
+        "caching_layer": "Upstash Redis (semantic + exact caching, 6-24h TTL)",
+        "retrieval_methodology": "Contextual Retrieval (Anthropic 2025 methodology, prepending LLM-generated context)"
+      },
+      "quantified_results": [
+        "Response latency: 8 seconds → sub-10 milliseconds (with intelligent caching)",
+        "API cost reduction: significant monthly → $0 (through semantic caching strategy)",
+        "Hallucination prevention: 100% factual accuracy on validation dataset",
+        "Retrieval improvement: 49% better accuracy vs standard RAG (via Contextual Retrieval)",
+        "System deployed to production with PII protection and rate limiting",
+        "Zero infrastructure management overhead (free tier: Cloudflare Pages, Workers, Workers AI; Pinecone free tier; Upstash free tier)"
+      ],
+      "skills_demonstrated": [
+        "Production system architecture and reliability engineering",
+        "LLM orchestration and prompt engineering",
+        "Semantic search, vector embeddings, and caching optimization",
+        "Cost optimization under constraints (building at $0/month)",
+        "Python backend development",
+        "Compliance-aware system design",
+        "Edge computing and serverless architecture",
+        "Production-grade error handling and monitoring"
+      ],
+      "use_for": [
+        "AI/LLM Engineer roles",
+        "Senior AI positions",
+        "Production reliability",
+        "Enterprise AI integration",
+        "Cost optimization roles",
+        "LLM deployment expertise"
+      ],
+      "blog_documentation": "Systematic learning documented on portfolio website covering RAG implementation, Contextual Retrieval methodology, cost optimization thinking"
+    },
+    {
+      "name": "NIFTY 50 Stock Forecasting System",
+      "status": "Completed, Production Deployment (with Streamlit GUI)",
+      "timeline": "03/2025 — 06/2025",
+      "production_url": "https://nifty50indexprediction.streamlit.app",
+      "github": null,
+      "github_note": "not public",
+      "problems_solved": [
+        "Predict stock market behavior with statistical rigor (not just neural networks)",
+        "Demonstrate mature time-series forecasting capability (walk-forward validation, not train-test leakage)",
+        "Build production-ready ML pipeline with complete automation",
+        "Combine deep learning and statistical approaches optimally"
+      ],
+      "technical_implementation": [
+        "LSTM (Long Short-Term Memory) neural networks using TensorFlow/Keras for temporal pattern recognition",
+        "ARIMA (AutoRegressive Integrated Moving Average) statistical models for stationarity-aware forecasting",
+        "Walk-forward validation methodology (proper time-series validation preventing data leakage)",
+        "Ensemble approach combining neural and statistical methods",
+        "Streamlit interactive dashboard for visualization and monitoring",
+        "GitHub Actions CI/CD pipeline for automated deployment and retraining"
+      ],
+      "quantified_results": [
+        "Dual-model ensemble approach achieving superior accuracy through complementary strengths",
+        "MAPE (Mean Absolute Percentage Error): sub-3% on validation data (industry benchmark typically 5-8%)",
+        "Walk-forward validation ensuring model robustness on truly unseen data (not leaked from training set)",
+        "Automated pipeline with GitHub Actions reducing manual testing and deployment",
+        "Production-ready system deployed on cloud infrastructure with monitoring",
+        "Complete end-to-end ML pipeline demonstrating maturity"
+      ],
+      "skills_demonstrated": [
+        "Time-series forecasting and statistical modeling expertise",
+        "LSTM neural networks and deep learning (TensorFlow/Keras)",
+        "ARIMA and classical statistical forecasting",
+        "Walk-forward validation methodology (rigorous time-series validation)",
+        "Ensemble modeling approaches (combining complementary models)",
+        "Python data science pipeline design",
+        "Streamlit for interactive data visualization and dashboarding",
+        "GitHub Actions CI/CD pipeline automation",
+        "Production ML pipeline architecture and deployment"
+      ],
+      "narrative_value": [
+        "Shows understanding of when deep learning helps vs when statistics are more reliable",
+        "Demonstrates rigorous validation methodology (not just train-test split)",
+        "Proves ability to deliver end-to-end ML systems with production considerations",
+        "Quantified accuracy results backing all claims"
+      ],
+      "use_for": [
+        "Data Science roles",
+        "ML Engineer positions",
+        "Data Analytics",
+        "Forecasting/time-series analysis",
+        "Financial modeling",
+        "Data engineering",
+        "Senior AI positions"
+      ],
+      "blog_documentation": "Technical posts explaining ensemble approaches, walk-forward validation methodology, and lessons learned"
+    },
+    {
+      "name": "TinyML Face Verification and Barcode Scanner (Embedded Hardware)",
+      "status": "Completed",
+      "timeline": "09/2025 — 12/2026",
+      "github_face_verification": "https://github.com/Nishan052/Person-Recignition",
+      "github_barcode_scanner": "https://github.com/Nishan052/barcodeScanner",
+      "problems_solved": [
+        "Deploy AI model on severely resource-constrained embedded hardware",
+        "Enable real-time on-device inference without cloud dependency",
+        "Demonstrate end-to-end embedded AI capability from data to hardware",
+        "Engineer for hardware constraints from design phase"
+      ],
+      "technical_implementation": [
+        "Complete image preprocessing pipeline (OpenCV, data augmentation, normalization)",
+        "TensorFlow/Keras model training with embedded deployment focus",
+        "Integer quantization (Int8 model compression for embedded devices)",
+        "TensorFlow Lite conversion for embedded deployment",
+        "Microcontroller simulation and validation testing",
+        "Edge Impulse integration for embedded ML workflows"
+      ],
+      "project_pipeline_stages": [
+        "Data collection and preprocessing (image normalization, augmentation, validation)",
+        "Model architecture design with embedded constraint awareness",
+        "Training with optimization for accuracy-vs-size tradeoff",
+        "Quantization converting floating-point to 8-bit integer representation",
+        "TensorFlow Lite conversion for microcontroller-compatible format",
+        "MCU simulation and validation testing for real hardware scenarios"
+      ],
+      "quantified_results": [
+        "Full end-to-end embedded system design demonstrating constraint-aware engineering from day one",
+        "Model compression: 95% size reduction through Int8 quantization while maintaining accuracy",
+        "Real-time on-device inference without cloud dependency (< 100ms latency target)",
+        "Deployment pipeline for microcontroller firmware with edge deployment",
+        "Complete understanding of hardware-software integration tradeoffs"
+      ],
+      "skills_demonstrated": [
+        "Constraint-aware engineering (hardware-limited environments)",
+        "Embedded systems programming and deployment",
+        "Model optimization and quantization techniques (Int8, pruning)",
+        "TensorFlow/Keras and TensorFlow Lite expertise",
+        "Computer vision preprocessing (OpenCV)",
+        "Microcontroller programming and MCU integration",
+        "Real-time system design and performance optimization",
+        "Technical documentation and systematic learning documentation",
+        "Specialized domain learning methodology"
+      ],
+      "narrative_value": [
+        "Shows ownership of complex end-to-end systems",
+        "Demonstrates ability to work in severely constrained environments",
+        "Proves learning methodology on unfamiliar domains (embedded ML, quantization, MCU)",
+        "Evidence of continuous learning (documented on blog)",
+        "Hardware-first thinking beyond academic prototypes"
+      ],
+      "use_for": [
+        "Embedded systems roles",
+        "Edge AI positions",
+        "IoT engineer",
+        "ML engineers",
+        "Constraint optimization roles",
+        "Robotics",
+        "Hardware-software integration",
+        "Learning ability demonstration"
+      ],
+      "blog_documentation": "Posts on quantization, embedded deployment, and constraint-aware design"
+    },
+    {
+      "name": "SignalDock (IoT Architecture)",
+      "status": "Production",
+      "problems_solved": [
+        "IoT device communication and data flow orchestration"
+      ],
+      "technical_implementation": [
+        "MQTT message broker for publish-subscribe patterns",
+        "Docker Compose microservices orchestration",
+        "Modular microservices architecture enabling independent scaling",
+        "Event-driven architecture for distributed systems"
+      ],
+      "skills_demonstrated": [
+        "IoT system architecture and design",
+        "MQTT protocols and pub-sub patterns",
+        "Docker containerization and orchestration",
+        "Microservices architecture",
+        "Distributed systems design",
+        "Event-driven programming"
+      ],
+      "use_for": [
+        "IoT roles",
+        "Backend systems",
+        "Infrastructure architecture",
+        "DevOps-adjacent positions"
+      ]
+    },
+    {
+      "name": "Production Automation Pipelines",
+      "status": "Multiple implementations in production",
+      "problems_solved": [
+        "Automated, scalable data processing and task automation"
+      ],
+      "technical_implementation": [
+        "Batch processing for efficient large-volume handling",
+        "Parallel execution for concurrent processing",
+        "Cost optimization for cloud resource utilization",
+        "Comprehensive error handling and recovery mechanisms",
+        "Monitoring and alerting for production pipelines"
+      ],
+      "skills_demonstrated": [
+        "Pipeline architecture and design",
+        "Batch processing and parallelization",
+        "Cost optimization and resource efficiency",
+        "Production reliability and error handling",
+        "Scalability engineering",
+        "System observability and monitoring"
+      ],
+      "use_for": [
+        "Data engineering",
+        "Backend systems",
+        "Automation roles",
+        "Infrastructure",
+        "DevOps"
+      ]
+    }
+  ],
+
+  "technical_skills": {
+    "programming_languages": [
+      { "name": "Python", "notes": "daily production use, data science, machine learning, automation scripting, data pipelines, REST APIs" },
+      { "name": "TypeScript", "notes": "full-stack applications, modern development, component architecture, production systems" },
+      { "name": "JavaScript", "notes": "web applications, API integration, modern frameworks" },
+      { "name": "R", "notes": "statistical analysis, data modeling, machine learning" },
+      { "name": "SQL", "notes": "database design, query optimization, data manipulation, production optimization" },
+      { "name": "Bash", "notes": "scripting, automation, system administration" },
+      { "name": "Angular", "notes": "expert level, component libraries, TypeScript frontend, production applications" }
+    ],
+    "machine_learning_and_ai": [
+      { "name": "LLM APIs and prompt engineering", "tools": ["OpenAI", "Anthropic Claude", "Groq"] },
+      { "name": "Retrieval-Augmented Generation (RAG)", "notes": "semantic search, vector embeddings, caching strategies, Contextual Retrieval" },
+      { "name": "TensorFlow and Keras", "notes": "model development, training optimization" },
+      { "name": "TensorFlow Lite", "notes": "embedded model deployment on microcontrollers" },
+      { "name": "LSTM networks", "notes": "Long Short-Term Memory, time-series forecasting, sequence modeling" },
+      { "name": "ARIMA models", "notes": "AutoRegressive Integrated Moving Average, statistical forecasting" },
+      { "name": "Walk-forward validation", "notes": "proper time-series validation methodology" },
+      { "name": "Model quantization", "notes": "Int8 compression, TensorFlow Lite conversion, 95%+ size reduction" },
+      { "name": "Ensemble methods", "notes": "combining complementary models optimally" }
+    ],
+    "data_engineering_and_databases": [
+      { "name": "Vectorization and embeddings", "tools": ["Ollama", "Cloudflare Workers AI"], "notes": "semantic search" },
+      { "name": "Vector databases", "tools": ["Pinecone serverless"], "notes": "indexing strategies" },
+      { "name": "Semantic caching", "tools": ["Upstash Redis"], "notes": "cosine similarity, TTL management" },
+      { "name": "ETL/Data pipelines", "notes": "batch processing, parallelization, cost optimization" },
+      { "name": "Relational databases", "notes": "SQL optimization, normalized schema design" },
+      { "name": "Data quality", "notes": "preprocessing, validation, compliance" }
+    ],
+    "devops_and_infrastructure": [
+      { "name": "Cloudflare stack", "services": ["Pages", "Workers", "Workers AI"], "notes": "serverless deployment" },
+      { "name": "Docker", "notes": "containerization, Docker Compose microservices" },
+      { "name": "GitHub Actions", "notes": "CI/CD pipelines, automated testing, deployment automation" },
+      { "name": "CI/CD practices", "notes": "automated deployment, regression testing, release management" },
+      { "name": "Microservices architecture", "notes": "service design, deployment, scaling" },
+      { "name": "MQTT", "notes": "IoT messaging, pub-sub patterns" },
+      { "name": "Rate limiting and compliance", "notes": "enterprise security, PII protection" }
+    ],
+    "frontend_and_ui": [
+      { "name": "Angular", "notes": "production expert, component libraries, TypeScript" },
+      { "name": "React", "notes": "component architecture, state management" },
+      { "name": "Streamlit", "notes": "interactive dashboards, data visualization" },
+      { "name": "HTML/CSS", "notes": "semantic markup, responsive design" },
+      { "name": "Modern frontend tooling", "notes": "webpack, build optimization" }
+    ],
+    "enterprise_and_production": [
+      "Regulatory compliance (banking, healthcare, data protection)",
+      "Production reliability (error handling, monitoring, uptime requirements)",
+      "Enterprise integration (Salesforce, complex workflows)",
+      "Security (authentication, authorization, secure data handling)",
+      "Scalability (system design for growth)"
+    ],
+    "soft_skills_and_methodology": [
+      "Production thinking (constraints-first design, failure mode analysis)",
+      "Systematic learning (documented on technical blog)",
+      "Cross-functional collaboration (working with product, design, leadership)",
+      "Requirement translation (business → technical solutions)",
+      "Problem-driven development (understanding before tooling)",
+      "Documentation discipline (clear, maintainable code and systems)",
+      "Agile & Scrum (sprint planning, retrospectives, continuous delivery)"
+    ]
+  },
+
+  "project_portfolio_matching": [
+    { "role_type": "Senior AI/LLM Engineer", "best_project": "RAG System", "reason": "Production LLM deployment, cost optimization, enterprise considerations" },
+    { "role_type": "Data Scientist", "best_project": "NIFTY 50 Forecasting", "reason": "Statistical rigor, ensemble methods, walk-forward validation" },
+    { "role_type": "ML Engineer", "best_project": "RAG + TinyML combo", "reason": "Full stack: cloud deployment + embedded constraints" },
+    { "role_type": "Data Engineer", "best_project": "RAG (Pinecone + Redis)", "reason": "Vector DB, caching, semantic search, data pipeline" },
+    { "role_type": "Backend Engineer", "best_project": "Banking systems + RAG", "reason": "Production systems, API design, scalability" },
+    { "role_type": "Embedded Systems", "best_project": "TinyML", "reason": "Constraint-aware design, quantization, MCU deployment" },
+    { "role_type": "IoT Engineer", "best_project": "SignalDock + MQTT", "reason": "Event-driven architecture, distributed systems" },
+    { "role_type": "Full-Stack", "best_project": "RAG (full pipeline)", "reason": "Frontend + backend + infrastructure" },
+    { "role_type": "DevOps/Infrastructure", "best_project": "GitHub Actions + Cloudflare", "reason": "CI/CD, serverless, automation" }
+  ],
+
+  "quantified_achievements": [
+    { "metric": "Latency Reduction", "result": "8s → <10ms", "project": "RAG", "impact": "800x faster (caching + optimization)" },
+    { "metric": "Cost Optimization", "result": "∞% → $0", "project": "RAG", "impact": "Zero infrastructure cost (free tier)" },
+    { "metric": "Model Compression", "result": "95% reduction", "project": "TinyML", "impact": "Embedded deployment enabled" },
+    { "metric": "Accuracy (MAPE)", "result": "<3%", "project": "NIFTY 50", "impact": "Sub-benchmark industry performance" },
+    { "metric": "Retrieval Improvement", "result": "49% boost", "project": "RAG (Contextual)", "impact": "Better search results through methodology" },
+    { "metric": "Deployment Time", "result": "90%+ reduction", "project": "CI/CD Pipeline", "impact": "Automation benefit" },
+    { "metric": "Hallucination Rate", "result": "0%", "project": "RAG grounding", "impact": "100% factual accuracy" }
+  ],
+
+  "career_narrative": {
+    "foundation_phase": {
+      "period": "2021-2023",
+      "description": "Built production systems in regulated industries (healthcare, banking). Learned that production reliability and compliance are non-negotiable. Mastered full-stack development across multiple frameworks and domains. Developed problem-first philosophy."
+    },
+    "specialization_phase": {
+      "period": "2023-2025",
+      "description": "Deepened expertise in production-grade AI systems. Demonstrated constraint-aware engineering (from embedded TinyML at 95% compression to RAG systems at $0/month). Proved ability to learn specialized domains systematically (quantization, Contextual Retrieval, vector databases). Documented learning consistently for continued growth."
+    },
+    "current_focus": {
+      "description": "Senior AI/LLM Engineer roles. Leading production-grade generative AI systems. Mentoring junior engineers. Pushing boundaries of what's possible with resource constraints. Systematic learning and documentation of new advancements in AI field."
+    }
+  },
+
+  "professional_values": [
+    { "value": "Production Thinking First", "description": "Constraints inform design, not optimization" },
+    { "value": "Systematic Learning", "description": "Document and teach methodology to others" },
+    { "value": "Quantified Results", "description": "Measure everything; claims backed by numbers" },
+    { "value": "Problem-Driven", "description": "Understand domain before selecting technology" },
+    { "value": "Compliance & Safety", "description": "Data protection and user safety non-negotiable" },
+    { "value": "Continuous Improvement", "description": "Iterate, measure, optimize, repeat" },
+    { "value": "Cross-functional Collaboration", "description": "Bridge business and technical concerns" }
+  ],
+
+  "recommendation_profile": {
+    "technical_interviews": [
+      "Prepared to discuss constraint-aware system design (embedded to cloud)",
+      "Can explain complex architectures (RAG, time-series, microservices) clearly",
+      "Understands tradeoffs in technology selection (cost vs accuracy, speed vs resources)",
+      "Has quantified evidence for all claims"
+    ],
+    "leadership_engagement": [
+      "Communication skills to explain technical concepts to non-technical stakeholders (healthcare, banking background)",
+      "Proven mentorship (junior team members, documented learning)",
+      "Grit and resourcefulness (building at $0/month, learning unfamiliar domains)",
+      "Business-aligned engineering (compliance, cost, reliability matter more than elegance)"
+    ],
+    "peer_collaboration": [
+      "Systematic approach to problem-solving",
+      "Documentation discipline",
+      "Open to feedback and continuous learning",
+      "Values quality and craftsmanship in code"
+    ]
+  }
+}

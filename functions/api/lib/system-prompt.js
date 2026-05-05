@@ -86,6 +86,15 @@ ${retrievedContext || 'No specific context retrieved — answer from key facts a
 export function formatContext(chunks) {
   if (!chunks || chunks.length === 0) return '';
   return chunks
-    .map((c, i) => `[${i + 1}] (source: ${c.source})\n${sanitizeContext(c.text)}`)
+    .map((c, i) => {
+      let entry = `[${i + 1}] (source: ${c.source})\n${sanitizeContext(c.text)}`;
+      if (c.keyPoints && c.keyPoints.length > 0) {
+        const points = c.keyPoints
+          .map(p => `  • ${sanitizeContext(p)}`)
+          .join('\n');
+        entry += `\nKey points:\n${points}`;
+      }
+      return entry;
+    })
     .join('\n\n');
 }

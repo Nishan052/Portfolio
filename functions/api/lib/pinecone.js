@@ -45,10 +45,11 @@ export async function queryPinecone(env, embedding, topK = TOP_K) {
   return matches
     .filter(m => m.score >= MIN_SCORE)
     .map(m => ({
-      text:   m.metadata?.text  || '',
-      source: m.metadata?.source || 'unknown',
-      type:   m.metadata?.type   || 'unknown',
-      score:  m.score,
+      text:      m.metadata?.text   || '',
+      source:    m.metadata?.source || 'unknown',
+      type:      m.metadata?.type   || 'unknown',
+      keyPoints: Array.isArray(m.metadata?.keyPoints) ? m.metadata.keyPoints : [],
+      score:     m.score,
     }))
     .filter(m => m.text.length > 0);
 }

@@ -1,0 +1,81 @@
+{
+  "candidate": {
+    "full_name": "Nishan Chandrashekar Poojary",
+    "email": "nishanchandrashekarpoojary@gmail.com",
+    "phone": "+49 1556 3374276",
+    "location": "Berlin, Germany",
+    "linkedin": "https://www.linkedin.com/in/nishan-chandrashekar-poojary-756147184/",
+    "linkedin_display": "LinkedIn: Nishan Poojary",
+    "portfolio_url": "https://nishanpoojary.com",
+    "github": "https://github.com/Nishan052",
+    "github_display": "GitHub: Nishan052",
+    "canva_resume_design_id": "DAHHAV0fhmw"
+  },
+
+  "target_roles": {
+    "primary": [
+      "AI Engineer",
+      "Data Scientist"
+    ],
+    "archetypes": [
+      {
+        "name": "AI/ML Engineer",
+        "level": "Junior",
+        "fit": "primary"
+      },
+      {
+        "name": "Data Scientist",
+        "level": "Junior",
+        "fit": "secondary"
+      },
+      {
+        "name": "Software developer",
+        "level": "Junior",
+        "fit": "adjacent"
+      }
+    ]
+  },
+
+  "narrative": {
+    "headline": "Software developer turned AI product builder",
+    "exit_story": "I unite production software, AI systems, and relentless learning to solve real business problems reliably.",
+    "superpowers": [
+      "End-to-end AI/ML pipelines",
+      "Fast prototyping (idea to prod in 2 weeks)",
+      "Cross-functional communication"
+    ],
+    "proof_points": [
+      {
+        "name": "RAG Chatbot",
+        "url": "https://nishanpoojary.com",
+        "hero_metric": "Reduced latency 8s → <10ms via semantic caching"
+      },
+      {
+        "name": "NIFTY 50 Stock Forecasting",
+        "url": "https://github.com/Nishan052",
+        "hero_metric": "Sub-3% MAPE with LSTM + ARIMA ensemble"
+      },
+      {
+        "name": "TinyML Person Recognition",
+        "url": "https://github.com/Nishan052",
+        "hero_metric": "95% model size reduction via Int8 quantization"
+      }
+    ]
+  },
+
+  "compensation": {
+    "target_range": "€60K-80K",
+    "currency": "EUR",
+    "minimum": "€60K",
+    "location_flexibility": "Hybrid preferred, Remote work possible"
+  },
+
+  "location": {
+    "country": "Germany",
+    "city": "Berlin",
+    "timezone": "CET",
+    "visa_status": "No sponsorship needed",
+    "work_permit": "Valid work permit in Germany",
+    "availability": "Immediately, 20/40 hr per week"
+  }
+}
