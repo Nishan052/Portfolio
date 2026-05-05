@@ -1,8 +1,8 @@
 /**
  * embed.js — Query embedding for Cloudflare Pages Functions
  * Uses Workers AI (env.AI) for zero-latency production embeddings.
- * nomic-embed-text-v1.5 produces 768-dim vectors — same model family as
- * Ollama nomic-embed-text used at ingest time.
+ * bge-base-en-v1.5 produces 768-dim vectors — same model used at ingest time
+ * via Cloudflare Workers AI REST API.
  */
 
 export async function embedText(env, text) {
@@ -10,7 +10,7 @@ export async function embedText(env, text) {
     throw new Error('Workers AI binding (env.AI) not configured. Check wrangler.toml.');
   }
 
-  const result = await env.AI.run('@cf/nomic-ai/nomic-embed-text-v1.5', {
+  const result = await env.AI.run('@cf/baai/bge-base-en-v1.5', {
     text: [text.trim().slice(0, 8000)]
   });
 

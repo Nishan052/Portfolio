@@ -58,7 +58,7 @@ const OLLAMA_EMBED_MODEL= process.env.OLLAMA_EMBED_MODEL|| 'nomic-embed-text';
 const OLLAMA_LLM        = process.env.OLLAMA_LLM_MODEL  || 'llama3.2';
 const CF_ACCOUNT_ID     = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CF_API_TOKEN      = process.env.CLOUDFLARE_API_TOKEN;
-const CF_EMBED_MODEL    = '@cf/nomic-ai/nomic-embed-text-v1.5';
+const CF_EMBED_MODEL    = '@cf/baai/bge-base-en-v1.5';
 const FORCE             = process.argv.includes('--force');
 const CLEAR_FIRST       = process.argv.includes('--clear') || FORCE;
 const BATCH_SIZE        = 100;
@@ -116,16 +116,26 @@ async function embedText(text) {
 
   // EMBED_PROVIDER === 'cloudflare'
   const url = `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/ai/run/${CF_EMBED_MODEL}`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${CF_API_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text: [input] }),
-    signal: AbortSignal.timeout(30000),
-  });
-  if (!response.ok) throw new Error(`Cloudflare AI embed ${response.status}: ${await response.text()}`);
-  const data = await response.json();
-  if (!Array.isArray(data.result?.data?.[0])) throw new Error('Cloudflare AI returned no embedding data');
-  return data.result.data[0];
+  const MAX_EMBED_RETRIES = 4;
+  for (let attempt = 1; attempt <= MAX_EMBED_RETRIES; attempt++) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${CF_API_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: [input] }),
+        signal: AbortSignal.timeout(45000),
+      });
+      if (!response.ok) throw new Error(`Cloudflare AI embed ${response.status}: ${await response.text()}`);
+      const data = await response.json();
+      if (!Array.isArray(data.result?.data?.[0])) throw new Error('Cloudflare AI returned no embedding data');
+      return data.result.data[0];
+    } catch (err) {
+      if (attempt === MAX_EMBED_RETRIES) throw err;
+      const wait = attempt * 3000;
+      process.stdout.write(`[retry ${attempt}]... `);
+      await sleep(wait);
+    }
+  }
 }
 
 // ─── Throttle helper ──────────────────────────────────────────────────────────
