@@ -39,6 +39,9 @@ function mdComponents() {
         </code>
       );
     },
+    p({ children }) {
+      return <p>{children}</p>;
+    },
     pre({ children }) {
       return <pre className="blog-pre">{children}</pre>;
     },
