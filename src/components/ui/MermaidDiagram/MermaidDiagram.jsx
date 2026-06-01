@@ -14,7 +14,7 @@ function getMermaid() {
         startOnLoad: false,
         theme: 'dark',
         fontSize: 15,
-        flowchart: { nodeSpacing: 50, rankSpacing: 60, padding: 15, useMaxWidth: false },
+        flowchart: { nodeSpacing: 50, rankSpacing: 60, padding: 15, useMaxWidth: false, wrappingWidth: 150 },
         sequence:  { useMaxWidth: false },
         themeVariables: {
           background:          '#0d1117',
