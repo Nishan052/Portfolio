@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useEnglishTranslation } from '../../i18n/index';
-import { LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight, LuBrain } from 'react-icons/lu';
+import { LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight, LuBrain, LuCpu } from 'react-icons/lu';
 import { SiPython } from 'react-icons/si';
 import blogs from '../../data/blogs/index';
 import './BlogsList.css';
@@ -14,6 +14,7 @@ const BLOG_ICON_MAP = {
   ArrowLeftRight: LuArrowLeftRight,
   Brain:          LuBrain,
   Python:         SiPython,
+  Cpu:            LuCpu,
 };
 
 function BlogIcon({ iconKey }) {

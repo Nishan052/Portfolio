@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { useEnglishTranslation } from '../../i18n/index';
-import { LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight, LuBrain } from 'react-icons/lu';
+import { LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight, LuBrain, LuCpu } from 'react-icons/lu';
 import { SiPython } from 'react-icons/si';
 import siteConfig from '../../config/site';
 import ReactMarkdown from 'react-markdown';
@@ -18,6 +18,7 @@ const BLOG_ICON_MAP = {
   ArrowLeftRight: LuArrowLeftRight,
   Brain:          LuBrain,
   Python:         SiPython,
+  Cpu:            LuCpu,
 };
 
 function BlogIcon({ iconKey }) {
@@ -78,6 +79,22 @@ function mdComponents() {
       );
     },
     img({ src, alt }) {
+      // A video written with image syntax renders as a video. Keeps posts in
+      // plain markdown: ![caption](/videos/my-post.mp4) just works.
+      if (/\.(mp4|webm)$/i.test(src || '')) {
+        return (
+          <video
+            className="blog-video"
+            src={src}
+            controls
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-label={alt || 'Video'}
+          />
+        );
+      }
       return <img src={src} alt={alt || ''} className="blog-img" loading="lazy" />;
     },
   };

@@ -22,6 +22,14 @@ const siteConfig = {
     logoDomain:   ".dev",
   },
 
+  // ── Site ────────────────────────────────────────────────────────────────────
+  site: {
+    domain:  'nishanpoojary.com',
+    baseUrl: 'https://nishanpoojary.com',
+    /** Canonical URL for a blog post, given its slug. */
+    blogUrl: (slug) => `https://nishanpoojary.com/blogs/${slug}`,
+  },
+
   // ── Hero stat counters ──────────────────────────────────────────────────────
   stats: {
     yearsExperience: "4+",

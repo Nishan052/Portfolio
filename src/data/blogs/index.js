@@ -19,7 +19,7 @@
  *   tags       — string[] e.g. ['AI', 'RAG']
  *   excerpt    — string   One-sentence description shown in list view
  *   content    — string   Full markdown content (supports mermaid fences)
- *   references — { label, url }[]  Links shown at the bottom
+ *   references — { text, url }[]   Links shown at the bottom
  *   githubUrl  — string   Optional GitHub link
  */
 

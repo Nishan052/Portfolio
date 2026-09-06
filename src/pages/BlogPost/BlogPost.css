@@ -415,6 +415,15 @@
   margin: 1em 0;
 }
 
+.blog-video {
+  max-width: 100%;
+  display: block;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin: 1em 0;
+  background: #000;
+}
+
 .blog-table-wrapper {
   overflow-x: auto;
   margin: 1.4em 0;

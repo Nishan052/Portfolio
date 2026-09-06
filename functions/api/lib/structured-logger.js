@@ -238,7 +238,9 @@ export class RequestLogger {
 
 /**
  * Helper: Calculate Groq API costs.
- * As of March 2026, Groq llama-3.1-8b-instant pricing:
+ * NOTE: these rates are the old llama-3.1-8b-instant rates and are now only an
+ * approximation — the model is openai/gpt-oss-20b (see lib/llm.js). Reported
+ * costs are indicative until these constants are checked against Groq pricing.
  * - Input: $0.05 per 1M tokens
  * - Output: $0.15 per 1M tokens
  */
