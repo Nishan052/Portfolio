@@ -6,6 +6,8 @@ const post = {
   iconKey:   'Brain',
   color:     '#6366f1',
   date:      '2026-03-08',
+  series:      'Production RAG',
+  part:      1,
   readTime:  '14 min',
   tags:      ['AI', 'RAG', 'Vector Search', 'LLM', 'Production', 'Architecture', 'Embeddings'],
   excerpt:   'Everyone tells you which AI tools to use. Nobody explains why those tools exist. This post covers the real problems behind every layer of a production AI system — so you can understand and use any tool, now and in the future.',

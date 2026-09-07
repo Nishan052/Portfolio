@@ -28,6 +28,11 @@
     "test:quality-gate": "node tests/quality-gate.js",
     "test:all": "npm run test:quality-gate",
     "validate:deployment": "node scripts/validate-deployment.js",
+    "kb:sync": "node scripts/sync-kb.js",
+    "kb:sync:dry": "node scripts/sync-kb.js --dry-run",
+    "kb:status": "node scripts/sync-kb.js --dry-run --json-report=kb-report.json",
+    "kb:rebuild": "node scripts/ingest.js --force",
+    "test:kb": "jest -c scripts/jest.config.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

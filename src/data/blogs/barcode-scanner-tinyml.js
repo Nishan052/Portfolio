@@ -6,6 +6,8 @@ const post = {
   iconKey:   'ScanSearch',
   color:     '#f59e0b',
   date:      '2026-03-08',
+  series:      'TinyML on microcontrollers',
+  part:      2,
   readTime:  '12 min',
   tags:      ['TinyML', 'TensorFlow Lite', 'Python', 'OpenCV', 'Quantisation', 'Edge AI'],
   githubUrl: 'https://github.com/Nishan052/barcodeScanner',

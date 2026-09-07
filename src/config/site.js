@@ -15,11 +15,13 @@ const siteConfig = {
     firstName:    "Nishan",
     lastName:     "Poojary",
     location:     "Berlin, Germany",
-    /** Two initials shown in the navbar logo, e.g. N + P → "NP" */
-    logoFirst:    "N",
-    logoSecond:   "P",
-    /** Domain suffix after the initials, e.g. ".dev" */
-    logoDomain:   ".dev",
+    /**
+     * The navbar wordmark. This is the site's real address, not a monogram:
+     * a reader who types what they see must land here. The name carries the
+     * accent, the suffix is muted, because the name is the memorable half.
+     */
+    logoName:     "nishanpoojary",
+    logoSuffix:   ".com",
   },
 
   // ── Site ────────────────────────────────────────────────────────────────────

@@ -1,0 +1,92 @@
+name: Sync RAG knowledge base
+
+# Keeps the Pinecone knowledge base in step with the repo.
+#
+# The sync reconciles Pinecone against the repo rather than reading git history,
+# so it is idempotent and self-healing: content that a failed run missed is
+# picked up by the next one. That is why the weekly schedule exists even though
+# pushes already trigger a run — it is the safety net that catches silent
+# failures instead of letting a blog stay unretrievable indefinitely.
+
+on:
+  # Weekly safety net — Mondays 04:00 UTC.
+  schedule:
+    - cron: '0 4 * * 1'
+
+  # Immediate indexing when content lands on main.
+  push:
+    branches: [main, master]
+    paths:
+      - 'src/data/blogs/**'
+      - 'src/data/*.json'
+      - 'data/**'
+
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Report the plan without writing to Pinecone'
+        type: boolean
+        default: false
+      reingest_unhashed:
+        description: 'Re-embed sources indexed before contentHash tracking (slow, costs API calls)'
+        type: boolean
+        default: false
+      max_prune_pct:
+        description: 'Abort if more than this percent of the index would be deleted'
+        default: '20'
+
+# Two concurrent runs would race on the same index; queue them instead of
+# cancelling, so a scheduled run never discards a push-triggered one midway.
+concurrency:
+  group: kb-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Reconcile Pinecone with repo
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit-test the reconciliation logic
+        # This code decides what gets deleted from the index — never sync on a red build.
+        run: npx jest -c scripts/jest.config.js
+
+      - name: Sync knowledge base
+        env:
+          PINECONE_API_KEY:      ${{ secrets.PINECONE_API_KEY }}
+          PINECONE_HOST:         ${{ secrets.PINECONE_HOST }}
+          PINECONE_INDEX:        ${{ secrets.PINECONE_INDEX }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN:  ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          GROQ_API_KEY:          ${{ secrets.GROQ_API_KEY }}
+          # CI has no Ollama, so use the hosted providers. bge-base-en-v1.5 on
+          # Workers AI is the same model as local Ollama — vectors are compatible.
+          EMBED_PROVIDER:  cloudflare
+          ENRICH_PROVIDER: groq
+          # Space out Groq enrichment calls to stay inside free-tier RPM.
+          ENRICH_DELAY_MS: '2000'
+        run: |
+          node scripts/sync-kb.js \
+            --json-report=kb-report.json \
+            --max-prune-pct=${{ github.event.inputs.max_prune_pct || '20' }} \
+            ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }} \
+            ${{ github.event.inputs.reingest_unhashed == 'true' && '--reingest-unhashed' || '' }}
+
+      - name: Upload sync report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kb-sync-report
+          path: kb-report.json
+          if-no-files-found: ignore

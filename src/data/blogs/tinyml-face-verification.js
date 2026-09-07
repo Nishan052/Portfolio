@@ -6,6 +6,8 @@ const post = {
   iconKey:   'Bot',
   color:     '#10b981',
   date:      '2026-03-08',
+  series:      'TinyML on microcontrollers',
+  part:      1,
   readTime:  '11 min',
   tags:      ['TinyML', 'TensorFlow Lite', 'PyTorch', 'Arduino', 'LiteRT', 'Edge AI', 'Biometrics'],
   githubUrl: 'https://github.com/Nishan052',

@@ -6,6 +6,8 @@ const post = {
   iconKey:  'Brain',
   color:    '#f59e0b',
   date:     '2026-04-28',
+  series:     'Production RAG',
+  part:     7,
   readTime: '12 min',
   tags:     ['Clustering', 'RAG', 'VectorSearch', 'KMeans', 'Unsupervised', 'Embeddings', 'IVF'],
   excerpt:  'Searching millions of documents checks every one unless you cluster first. Here is how k-means groups your data and why it makes RAG 100x faster.',

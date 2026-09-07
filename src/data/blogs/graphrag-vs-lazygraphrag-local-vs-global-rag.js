@@ -6,6 +6,8 @@ const post = {
   iconKey:   'Brain',
   color:     '#14b8a6',
   date:      '2026-03-22',
+  series:      'Production RAG',
+  part:      3,
   readTime:  '15 min',
   tags:      ['RAG', 'GraphRAG', 'LazyGraphRAG', 'Evaluation', 'Retrieval Strategy', 'Knowledge Graph'],
   excerpt:   'Vector search is excellent for local fact lookup, but it can miss dataset-level synthesis. This guide shows when GraphRAG or LazyGraphRAG is the better retrieval strategy.',

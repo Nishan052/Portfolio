@@ -6,6 +6,8 @@ const post = {
   iconKey:   'ArrowLeftRight',
   color:     '#f59e0b',
   date:      '2026-06-08',
+  series:      'Production RAG',
+  part:      12,
   readTime:  '12 min',
   tags:      ['RAG', 'ANN', 'HNSW', 'IVF', 'VectorSearch', 'Retrieval'],
   excerpt:   'How Flat, IVF, and HNSW balance recall, speed, and updates, and why this index choice is the main latency lever in production RAG.',

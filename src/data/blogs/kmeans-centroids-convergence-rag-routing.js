@@ -6,6 +6,8 @@ const post = {
   iconKey:  'Brain',
   color:    '#3b82f6',
   date:     '2026-05-11',
+  series:     'Production RAG',
+  part:     8,
   readTime: '12 min',
   tags:     ['Clustering', 'KMeans', 'VectorSearch', 'RAG', 'Embeddings', 'MachineLearning'],
   excerpt:  'K-Means mechanics, convergence, the three failure modes engineers hit most, and how centroids work as RAG query routing gates.',

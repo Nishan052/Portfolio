@@ -41,25 +41,27 @@
   opacity: 0.8;
 }
 
-.logo-first {
+.logo-name {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
   color: var(--accent);
 }
 
-.logo-second {
+.logo-suffix {
   font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 1.15rem;
-  color: var(--text);
+  font-weight: 500;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  color: var(--text-muted);
 }
 
-.logo-domain {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.57rem;
-  color: var(--text-muted);
-  margin-left: 3px;
+/* The full address is long for a phone. Shrink it rather than truncate it:
+   a half-shown domain is worse than a small one. */
+@media (max-width: 420px) {
+  .logo-name,
+  .logo-suffix { font-size: 0.9rem; }
 }
 
 /* Desktop nav links */

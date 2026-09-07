@@ -92,12 +92,11 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
           <button
             className="logo-btn"
             onClick={() => handleNav("hero")}
-            aria-label={`${siteConfig.profile.logoFirst}${siteConfig.profile.logoSecond}${siteConfig.profile.logoDomain} — ${siteConfig.profile.firstName} ${siteConfig.profile.lastName}, ${t("a11y.scrollDown")}`}
+            aria-label={`${siteConfig.profile.firstName} ${siteConfig.profile.lastName} — ${t("a11y.scrollDown")}`}
             type="button"
           >
-            <span className="logo-first">{siteConfig.profile.logoFirst}</span>
-            <span className="logo-second">{siteConfig.profile.logoSecond}</span>
-            <span className="logo-domain">{siteConfig.profile.logoDomain}</span>
+            <span className="logo-name">{siteConfig.profile.logoName}</span>
+            <span className="logo-suffix">{siteConfig.profile.logoSuffix}</span>
           </button>
 
           {/* Desktop links — hidden on blog pages */}

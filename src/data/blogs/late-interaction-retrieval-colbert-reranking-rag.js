@@ -6,6 +6,8 @@ const post = {
   iconKey:   'ScanSearch',
   color:     '#06b6d4',
   date:      '2026-06-22',
+  series:      'Production RAG',
+  part:      14,
   readTime:  '13 min',
   tags:      ['RAG', 'Retrieval', 'ColBERT', 'Reranking', 'ColPali', 'VectorSearch'],
   excerpt:   'Single-vector retrieval collapses a chunk into one point and loses token-level signal. Late interaction and reranking recover that lost recall.',

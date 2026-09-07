@@ -6,6 +6,8 @@ const post = {
   iconKey: 'Brain',
   color: '#a855f7',
   date: '2026-05-25',
+  series: 'Production RAG',
+  part: 10,
   readTime: '12 min',
   tags: ['Embeddings', 'RAG', 'VectorSearch', 'Transformers', 'Production', 'LLMs'],
   excerpt: 'RAG returns 200 OK. No errors logged. Wrong answers. Issue: ingestion used model A, queries used model B. Different vector spaces.',

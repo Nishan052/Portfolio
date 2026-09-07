@@ -6,6 +6,8 @@ const post = {
   iconKey:  'ScanSearch',
   color:    '#a855f7',
   date:     '2026-05-18',
+  series:     'Production RAG',
+  part:     9,
   readTime: '12 min',
   tags:     ['Clustering', 'DBSCAN', 'RAG', 'VectorSearch', 'DataQuality', 'MachineLearning'],
   excerpt:  'DBSCAN finds arbitrarily-shaped clusters without a fixed K, and its noise points make the sharpest pre-ingestion quality filter for RAG.',

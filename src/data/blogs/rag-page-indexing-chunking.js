@@ -6,6 +6,8 @@ const post = {
   iconKey:   'Brain',
   color:     '#8b5cf6',
   date:      '2026-03-30',
+  series:      'Production RAG',
+  part:      4,
   readTime:  '14 min',
   tags:      ['RAG', 'Chunking', 'Vector Search', 'Page Indexing', 'LLM', 'Production', 'Information Retrieval'],
   excerpt:   'Most RAG systems fail silently because they chunk documents wrong. Paragraph level chunks lose context. Token level chunks are too specific. Page level indexing hits the sweet spot: here is why, and how to implement it.',

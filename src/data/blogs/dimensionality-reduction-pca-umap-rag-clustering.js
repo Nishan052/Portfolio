@@ -6,6 +6,8 @@ const post = {
   iconKey:  'TrendingUp',
   color:    '#10b981',
   date:     '2026-06-01',
+  series:     'Production RAG',
+  part:     11,
   readTime: '12 min',
   tags:     ['Clustering', 'UMAP', 'PCA', 'RAG', 'VectorSearch', 'MachineLearning', 'Embeddings'],
   excerpt:  'Why clustering in 768 dimensions fails, how PCA, t-SNE and UMAP reduce differently, and when reduction cuts RAG index cost without hurting recall.',

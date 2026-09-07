@@ -158,6 +158,11 @@ function BlogCard({ blog }) {
               <time dateTime={blog.date}>{blog.date}</time>
             </span>
             <span className="blog-card-read">{blog.readTime} {t('blogs.readSuffix')}</span>
+            {blog.series && (
+              <span className="blog-card-series">
+                {blog.series} &middot; part {blog.part}
+              </span>
+            )}
           </div>
 
           <h2 className="blog-card-title">{blog.title}</h2>

@@ -6,6 +6,8 @@ const post = {
   iconKey:   'Brain',
   color:     '#8B5CF6',
   date:      '2026-04-20',
+  series:      'Production RAG',
+  part:      6,
   readTime:  '12 min',
   tags:      ['RAG', 'Observability', 'Monitoring', 'LLMOps', 'Tracing', 'Production', 'Evaluation'],
   excerpt:   'Tracing, latency profiling, and hallucination detection patterns for RAG systems that fail silently without triggering standard error monitors.',

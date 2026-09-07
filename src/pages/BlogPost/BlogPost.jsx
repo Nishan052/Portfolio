@@ -130,6 +130,15 @@ export default function BlogPost() {
   if (!blog) return <Navigate to="/blogs" replace />;
 
   const toc = extractToc(blog.content);
+
+  // Siblings in the same series, ordered by part. Read order, not publish order.
+  const siblings = blog.series
+    ? blogs.filter(b => b.series === blog.series).sort((a, b) => (a.part ?? 0) - (b.part ?? 0))
+    : [];
+  const here = siblings.findIndex(b => b.slug === blog.slug);
+  const prev = here > 0 ? siblings[here - 1] : null;
+  const next = here >= 0 && here < siblings.length - 1 ? siblings[here + 1] : null;
+  const first = siblings.length ? siblings[0] : null;
   const categoryLabel = t(`blogs.categoryLabels.${blog.category}`, blog.category);
 
   return (
@@ -178,6 +187,40 @@ export default function BlogPost() {
           )}
         </header>
 
+        {/* Series bar. Placed before the body, above the table of contents,
+            because a reader arriving from a search result needs to know they
+            are mid-series before they start reading, not after. */}
+        {blog.series && siblings.length > 1 && (
+          <nav className="blogpost-series" aria-label={`${blog.series} series navigation`}>
+            <div className="blogpost-series-head">
+              <span className="blogpost-series-name">{blog.series}</span>
+              <span className="blogpost-series-part">
+                Part {blog.part} of {siblings.length}
+              </span>
+              {blog.part !== 1 && first && (
+                <Link to={`/blogs/${first.slug}`} className="blogpost-series-start">
+                  Start at part 1
+                </Link>
+              )}
+            </div>
+            <ol className="blogpost-series-list">
+              {siblings.map(b => (
+                <li
+                  key={b.slug}
+                  className={b.slug === blog.slug ? 'is-current' : undefined}
+                  aria-current={b.slug === blog.slug ? 'true' : undefined}
+                >
+                  {b.slug === blog.slug ? (
+                    <span>{b.part}. {b.title}</span>
+                  ) : (
+                    <Link to={`/blogs/${b.slug}`}>{b.part}. {b.title}</Link>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
+
         <div className="blogpost-body">
           {/* Table of contents */}
           {toc.length > 2 && (
@@ -205,6 +248,41 @@ export default function BlogPost() {
             </ReactMarkdown>
           </div>
         </div>
+
+        {/* Where to go next in the series. */}
+
+        {blog.series && (prev || next) && (
+
+          <nav className="blogpost-series-nav" aria-label="Series pager">
+
+            {prev ? (
+
+              <Link to={`/blogs/${prev.slug}`} className="blogpost-series-prev">
+
+                <span>Previous</span>
+
+                <strong>{prev.part}. {prev.title}</strong>
+
+              </Link>
+
+            ) : <span />}
+
+            {next && (
+
+              <Link to={`/blogs/${next.slug}`} className="blogpost-series-next">
+
+                <span>Next</span>
+
+                <strong>{next.part}. {next.title}</strong>
+
+              </Link>
+
+            )}
+
+          </nav>
+
+        )}
+
 
         {/* References */}
         {blog.references && blog.references.length > 0 && (

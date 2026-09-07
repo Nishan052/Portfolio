@@ -6,6 +6,8 @@ const post = {
   iconKey:   'Rocket',
   color:     '#f59e0b',
   date:      '2026-03-15',
+  series:      'Production RAG',
+  part:      2,
   readTime:  '16 min',
   tags:      ['RAG', 'Production', 'Deployment', 'Testing', 'Monitoring', 'Observability', 'FastAPI', 'Serverless'],
   excerpt:   'Your RAG prototype works on your laptop. But shipping it to production — deploying, validating, and monitoring — is where most projects fail. Here are the problems and solutions nobody talks about.',

@@ -273,3 +273,14 @@
   .blog-card-emoji-col { width: 40px; height: 40px; }
   .blog-card-title { font-size: 0.95rem; }
 }
+
+/* Series marker on a card, so ordering is visible from the list. */
+.blog-card-series {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 9px;
+  white-space: nowrap;
+}

@@ -6,6 +6,8 @@ const post = {
   iconKey:   'TrendingUp',
   color:     '#22c55e',
   date:      '2026-06-15',
+  series:      'Production RAG',
+  part:      13,
   readTime:  '12 min',
   tags:      ['RAG', 'Clustering', 'Metrics', 'Retrieval', 'VectorSearch', 'Quality'],
   excerpt:   'How to evaluate clustering quality for RAG retrieval using internal metrics like silhouette and external metrics like recall, and how to choose the right measure for your pipeline.',
