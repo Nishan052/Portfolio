@@ -3,6 +3,7 @@ import { createContext } from "react";
 // ─── Theme Tokens ─────────────────────────────────────────────────────────────
 export const THEMES = {
   dark: {
+    name:           "dark",
     bg:             "#030712",
     surface:        "rgba(4,12,30,0.92)",
     surfaceHover:   "rgba(8,20,46,0.96)",
@@ -17,6 +18,7 @@ export const THEMES = {
     bgRaw:          "#030712",
   },
   light: {
+    name:           "light",
     bg:             "#f8faff",
     surface:        "rgba(255,255,255,0.94)",
     surfaceHover:   "rgba(238,242,255,0.97)",

@@ -1,0 +1,137 @@
+/* ---------------------------------------------------------------------------
+ * Panel palette. The SVG carries structure and classes only; every colour is
+ * here, so one file is correct in both themes and the text uses the page's own
+ * fonts. This is why panels are inlined into the DOM rather than loaded as an
+ * <img>: an <img> is an isolated document with no page CSS and no web fonts.
+ * ------------------------------------------------------------------------- */
+.panel-figure { margin: 2.4rem 0; }
+
+.panel-holder {
+  --p-bg:        #0b1220;
+  --p-card:      #111a2e;
+  --p-edge:      #2a3855;
+  --p-text:      #e8eefc;
+  --p-muted:     #93a4c4;
+  --p-band:      #6d7f9e;
+  --p-line:      #00e5ff;
+  --p-good-bg:   #0d2b33;  --p-good-edge: #00e5ff;
+  --p-bad-bg:    #241033;  --p-bad-edge:  #a855f7;
+  --p-mute-bg:   #0d1117;  --p-mute-edge: #1f2937;
+
+  background: var(--p-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.panel-holder[data-theme="light"] {
+  --p-bg:        #f6f8ff;
+  --p-card:      #ffffff;
+  --p-edge:      #d3dcef;
+  --p-text:      #0f172a;
+  --p-muted:     #4a5a77;
+  --p-band:      #7385a5;
+  --p-line:      #2563eb;
+  --p-good-bg:   #e3f1fe;  --p-good-edge: #2563eb;
+  --p-bad-bg:    #f5e9ff;  --p-bad-edge:  #7c3aed;
+  --p-mute-bg:   #f1f4fb;  --p-mute-edge: #e0e6f2;
+}
+
+.panel-holder svg.panel { display: block; width: 100%; height: auto; }
+
+.panel-holder .p-card-bg { fill: var(--p-card); stroke: var(--p-edge); stroke-width: 1; }
+.panel-holder .p-good  .p-card-bg { fill: var(--p-good-bg); stroke: var(--p-good-edge); stroke-width: 1.6; }
+.panel-holder .p-bad   .p-card-bg { fill: var(--p-bad-bg);  stroke: var(--p-bad-edge);  stroke-width: 1.6; }
+.panel-holder .p-muted .p-card-bg { fill: var(--p-mute-bg); stroke: var(--p-mute-edge); }
+
+.panel-holder .p-icon  { color: var(--p-muted); }
+.panel-holder .p-good  .p-icon { color: var(--p-good-edge); }
+.panel-holder .p-bad   .p-icon { color: var(--p-bad-edge); }
+.panel-holder .p-muted .p-icon { color: var(--p-mute-edge); }
+
+.panel-holder text { font-family: 'Outfit', system-ui, sans-serif; }
+.panel-holder .p-heading { fill: var(--p-text); font-weight: 600; }
+.panel-holder .p-title   { fill: var(--p-text); font-weight: 600; }
+.panel-holder .p-line    { fill: var(--p-muted); }
+.panel-holder .p-note    { fill: var(--p-muted); }
+.panel-holder .p-band {
+  fill: var(--p-band);
+  font-family: 'DM Mono', ui-monospace, monospace;
+  letter-spacing: 0.13em;
+}
+
+.panel-holder .p-arrow {
+  fill: none; stroke: var(--p-line); stroke-width: 1.6; stroke-linecap: round;
+}
+.panel-holder .p-arrow-live { stroke-dasharray: 6 5; }
+.panel-holder .p-arrow-head { fill: var(--p-line); }
+.panel-holder .p-divider {
+  stroke: var(--p-edge); stroke-width: 1.4; stroke-dasharray: 4 6;
+}
+.panel-holder .p-chip { fill: var(--p-bg); stroke: none; }
+.panel-holder .p-chip-strong { fill: var(--p-bg); stroke: var(--p-edge); stroke-width: 1; }
+
+/* ── Frame, caption, expand and modal ────────────────────────────────────── */
+.panel-frame { position: relative; }
+
+.panel-caption {
+  margin: 0.85rem 0 0;
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.panel-loading, .panel-error {
+  padding: 28px; text-align: center; color: var(--text-muted);
+  font-size: 0.85rem; font-family: 'DM Mono', monospace;
+}
+.panel-error { color: #fca5a5; }
+
+.panel-expand-btn {
+  position: absolute; bottom: 10px; right: 10px; z-index: 2;
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(13, 17, 23, 0.85);
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace; font-size: 0.62rem;
+  letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+  backdrop-filter: blur(4px);
+}
+.panel-expand-btn:hover {
+  border-color: var(--accent); color: var(--accent);
+  background: rgba(0, 229, 255, 0.07);
+}
+
+.panel-modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 28px 20px; cursor: pointer;
+}
+
+/* Full size, scrolling in both directions rather than shrunk to fit. */
+.panel-modal-content {
+  max-width: 96vw; max-height: 92vh;
+  overflow: auto; overscroll-behavior: contain;
+  cursor: default; display: block;
+  padding: 20px;
+}
+.panel-modal-content svg.panel {
+  width: min(1400px, 92vw) !important;
+  height: auto !important;
+  max-width: none !important;
+}
+
+.panel-modal-close {
+  position: fixed; top: 18px; right: 22px;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid var(--border);
+  color: var(--text); cursor: pointer; z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+}

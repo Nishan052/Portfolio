@@ -3,71 +3,100 @@
 const post = {
   id:        21,
   slug:      'onnx-ops-without-deps',
-  title:     'Reading a model file with nothing installed',
+  title:     'Reading a model file with nothing installed at all',
   category:  'research',
   iconKey:   'Python',
   color:     '#8b5cf6',
   date:      '2026-09-29',
   series:    'Edge AI',
   part:      4,
-  readTime:  '8 min',
-  tags:      ['EdgeAI', 'ONNX', 'Python', 'Tooling'],
-  excerpt:   'As we saw earlier in this series, the expensive mistakes happen between training a model and running it. Answering a question in that gap should not itself require the full toolchain. To list the layers inside a model file, in order, the usual advice is to install a machine learning stack. That is about a hundred megabytes of dependencies to answer a question whose answer is a list of strings, and it has to be installed before you can ask.',
+  readTime:  '12 min',
+  tags:      ['EdgeAI', 'ONNX', 'Python', 'Tooling', 'Protobuf'],
+  excerpt:   'Listing the operators in a model file needs three protobuf field numbers and the standard library, not a hundred megabytes of machine learning stack.',
 
   content: `
-![Reading a model file with nothing installed](/videos/onnx-ops-without-deps.mp4)
+![Reading a model file with nothing installed at all](/videos/onnx-ops-without-deps.mp4)
 
-## Why the question comes up before the toolchain exists
+## The answer you need first is the one that costs most to ask
 
-I was checking models against what an accelerator chip supports. The check itself is simple: walk the layers in order, look each one up in the vendor's table, find the first one that is missing. The output is worth having early, because it tells you whether a model is worth converting at all.
+Part three ended on a check worth running early: walk a model's operators in order, look each one up in the accelerator's published table, find the first miss. The output decides whether a model is worth converting at all.
 
-The trouble is when you can ask. Installing the Open Neural Network Exchange library, which reads these files, means installing Protocol Buffers and a chain of numerical packages behind it. On a machine that has not been set up for this work, that is the first hour of the afternoon. And the answer you are waiting for is the one that decides whether the rest of the afternoon is worth spending.
+The difficulty is not the check. It is *when* you can run it.
 
-So the check needs to run before any of that. Which meant reading the file format directly.
+Reading an Open Neural Network Exchange file the usual way means installing the ONNX library, which pulls in Protocol Buffers and a chain of numerical packages behind it. On a machine that has not been set up for this work, that is the first hour of the afternoon. And the answer you are waiting for is precisely the one that tells you whether the rest of the afternoon is worth spending.
 
-## Three field numbers
+So the check has to run before any of that exists. Which meant reading the file format directly.
 
-Model files in this exchange format are Protocol Buffers, a binary format where every value is preceded by a small header giving its field number and its type. You do not need a schema to walk one. You need to know which field numbers you care about, and you can skip everything else by length.
+![Answering whether a model will map to the accelerator normally requires installing the toolchain, but the answer decides whether installing the toolchain is worth it.](/diagrams/onnx-ops-without-deps-1.svg)
 
-For a list of layers in order, three numbers are enough.
+*The ordering problem. This is not a complaint about disk space. It is that the cheapest useful answer in the whole pipeline is locked behind the most expensive setup step in it, and the answer is what tells you whether to take that step.*
 
-\`\`\`mermaid
-flowchart LR
-    A[The file] --> B[Field 7: the graph]
-    B --> C[Field 1: each node]
-    C --> D[Field 4: the type]
-\`\`\`
+## The format does not require a schema to walk
 
-Field seven of the model holds the graph. Field one of the graph repeats, once per layer. Field four of a layer is its type, as a string. That is the whole path.
+A model in this format is a Protocol Buffers message. Every value in one is preceded by a small header, a single number that packs together a field number and a wire type, and the wire type tells you how long the value is.
 
-The ordering comes for free, and this is the part worth knowing. Protocol Buffers write repeated fields in sequence, so reading them in the order they appear in the file gives you the layers in the order the graph defines them. No sorting, no index, no topological pass. The format already did it.
+That second half is what makes this tractable. You do not need to understand a field to skip past it: you need to know how many bytes it occupies, and the wire type tells you that. So a reader can walk the whole file, recognise the three fields it cares about, and step over everything else without knowing what any of it means.
 
-## Sixty lines, and a test that proves it
+Three field numbers are enough for a list of operators in order.
 
-The reader is a loop that pulls a header, splits it into a field number and a wire type, and then either records the value or skips past it. Four wire types exist and only one of them, the length-delimited one, matters here. Everything else gets skipped by a known width.
+![Field seven of the model holds the graph, field one of the graph repeats once per node, and field four of a node is its operator type as a string.](/diagrams/onnx-ops-without-deps-2.svg)
 
-What makes this trustworthy is not the code, it is the test. The eval loads two real model files, runs this reader over them, and compares the result against what the official library returns for the same files. Node for node, in order, exactly equal. If a future change to the reader breaks that, the test fails rather than the tool quietly returning a slightly wrong list.
+*The whole path through the file. Field seven of the model is the graph, field one of the graph repeats once per node, and field four of a node is its operator type. Everything else on the way is skipped by its declared length.*
 
-That distinction matters more here than usual. A parser that is subtly wrong is worse than one that crashes, because a partial layer list produces a confident answer about a model you have not actually read.
+## What the reader deliberately does not do
 
-## What it buys
+It is worth being precise about the limits, because a tool that overstates what it read is the failure mode this whole approach is exposed to.
 
-The saving in disk space is not the point. The point is where the check can now run.
+The reader recovers operator types in graph order. It does not resolve the edges between nodes, read weights, check shapes, or validate that the file is well formed. It cannot tell you that a model is correct, only what operations it names and in what sequence.
 
-It runs on a machine with nothing installed. It runs in a build step that has no reason to carry a machine learning stack. It runs before the conversion toolchain exists, which is exactly the moment when knowing whether your model will map to the chip is worth the most, and exactly the moment when the usual tooling is not available to tell you.
+That is deliberate rather than unfinished. Everything the part three check needs is in that sequence, and every capability past it costs either a schema or a dependency. Reading tensor contents would mean understanding layouts and data types; validating the graph would mean building the reference implementation's rules a second time, badly.
+
+So the boundary is drawn where the standard library stops being enough. Past that line the honest move is to install the real library, and the reader's job is to tell you early whether that is worth doing.
+
+## The ordering comes for free, and that is the part worth knowing
+
+Protocol Buffers write repeated fields in sequence. Reading them in the order they appear in the file gives you the nodes in the order the graph defines them. No sorting, no index, no topological pass over the edges.
+
+That matters more than it sounds, because ordering is the entire content of the part three result. A list of operators with no order tells you how many are unsupported. A list in graph order tells you *where the first one is*, which is the number that actually decides how much of the model runs on the chip. The format has already done the work; the usual tooling is not required to get at it.
+
+## Sixty lines, and a test that is the point
+
+The reader is a loop. Pull a header, split it into a field number and a wire type, then either record the value or skip past it by its declared width. Four wire types exist and only one of them, the length-delimited one, carries anything this needs.
+
+Sixty lines of stdlib Python is not an achievement. What makes it usable is the test.
+
+The eval loads two real model files, runs the reader over them, and compares its output against what the official ONNX library returns for the same files. Node for node, in order. **100% of nodes match.** If a change to the reader ever breaks that, the test fails rather than the tool quietly returning a slightly wrong list.
+
+That distinction is the whole reason this is publishable. A parser that crashes is an inconvenience. A parser that is subtly wrong is a liability, because it produces a confident answer about a model you have not actually read, and the answer looks exactly like a correct one.
+
+![The reader is checked against the official library node for node on real files, because a parser that is subtly wrong is worse than one that crashes.](/diagrams/onnx-ops-without-deps-3.svg)
+
+*Why the test is the artefact. Sixty lines of parsing is not the contribution. An assertion that the sixty lines agree with the reference implementation on every node of real files is, because it converts a plausible tool into one you can act on.*
+
+## What it actually buys
+
+Not disk space. Where the check can run.
+
+It runs on a machine with nothing installed, which is the machine you are usually on when the question first occurs to you. It runs inside a build step that has no business carrying a machine learning stack, so a graph that would strand 93% of itself can fail the build rather than surprise someone later. It runs before the conversion toolchain exists, which is exactly the moment when knowing whether a model will map to the chip is worth the most, and exactly the moment the usual tooling cannot tell you.
+
+The general shape of this is worth taking away even if you never touch ONNX. When the cheap answer is gated behind the expensive setup, it is worth asking what the file format actually requires of you. Often, as here, it is three numbers and a length.
 `,
 
   references: [
     {
-      text: 'Protocol Buffers encoding',
+      text: 'Google (2026) Protocol Buffers encoding specification.',
       url: 'https://protobuf.dev/programming-guides/encoding/'
     },
     {
-      text: 'Open Neural Network Exchange intermediate representation',
+      text: 'ONNX (2026) Open Neural Network Exchange intermediate representation specification.',
       url: 'https://onnx.ai/onnx/repo-docs/IR.html'
     },
     {
-      text: 'The reader and its test, in the edge-agents repository',
+      text: 'Google (2026) Edge TPU supported operations, Table 1. Coral documentation.',
+      url: 'https://coral.ai/docs/edgetpu/models-intro/'
+    },
+    {
+      text: 'Poojary, N. (2026) npu-op-compat: a dependency-free ONNX operator reader. edge-agents.',
       url: 'https://github.com/Nishan052/edge-agents'
     }
   ]

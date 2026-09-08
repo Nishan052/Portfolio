@@ -12,99 +12,68 @@ const post = {
   part:      1,
   readTime:  '12 min',
   tags:      ['EdgeAI', 'Deployment', 'Quantisation', 'Accelerators', 'ONNX'],
-  excerpt:   'Getting a working model onto a device takes five steps, and four of them can change the model without reporting anything.',
+  excerpt:   'An accelerator cannot run the model you trained, so four separate tools rewrite it until it fits, and each one is allowed to change it silently.',
 
   content: `
 ![The five steps between a trained model and a device that runs it](/videos/edge-pipeline-map.mp4)
 
-## Why the middle of the pipeline is where projects lose weeks
+## Why anything has to change at all
 
-Training is documented exhaustively. Running inference on a device is documented well. The part in between gets a paragraph, and it is where the weeks go.
+Start with the hardware, because every difficulty downstream comes from one fact about it.
 
-The difficulty is not that any single step is hard. Each one is a well understood transformation with good tooling. The difficulty is that each hands something different to the next, and each is permitted to alter your model quietly on the way through. By the time accuracy is down four points and latency is triple the datasheet figure, the cause is three steps back and nothing logged a warning when it happened.
+A neural accelerator is not a small processor. It is a fixed circuit that executes a published list of operations on 8-bit integers, and that list is short. The Coral Edge TPU documents its own; so does every competing part. An operation outside the list does not run slowly on that chip, it does not run on it at all.
 
-That absence of warnings is the whole problem. A compiler that refuses to build tells you something. A converter that silently widens a rounding error does not, and neither does a runtime that quietly hands half your network to the processor you were trying to avoid.
+Now look at what you trained. A convolutional vision model written in PyTorch is a 32-bit floating point graph that may contain any operation the framework can express, in any arrangement, with shapes decided at runtime. Nothing about it was constrained by the chip, because at training time the chip was not involved.
 
-\`\`\`mermaid
-flowchart LR
-    A[Train] --> B[Export]
-    B --> C[Convert]
-    C --> D[Compile]
-    D --> E[Run]
-\`\`\`
+Those two things do not meet. There is no loader that accepts the first and produces the second, and that gap is the whole subject of this article. It is closed by four separate tools, run in sequence, each narrowing the model a little further until it fits. Every one of them is permitted to change what your model computes, and none of them is obliged to tell you.
 
-*The above flowchart shows the whole path from a trained model to a running one. Only the first step happens in the framework you wrote the model in. Every step after it is a translation, and every translation can lose something.*
+![A float32 PyTorch graph and an 8-bit fixed-operator accelerator, the four tools that bridge them, and the fact that each is allowed to change the model silently.](/diagrams/edge-pipeline-map-1.svg)
 
-## Step one: train
+*The gap, the four rewrites that close it, and the price. Training happens on the left with no knowledge of the chip on the right, so the model has to be rewritten four times to reach it. Each rewrite is a translation, and a translation is allowed to change what it carries.*
 
-You train in a framework, on a desktop graphics card, in 32-bit floating point. This step is forgiving in every direction. Shapes can be dynamic, every operation you can express exists, and the precision is generous enough that small numerical choices do not matter.
+## Step one: train, the only forgiving step
 
-It is the only step where that is true, and that is worth sitting with. Decisions made here become constraints later, and the ones that hurt are invisible at the time. An activation function with no equivalent on the target chip. A layer that requires dynamic shapes. A preprocessing step written in Python that will have to be rewritten in C for the device.
+You train in a framework, on a desktop graphics card, in 32-bit floating point. Shapes can be dynamic, every operation you can express exists, and the precision is generous enough that small numerical choices do not matter.
 
-None of those are mistakes when you make them. They become mistakes two steps later.
+It is the only step where that is true. Decisions made here become constraints later, and the ones that hurt are invisible at the time: an activation function with no equivalent on the target chip, a layer requiring dynamic shapes, a preprocessing step in Python that will have to be rewritten in C. None of those are mistakes when you make them. They become mistakes two steps later.
 
-## Step two: export
+## Step two: export, where your code stops existing
 
-The model is exported to an interchange format so that something other than your training framework can read it. \`ONNX\`, the Open Neural Network Exchange, is the common choice.
+The next tool cannot read PyTorch. It reads a file. So the model is exported to an interchange format, usually \`ONNX\`, the Open Neural Network Exchange.
 
-The first surprise is that what comes out is not what you wrote. The exporter fuses operations together, folds constants away, renames things, and rewrites patterns into equivalents it prefers. Normalisation layers usually disappear into the convolution before them. A block you think of as one thing becomes six operations, or three become one.
+Export is not a save. To produce a file that other tools can reason about, the exporter fuses layers together, folds constants away, and rewrites patterns into equivalents it prefers. Normalisation layers usually disappear into the convolution before them. A block you think of as one thing becomes six operations, or three become one.
 
-\`\`\`mermaid
-flowchart TD
-    A[Your source code] --> B[Exporter]
-    B --> C[Operations fused]
-    B --> D[Constants folded]
-    B --> E[Patterns rewritten]
-    C --> F[Exported graph]
-    D --> F
-    E --> F
-\`\`\`
+![The exporter fuses, folds and renames, so one block of your code leaves as six operations under names you never chose, and that file is what every later tool reads.](/diagrams/edge-pipeline-map-2.svg)
 
-*The above flowchart shows why the exported graph is not a copy of your source. Three separate rewriting passes run during export, and every tool downstream reasons about the result rather than about the code you wrote.*
+*Why the file differs from your code, what the exporter does to make it, and the debugging consequence. From here on every tool reasons about the exported graph. When a later step reports an operation it cannot handle, that operation may appear nowhere in your source, and searching for it finds nothing.*
 
-This matters more than it first appears. From here onward, every tool works on the exported graph. When a later step reports that it cannot handle some operation, that operation may not appear anywhere in your source, and searching your code for it will find nothing.
+## Step three: convert, where the numbers move
 
-## Step three: convert
+The chip does integer arithmetic, so the weights and usually the activations are rewritten as small integers. This is not optional on most accelerators.
 
-The model is converted into the runtime's own format, and usually shrunk on the way.
+The conversion needs a sample of representative input to work out the range each value moves within, and the quality of that sample decides how much accuracy survives. A small representative sample preserves more accuracy than a much larger unrepresentative one, because it is the representativeness doing the work and not the count. This is the step with the largest and least predictable effect on your numbers, and the one most often run with a default setting and no measurement afterwards. Part two covers what that trade costs and how to spend it well.
 
-Shrinking means representing weights, and often activations, as small integers instead of floating point numbers. It is not optional on most accelerators, because many of them execute integer arithmetic only. The conversion needs a sample of representative input data to work out the range each value moves within, and the quality of that sample decides how much accuracy survives.
+## Step four: compile, where the performance goes
 
-This is the step with the largest and least predictable effect on your numbers. It is also the one most often run with a default setting and no measurement afterwards. A sample of fifty representative inputs preserves more accuracy than five thousand unrepresentative ones, because the sample is doing the work rather than the sample size.
+Now the fixed operation list arrives. If your graph uses something absent from it, the compiler does not fail. It splits the network, runs what it can on the accelerator, and hands the rest to the ordinary processor.
 
-Part two of this series covers what that trade actually costs and how to spend it well.
+What makes this expensive is a detail of how the split works. The Edge TPU takes **one contiguous run of operations**, not the supported ones scattered through the graph. So the first unsupported operation, wherever it sits, ends the accelerated section, and everything after it runs on the CPU.
 
-## Step four: compile
+![The Edge TPU takes one contiguous run of operators, so the first unsupported one ends the accelerated section and everything after it runs on the CPU. A LeakyReLU at index one of fifteen strands 93 percent of the graph.](/diagrams/edge-pipeline-map-3.svg)
 
-The runtime format is compiled for the specific chip, and here you meet the fact that an accelerator supports a fixed list of operations.
+*Why one missing operation is expensive, which half goes where, and the size of the effect. Position, not count, decides the damage: a single LeakyReLU at index one of a fifteen-operator backbone leaves 93% of the graph on the CPU, while the same operation at the end leaves 7%. Those are counts of operators worked out from the chip's published partition rule rather than times taken on a device, and part three does it properly.*
 
-If your model uses one that is absent, the result is not an error. The compiler quietly splits the network, runs what it can on the accelerator, and hands the rest to the ordinary processor. Performance falls by an order of magnitude and nothing in the build output says so.
+## Step five: run, where the datasheet stops applying
 
-\`\`\`mermaid
-flowchart TD
-    A[Compiled model] --> B{Operation supported}
-    B -->|Yes| C[Runs on accelerator]
-    B -->|No| D[Split point]
-    D --> E[Rest runs on CPU]
-\`\`\`
+A desktop simulator has no thermal limit, no shared memory bus, and no cost for moving data between host and accelerator. A real device has all three. Sustained throughput sits below burst throughput, the first inference is slower than the rest, and the chip may reduce its clock after a minute of work and never return to the figure in the datasheet.
 
-*The above flowchart shows the decision the compiler makes at every operation. The branch on the right is silent: no error, no warning, and a network that is technically running correctly while using none of the hardware you selected it for.*
-
-That fallback is the single largest performance surprise in edge deployment, and how much it costs depends on something almost nobody checks. Part three takes that apart.
-
-## Step five: run
-
-The model runs on the device, and the numbers are not the ones you measured.
-
-A desktop simulator has no thermal limit, no shared memory bus, and no cost for moving data between the host and the accelerator. A real device has all three. Sustained throughput sits below burst throughput. The first inference is slower than the rest. The chip may reduce its clock after a minute of continuous work and never return to the figure in the datasheet.
-
-None of this is exotic. It is simply absent from every measurement taken before this step, which is every measurement most teams take.
+None of this is exotic. It is simply absent from every measurement taken before this step, which is every measurement most teams take, and it is the reason a figure that held for an hour on a desk can stop holding after a minute in an enclosure.
 
 ## What the rest of this series does
 
-Four of these five steps can change your model without raising an error. That is the real difficulty of edge deployment, and it explains why the answer to "why is it slow" or "why did accuracy drop" is so rarely where people look first.
+The gap between a float32 graph and a fixed integer instruction set is not going away, so the four rewrites are not going away either. What can change is whether they happen where you can see them.
 
-The remaining parts take the steps where the damage is quietest and give each one a way to see what happened: what quantisation costs, where the compiler splits a graph, and how to read a model file before any of the tooling exists.
+The remaining parts take the steps where the damage is quietest and give each one a way to look: what quantisation actually costs, where the compiler splits a graph and why position dominates, and how to read a model file before any of the tooling exists.
 `,
 
   references: [

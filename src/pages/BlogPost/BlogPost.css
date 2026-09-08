@@ -1,4 +1,7 @@
 /* ─── Mermaid diagrams ───────────────────────────────────────────────────── */
+/* No column breakout. The post is a two-column grid with a table of contents
+   beside it, so 50%-of-the-column centring puts a wide figure to the left of
+   the page and under the TOC. A figure stays in the column it belongs to. */
 .mermaid-figure {
   margin: 2.4rem 0;
 }
@@ -18,15 +21,28 @@
 }
 
 .mermaid-wrap {
-  width: 100%;
+  /* A board just off the page colour, so it reads as a recessed panel rather
+     than a lit white wall in light mode or a floating hole in dark. Defaults
+     only: MermaidDiagram.jsx sets these inline from the same palette it hands
+     to mermaid, so CSS and SVG can never disagree about the board colour. */
+  --diagram-surface: #0b1220;
+  --diagram-title: #94a3b8;
+  --diagram-cluster: rgba(148, 163, 184, 0.05);
+  --diagram-cluster-edge: rgba(148, 163, 184, 0.22);
+  /* The board hugs the diagram and centres, so a panel narrower than the
+     column is not marooned in a field of empty board. */
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
   min-width: 0;
-  height: 480px;
-  overflow: auto;
+  height: auto;
+  overflow: hidden;
   box-sizing: border-box;
-  background: rgba(13, 17, 23, 0.7);
+  background: var(--diagram-surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 24px;
+  /* Extra room at the bottom so the expand button never sits on a node label. */
+  padding: 24px 24px 40px;
   /* align-items: flex-start so overflow starts at the top of the scroll
      container — center pushes content above scrollTop:0, making the top
      unreachable since scrollTop cannot go negative */
@@ -40,16 +56,96 @@
   border-color: var(--accent);
 }
 
-/* Inner div produced by dangerouslySetInnerHTML — must not shrink */
+
+/* Inner div produced by dangerouslySetInnerHTML */
 .mermaid-wrap > div {
-  flex-shrink: 0;
+  max-width: 100%;
+  min-width: 0;
 }
 
-.mermaid-wrap svg {
+/* Mermaid emits width="100%" and a viewBox, so the SVG letterboxes inside this
+   box at its own aspect ratio: never distorted, never clipped. max-height stops
+   a tall top-down diagram from taking over the page. */
+/* Inline the diagram is a preview: it fits the column and a fixed height, and
+   full size lives one click away in the modal.
+
+   `> div > svg` and not `svg`, and this matters: a diagram contains one nested
+   <svg> per icon, so an unscoped rule sizes every Lucide glyph to the width of
+   the whole diagram. That is exactly what happened — a single icon rendered
+   1100px wide across the expanded view. */
+.mermaid-wrap > div > svg {
   display: block;
-  height: auto !important;
+  margin: 0 auto;
   width: auto !important;
-  max-width: none !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 560px !important;
+}
+
+/* ── Diagram legibility ──────────────────────────────────────────────────────
+   Mermaid paints an opaque chip behind every label. Behind a node label that
+   chip is a sticker: the node already has a surface, and a second rectangle
+   under the text reads as a mistake. Behind an *edge* label it is doing real
+   work, knocking the line out from under the text, so it stays — in the
+   board's own colour rather than in a colour of its own. */
+.mermaid-wrap .nodeLabel,
+.mermaid-wrap .nodeLabel p,
+.mermaid-wrap .label foreignObject > div,
+.mermaid-modal-content .nodeLabel,
+.mermaid-modal-content .nodeLabel p {
+  background: transparent !important;
+}
+
+.mermaid-wrap .edgeLabel,
+.mermaid-wrap .edgeLabel p,
+.mermaid-wrap .edgeLabel rect,
+.mermaid-modal-content .edgeLabel,
+.mermaid-modal-content .edgeLabel p {
+  background-color: var(--diagram-surface) !important;
+  fill: var(--diagram-surface) !important;
+}
+
+.mermaid-wrap .edgeLabel p,
+.mermaid-modal-content .edgeLabel p {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.82em;
+  opacity: 0.92;
+}
+
+/* The three act bands. A soft wash and a hairline, never the filled grey box
+   mermaid draws by default: the acts group the nodes, and a group that shouts
+   competes with what it contains. Mermaid styles these from a <style> block it
+   injects into the SVG, so overriding it takes !important. */
+.mermaid-wrap .cluster rect,
+.mermaid-modal-content .cluster rect {
+  fill: var(--diagram-cluster) !important;
+  stroke: var(--diagram-cluster-edge) !important;
+  stroke-width: 1px !important;
+  rx: 10px;
+  ry: 10px;
+}
+
+/* Act headings read as headings: quieter, and nothing more.
+   Mermaid measures the title and sizes a fixed foreignObject around it before
+   this stylesheet applies, so anything that makes the text WIDER afterwards is
+   simply clipped — uppercase, letter-spacing and a monospace face each did
+   exactly that, and the headings rendered as "1. WHY IT HAPPEN". Colour is
+   free; a smaller size is safe because it only ever shrinks the text. */
+.mermaid-wrap .cluster-label .nodeLabel,
+.mermaid-wrap .cluster-label p,
+.mermaid-modal-content .cluster-label .nodeLabel,
+.mermaid-modal-content .cluster-label p {
+  font-size: 0.88em;
+  color: var(--diagram-title) !important;
+  background: transparent !important;
+}
+
+/* Node labels sit under their icon and carry sentences, so give the lines
+   room to breathe against each other. */
+.mermaid-wrap .nodeLabel p,
+.mermaid-modal-content .nodeLabel p {
+  line-height: 1.45;
 }
 
 /* Expand button — sits OUTSIDE .mermaid-wrap so it never scrolls.
@@ -92,31 +188,38 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 24px;
+  padding: 28px 20px;
   cursor: pointer; /* click outside to close */
 }
 
+/* Expanded: as much of the screen as there is, the diagram at its own size,
+   and scrollbars in both directions rather than a diagram shrunk to fit. */
 .mermaid-modal-content {
-  background: #0d1117;
+  --diagram-surface: #0b1220;
+  --diagram-title: #94a3b8;
+  --diagram-cluster: rgba(148, 163, 184, 0.05);
+  --diagram-cluster-edge: rgba(148, 163, 184, 0.22);
+  background: var(--diagram-surface);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 32px;
   overflow: auto;
-  max-width: min(92vw, 1200px);
-  max-height: 88vh;
+  overscroll-behavior: contain;
+  max-width: 96vw;
+  max-height: 92vh;
   cursor: default;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
 }
 
-/* SVG inside the modal — fit to screen, natural aspect ratio */
-.mermaid-modal-content svg {
+/* Full size, never scaled: the container scrolls instead. Scoped to the direct
+   child so the nested icon SVGs keep their own dimensions. */
+.mermaid-modal-content > svg {
   display: block !important;
+  margin: 0 auto;      /* centred when it is smaller than the screen */
   width: auto !important;
   height: auto !important;
-  max-width: calc(min(92vw, 1200px) - 64px) !important;
-  max-height: calc(88vh - 64px) !important;
+  max-width: none !important;
+  max-height: none !important;
 }
 
 .mermaid-modal-close {
@@ -519,13 +622,64 @@
 
 .blogpost-series-next { text-align: right; align-items: flex-end; }
 
+.blog-video-frame {
+  display: block;   /* it is a <span>, so that a <p> may legally contain it */
+  width: 100%;
+  position: relative;
+  margin: 1em 0;
+  line-height: 0;
+}
+
 .blog-video {
+  /* Intrinsic size capped by the column, which is how it sized before the
+     centred play control was added. The frame around it carries the width. */
   max-width: 100%;
   display: block;
   border-radius: 10px;
   border: 1px solid var(--border);
-  margin: 1em 0;
   background: #000;
+}
+
+/* Centred play control. The native one is a small target in the bottom-left
+   corner; this is the thing the frame is actually asking you to click. It
+   unmounts once the video is playing so it never covers the picture. */
+.blog-video-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 5px; /* optical centring: the triangle's mass sits left */
+  border: 1px solid var(--accent);
+  background: rgba(13, 17, 23, 0.72);
+  color: var(--accent);
+  cursor: pointer;
+  z-index: 2;   /* above the video's own control bar */
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  box-shadow: 0 0 0 8px rgba(0, 229, 255, 0.07);
+  transition: transform 0.18s ease, background 0.18s, box-shadow 0.18s;
+}
+
+.blog-video-play:hover {
+  transform: translate(-50%, -50%) scale(1.07);
+  background: rgba(0, 229, 255, 0.14);
+  box-shadow: 0 0 0 12px rgba(0, 229, 255, 0.09);
+}
+
+.blog-video-play:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-video-play,
+  .blog-video-play:hover { transition: none; transform: translate(-50%, -50%); }
 }
 
 .blog-table-wrapper {

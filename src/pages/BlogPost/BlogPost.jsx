@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { useEnglishTranslation } from '../../i18n/index';
 import { LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight, LuBrain, LuCpu } from 'react-icons/lu';
@@ -7,6 +7,7 @@ import siteConfig from '../../config/site';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import MermaidDiagram from '../../components/ui/MermaidDiagram';
+import Panel from '../../components/ui/Panel';
 import blogs from '../../data/blogs/index';
 import './BlogPost.css';
 
@@ -24,6 +25,62 @@ const BLOG_ICON_MAP = {
 function BlogIcon({ iconKey }) {
   const Icon = BLOG_ICON_MAP[iconKey];
   return Icon ? <Icon size={48} aria-hidden="true" /> : null;
+}
+
+/*
+ * A video with its play control in the middle of the frame rather than in the
+ * browser's own bar at the bottom left. The native control is a 20px target in
+ * a corner and readers miss it; a poster-sized button in the centre is the one
+ * thing a video is asking to be clicked. Once it is playing, the overlay gets
+ * out of the way and the native bar takes over for scrubbing.
+ */
+function BlogVideo({ src, alt }) {
+  const ref = useRef(null);
+  const [playing, setPlaying] = useState(false);
+
+  const start = () => {
+    const v = ref.current;
+    if (!v) return;
+    if (!v.paused) { v.pause(); return; }
+    // A browser may decline: a backgrounded tab pauses muted video to save
+    // power and rejects with AbortError. Nothing to do, and an unhandled
+    // rejection in the console is worse than none.
+    const p = v.play();
+    if (p && p.catch) p.catch(() => {});
+  };
+
+  // A span, not a div: markdown wraps an image in a <p>, and a <div> inside a
+  // <p> is invalid, so the browser closes the paragraph early and the frame is
+  // torn away from its own overlay. CSS makes the span a block.
+  return (
+    <span className={`blog-video-frame${playing ? ' is-playing' : ''}`}>
+      <video
+        ref={ref}
+        className="blog-video"
+        src={src}
+        controls
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-label={alt || 'Video'}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+      />
+      {!playing && (
+        <button
+          type="button"
+          className="blog-video-play"
+          onClick={start}
+          aria-label={alt ? `Play: ${alt}` : 'Play video'}
+        >
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5.2v13.6a1 1 0 0 0 1.53.85l10.6-6.8a1 1 0 0 0 0-1.7L9.53 4.35A1 1 0 0 0 8 5.2z" />
+          </svg>
+        </button>
+      )}
+    </span>
+  );
 }
 
 // Custom markdown components — renders mermaid fenced blocks as diagrams
@@ -44,6 +101,13 @@ function mdComponents() {
       return <p>{children}</p>;
     },
     pre({ children }) {
+      // A mermaid fence renders as a diagram, not as code, so it must not keep
+      // the code-block shell around it. That shell is a dark panel with its own
+      // padding and border, which in light mode framed every diagram in a band
+      // of #0d1117 and double-framed it in dark.
+      const only = Array.isArray(children) ? children[0] : children;
+      const cls = only?.props?.className;
+      if (typeof cls === 'string' && cls.includes('language-mermaid')) return only;
       return <pre className="blog-pre">{children}</pre>;
     },
     h2({ children }) {
@@ -82,18 +146,13 @@ function mdComponents() {
       // A video written with image syntax renders as a video. Keeps posts in
       // plain markdown: ![caption](/videos/my-post.mp4) just works.
       if (/\.(mp4|webm)$/i.test(src || '')) {
-        return (
-          <video
-            className="blog-video"
-            src={src}
-            controls
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-label={alt || 'Video'}
-          />
-        );
+        return <BlogVideo src={src} alt={alt} />;
+      }
+      // A diagram panel, written in markdown as an image so a post stays plain
+      // markdown: ![caption](/diagrams/my-post-1.svg). It is inlined rather
+      // than shown as an image; see Panel.jsx for why.
+      if (/^\/diagrams\/.+\.svg$/i.test(src || '')) {
+        return <Panel src={src} alt={alt} />;
       }
       return <img src={src} alt={alt || ''} className="blog-img" loading="lazy" />;
     },

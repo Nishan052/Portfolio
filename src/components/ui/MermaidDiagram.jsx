@@ -1,33 +1,155 @@
-import { useEffect, useState, useId } from 'react';
+import { useEffect, useState, useId, useContext, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { LuX } from 'react-icons/lu';
+import { ThemeContext } from '../../context/ThemeContext';
 
-// ── Initialize Mermaid once at module level ──────────────────────────────────
-// Calling mermaid.initialize() inside each component causes race conditions
-// when multiple diagrams render simultaneously on the same page.
+/*
+ * ── Diagram palette ─────────────────────────────────────────────────────────
+ * One place decides what a diagram looks like, in both themes.
+ *
+ * A post says what a node *means* — `class D bad` — and never what colour it
+ * is, because a colour written into an article is a colour that cannot follow
+ * the reader into light mode. The four class names come from
+ * design/DIAGRAM_BOOK.md in the edge-agents repository:
+ *
+ *   step   an ordinary stage, the default
+ *   good   the path that works, the answer
+ *   bad    where it breaks, the cost
+ *   muted  context that is present but is not the subject
+ */
+const PALETTE = {
+  dark: {
+    surface:     '#0b1220',   // the board; matches .mermaid-wrap exactly
+    line:        '#00e5ff',
+    text:        '#e2e8f0',
+    clusterBkg:  'rgba(148,163,184,0.05)',
+    clusterEdge: 'rgba(148,163,184,0.22)',
+    title:       '#94a3b8',
+    step:        { fill: '#111a2e', stroke: '#334155' },
+    good:        { fill: '#0d2b33', stroke: '#00e5ff' },
+    bad:         { fill: '#241033', stroke: '#a855f7' },
+    muted:       { fill: '#0d1117', stroke: '#1f2937', text: '#64748b' },
+  },
+  light: {
+    surface:     '#f2f6ff',
+    line:        '#2563eb',
+    text:        '#0f172a',
+    clusterBkg:  'rgba(15,23,42,0.03)',
+    clusterEdge: 'rgba(15,23,42,0.12)',
+    title:       '#475569',
+    step:        { fill: '#f1f5f9', stroke: '#cbd5e1' },
+    good:        { fill: '#e0f2fe', stroke: '#2563eb' },
+    bad:         { fill: '#f3e8ff', stroke: '#7c3aed' },
+    muted:       { fill: '#f8fafc', stroke: '#e2e8f0', text: '#94a3b8' },
+  },
+};
+
+/**
+ * Prepend a per-diagram init directive and the class definitions for this
+ * theme, after removing any the post carried.
+ *
+ * Per-diagram rather than mermaid.initialize(), because initialize() is global
+ * and several diagrams render at once on a post: whichever finished last would
+ * decide the colours for all of them.
+ */
+function themeConfig(mode) {
+  const p = PALETTE[mode] || PALETTE.dark;
+  return {
+    startOnLoad: false,
+    fontSize: 15,
+    theme: 'base',
+    flowchart: { nodeSpacing: 50, rankSpacing: 60, padding: 20, useMaxWidth: true, wrappingWidth: 150 },
+    sequence:  { useMaxWidth: true },
+    themeVariables: {
+      background:          p.surface,
+      mainBkg:             p.step.fill,
+      primaryColor:        p.step.fill,
+      primaryTextColor:    p.text,
+      primaryBorderColor:  p.step.stroke,
+      lineColor:           p.line,
+      textColor:           p.text,
+      titleColor:          p.title,
+      clusterBkg:          p.clusterBkg,
+      clusterBorder:       p.clusterEdge,
+      edgeLabelBackground: p.surface,
+      nodeTextColor:       p.text,
+      fontFamily:          "'Outfit', system-ui, sans-serif",
+      fontSize:            '15px',
+    },
+  };
+}
+
+/**
+ * Strip any class colours the post carried and append this theme's.
+ *
+ * A post says what a node *means* and never what colour it is, so the same
+ * markdown renders correctly in both themes.
+ */
+function themed(definition, mode) {
+  const p = PALETTE[mode] || PALETTE.dark;
+
+  // classDef belongs to flowcharts. A sequenceDiagram rejects it outright, and
+  // appending it to one rendered "Syntax error in text" on every sequence
+  // diagram in the blog.
+  const kind = definition.trim().split(/\s|\n/)[0];
+  if (kind !== 'flowchart' && kind !== 'graph') return definition;
+
+  const cls = (name, c, textColor) =>
+    `  classDef ${name} fill:${c.fill},stroke:${c.stroke},stroke-width:${
+      name === 'step' ? '1.5px' : name === 'muted' ? '1px' : '2px'
+    },color:${textColor || p.text}`;
+
+  const body = definition
+    .split('\n')
+    .filter((l) => !/^\s*classDef\s+(step|good|bad|muted)\b/.test(l))
+    .join('\n');
+
+  return [
+    body,
+    cls('step', p.step),
+    cls('good', p.good),
+    cls('bad', p.bad),
+    cls('muted', p.muted, p.muted.text),
+  ].join('\n');
+}
+
+// ── Mermaid, loaded once ─────────────────────────────────────────────────────
+// initialize() is global and decides colours, so it is called per render from
+// inside renderQueue rather than here: a page holds several diagrams and the
+// reader can change theme under them.
 let mermaidPromise = null;
+/** Serialises every render on the page; see the render effect for why. */
+let renderQueue = Promise.resolve();
 function getMermaid() {
   if (!mermaidPromise) {
-    mermaidPromise = import('mermaid').then((m) => {
+    mermaidPromise = import('mermaid').then(async (m) => {
       const mermaid = m.default;
+
+      // Icon shapes. The pack is the same Lucide set the videos use, so a
+      // diagram and a video of the same idea share one icon language. Loaded
+      // lazily alongside mermaid itself, so it costs nothing until a post with
+      // a diagram is opened.
+      try {
+        mermaid.registerIconPacks([
+          { name: 'lucide', loader: () => import('@iconify-json/lucide').then((i) => i.icons) },
+        ]);
+      } catch {
+        // An older mermaid has no icon support. Diagrams without icons still render.
+      }
+
+      // Layout only. Every colour arrives per diagram, from the %%{init}%%
+      // directive `themed()` prepends, because a colour fixed here is a colour
+      // that survives into light mode: hardcoding lineColor left cyan arrows
+      // and dark label backgrounds on a white page.
       mermaid.initialize({
         startOnLoad: false,
-        theme: 'dark',
         fontSize: 15,
-        flowchart: { nodeSpacing: 50, rankSpacing: 60, padding: 20, useMaxWidth: false, wrappingWidth: 150 },
-        sequence:  { useMaxWidth: false },
-        themeVariables: {
-          background:          '#0d1117',
-          primaryColor:        '#1e293b',
-          primaryTextColor:    '#e2e8f0',
-          primaryBorderColor:  '#334155',
-          lineColor:           '#00e5ff',
-          secondaryColor:      '#1e293b',
-          tertiaryColor:       '#1e293b',
-          edgeLabelBackground: '#0d1117',
-          fontFamily:          'Arial, sans-serif',
-          fontSize:            '15px',
-        },
+        // useMaxWidth scales the SVG down to the column instead of letting it
+        // overflow behind a horizontal scrollbar. A diagram you have to scroll
+        // sideways is not read at a glance, which is the only way these are read.
+        // Full size is still one click away in the expand modal.
+        flowchart: { nodeSpacing: 50, rankSpacing: 60, padding: 20, useMaxWidth: true, wrappingWidth: 150 },
+        sequence:  { useMaxWidth: true },
       });
       return mermaid;
     });
@@ -53,6 +175,20 @@ function ExpandIcon() {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function MermaidDiagram({ definition, caption }) {
+  const theme = useContext(ThemeContext);
+  const mode  = theme?.name === 'light' ? 'light' : 'dark';
+  const source = useMemo(() => themed(definition, mode), [definition, mode]);
+  // Handed to CSS so label knockouts and act headings use the same colours the
+  // SVG was rendered with, in whichever theme the reader has chosen.
+  const vars = useMemo(() => {
+    const p = PALETTE[mode] || PALETTE.dark;
+    return {
+      '--diagram-surface': p.surface,
+      '--diagram-title': p.title,
+      '--diagram-cluster': p.clusterBkg,
+      '--diagram-cluster-edge': p.clusterEdge,
+    };
+  }, [mode]);
   const [svg, setSvg]   = useState('');
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
@@ -75,16 +211,36 @@ export default function MermaidDiagram({ definition, caption }) {
     if (!definition) return;
     let cancelled = false;
 
-    getMermaid().then(async (mermaid) => {
+    // mermaid.initialize() is global, so the colours belong to whichever call
+    // ran last. Queueing every render behind the previous one means each
+    // diagram is initialised and drawn as one uninterrupted step.
+    renderQueue = renderQueue.then(async () => {
+      const mermaid = await getMermaid();
       try {
-        const { svg: rendered } = await mermaid.render(`mermaid-${uid}`, definition);
+        mermaid.initialize(themeConfig(mode));
+        const { svg: rendered } = await mermaid.render(`mermaid-${uid}-${mode}`, source);
         if (cancelled) return;
 
-        // Strip Mermaid's hardcoded pixel constraints — CSS controls sizing
-        const processed = rendered
-          .replace(/(<svg[^>]*)\s+style="[^"]*max-width:[^"]*"/gi, '$1')
-          .replace(/(<svg[^>]*)\s+width="[\d.]+px?"/gi, '$1')
-          .replace(/(<svg[^>]*)\s+height="[\d.]+px?"/gi, '$1');
+        // Give the ROOT svg its viewBox size as real width and height, so it
+        // sizes like an <img>: scaled down to fit the column, never stretched
+        // up. Only the root: a diagram carries one nested <svg> per icon, and
+        // an SVG with no width and no height fills its whole viewport, so
+        // stripping those attributes globally drew every Lucide glyph at the
+        // size of the entire diagram.
+        const processed = rendered.replace(
+          /^([\s\S]*?)<svg\b([^>]*)>/i,
+          (_m, before, attrs) => {
+            const vb = /viewBox="[\d.\-]+ [\d.\-]+ ([\d.]+) ([\d.]+)"/.exec(attrs);
+            let a = attrs
+              .replace(/\s+style="[^"]*max-width:[^"]*"/i, '')
+              .replace(/\s+width="[^"]*"/i, '')
+              .replace(/\s+height="[^"]*"/i, '');
+            if (vb) {
+              a = ` width="${Math.round(+vb[1])}" height="${Math.round(+vb[2])}"` + a;
+            }
+            return `${before}<svg${a}>`;
+          },
+        );
 
         setSvg(processed);
       } catch (e) {
@@ -93,7 +249,7 @@ export default function MermaidDiagram({ definition, caption }) {
     });
 
     return () => { cancelled = true; };
-  }, [definition, uid]);
+  }, [source, uid, mode]);
 
   if (error) return (
     <div style={{
@@ -121,7 +277,7 @@ export default function MermaidDiagram({ definition, caption }) {
             stays fixed at the bottom-right of the visible frame even
             while the user scrolls inside .mermaid-wrap */}
         <div className="mermaid-frame">
-          <div className="mermaid-wrap">
+          <div className="mermaid-wrap" style={vars}>
             <div dangerouslySetInnerHTML={{ __html: svg }} />
           </div>
           <button
@@ -155,6 +311,7 @@ export default function MermaidDiagram({ definition, caption }) {
           </button>
           <div
             className="mermaid-modal-content"
+            style={vars}
             onClick={(e) => e.stopPropagation()}
             dangerouslySetInnerHTML={{ __html: svg }}
           />
