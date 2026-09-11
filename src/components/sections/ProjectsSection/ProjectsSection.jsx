@@ -1,11 +1,12 @@
 import { memo, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { LuCheck, LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight } from "react-icons/lu";
+import { LuCheck, LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight, LuSparkles } from "react-icons/lu";
 import { SiPython } from "react-icons/si";
 import projects from "../../../data/projects.json";
 import "./ProjectsSection.css";
 
 const PROJECT_ICON_MAP = {
+  Sparkles:       LuSparkles,
   TrendingUp:     LuTrendingUp,
   Radio:          LuRadio,
   ScanSearch:     LuScanSearch,

@@ -1,12 +1,22 @@
 [
   {
-    "role":     "Senior Software Developer",
+    "role":     "AI Solutions Engineer",
+    "company":  "Georg Schröder Maritime Unternehmensberatung",
+    "period":   "Jun 2026",
+    "end":      "Present",
+    "duration": "Working student",
+    "location": "Mittegroßefehn, Germany",
+    "skills":   ["Python", "PyTorch", "RAG", "LLMs", "FastAPI", "Docker", "Computer Vision", "Vector Databases"],
+    "subRoles": null
+  },
+  {
+    "role":     "Senior Software Engineer",
     "company":  "Novigo Solutions",
     "period":   "Jun 2023",
     "end":      "Feb 2025",
     "duration": "1 yr 9 mos",
     "location": "Mangaluru, India",
-    "skills":   ["Angular", "TypeScript", "Salesforce", "Jira", "Agile", "GitHub", "Jenkins"],
+    "skills":   ["Angular", "TypeScript", "Salesforce", "REST APIs", "CI/CD", "Jenkins", "Agile", "SQL"],
     "subRoles": null
   },
   {

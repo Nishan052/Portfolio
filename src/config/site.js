@@ -35,7 +35,7 @@ const siteConfig = {
   // ── Hero stat counters ──────────────────────────────────────────────────────
   stats: {
     yearsExperience: "4+",
-    companiesCount:  "2",
+    companiesCount:  "3",
     languagesCount:  "5",
   },
 
@@ -58,7 +58,7 @@ const siteConfig = {
      * Skills highlighted in the About section pill row.
      * These are display names only — not translated.
      */
-    highlightSkills: ["Python", "R", "SQL", "Angular", "Power BI", "TensorFlow"],
+    highlightSkills: ["Python", "PyTorch", "TensorFlow", "RAG / LLMs", "SQL", "Docker"],
   },
 
   // ── Footer ──────────────────────────────────────────────────────────────────

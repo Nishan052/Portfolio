@@ -6,17 +6,20 @@ Evidence: check_ops.py output matches onnx.load(...).graph.node exactly on the c
 Date: 2026-09-07
 
 ---
+You do not need a machine learning setup installed to read what is inside a model file.
 
-You do not need a machine learning stack installed to read what is inside a model file.
+I wanted the list of layers in a model, in order, so I could check them against what a chip supports.
 
-I wanted a list of the layers in a model, in order, so I could check them against what an accelerator chip supports. The obvious route is to install the Open Neural Network Exchange library. That pulls in Protocol Buffers and about a hundred megabytes of dependencies, to answer a question whose answer is a list of strings.
+The usual route is to install the Open Neural Network Exchange library. That drags in about a hundred megabytes, to answer a question whose answer is a list of words.
 
-So I read the format instead. Model files in this exchange format are Protocol Buffers, and getting the layer list needs exactly three field numbers. The graph is field 7 of the model. Each node is field 1 of the graph. The layer type is field 4 of the node. Repeated fields keep their order on the wire, so the layers come out in graph order for free.
+So I read the file format instead. These model files use Protocol Buffers, a way of packing data where every field has a number.
 
-Sixty lines of standard library. It matches the official library node for node on every test file, and that match is asserted in the test suite rather than claimed.
+Getting the layer list needs three of those numbers. The graph is field 7 of the file. Each layer is field 1 of the graph. The type of layer is field 4. Repeated fields keep their order, so the layers come out in the right order for free.
 
-The point is not the saving. It is that the check now runs before you have set up a conversion toolchain, which is exactly when you want to know whether your model will map to the chip at all.
+Sixty lines of standard library. It matches the official library layer for layer on every test file. The test suite checks that, rather than my word for it.
 
-Repo: https://github.com/Nishan052/edge-agents
+The saving is not the point. The point is that the check now runs before you set up any toolchain. That is exactly when you want to know whether your model fits the chip.
+
+Repo: https://github.com/Nishan052/AgentLake
 
 #EdgeAI #MachineLearning #Python #OpenSource

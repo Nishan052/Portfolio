@@ -6,18 +6,19 @@ Evidence: Dettmers & Zettlemoyer, The case for 4-bit precision, ICML 2023, arXiv
 Date: 2026-09-06
 
 ---
+You have a fixed amount of memory. You can fit a big model stored roughly, or a small model stored precisely. The big rough one wins.
 
-If your memory budget is fixed, the right move is a bigger model at 4-bit, not a smaller one at 8-bit.
+Every number in a model takes up room. Store each one with fewer bits and the model shrinks. It also gets less exact. So the question is where to trade.
 
-Dettmers and Zettlemoyer ran roughly 35,000 experiments across model families from 19M to 176B parameters, sweeping precision from 16-bit down to 3-bit. The question was not which quantisation is most accurate. It was which gives the most accuracy per bit stored.
+Dettmers and Zettlemoyer ran about 35,000 tests to find out. Model sizes from 19 million to 176 billion. Storage from 16 bits per number down to 3.
 
-The answer was 4-bit, almost everywhere. At a fixed total bit budget, 4-bit weights beat both 8-bit and 16-bit on zero-shot accuracy across nearly every scale they tested.
+They did not ask which setting is most correct. They asked which gives the most accuracy per bit of memory. The answer was 4 bits, almost everywhere. At the same memory budget, 4 bits beat both 8 and 16 at nearly every size.
 
-Below 4-bit the curve turns over. At 3-bit the loss outweighed the extra capacity the saved bits bought, which puts a floor under how far this argument goes.
+Below 4 the line turns back down. At 3 bits the damage was worse than the extra room was worth. So there is a floor, and it is close.
 
-Two details matter if you are deploying this. Block size and the quantisation data type moved results independently of bit width, so how you quantise is a separate decision from how far you quantise. And the finding is about accuracy under a memory budget, not latency. Latency is its own measurement and does not follow for free.
+Two things to keep in mind. How you round the numbers matters on its own, apart from how far you round them. And this is about accuracy for a memory budget, not speed. Speed is a separate test and does not come free.
 
-I am running that latency half on an M3 Air. Numbers when I have them.
+I am running the speed half on an M3 Air. Numbers when I have them.
 
 Paper: https://arxiv.org/abs/2212.09720
 

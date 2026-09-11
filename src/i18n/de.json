@@ -9,8 +9,8 @@
   },
 
   "hero": {
-    "role":        "Softwareentwickler & AI/ML Entwickler",
-    "description": "Masterstudent in Business Intelligence & Data Analytics an der Hochschule Emden/Leer, mit über 4 Jahren Erfahrung in der Entwicklung datengetriebener Lösungen im Bank- und Gesundheitswesen.",
+    "role":        "AI/ML Engineer – RAG-, LLM- & Edge-ML-Systeme",
+    "description": "AI/ML-Engineer für Retrieval-Augmented Generation, LLM- und Edge-ML-Systeme. Über 4 Jahre Produktionssoftware im Bank- und Gesundheitswesen, aktuell im MEng Business Intelligence & Data Analytics an der Hochschule Emden/Leer.",
     "cta":         "Kontakt aufnehmen",
     "github":      "GitHub",
     "scrollDown":  "Nach unten scrollen",
@@ -24,13 +24,13 @@
   "about": {
     "tag":   "// über mich",
     "title": ["Der Mensch", "hinter dem Code"],
-    "bio1":  "Ich bin ein engagierter Softwareentwickler mit Spezialisierung auf robuste, responsive Anwendungen für den Finanz- und Gesundheitsbereich. Derzeit studiere ich Master of Engineering in Business Intelligence und Data Analytics an der Hochschule Emden/Leer, Deutschland.",
-    "bio2":  "Meine Kernkompetenzen umfassen Python, R, Angular, Salesforce, TypeScript, Power BI und Machine Learning. Ich begeistere mich für KI-gestützte Lösungen und den Aufbau von Datenpipelines, die echten Geschäftsnutzen liefern.",
+    "bio1":  "Ich baue AI-/ML-Systeme für den Produktivbetrieb – Retrieval-Augmented Generation, LLM-Integration, Edge Machine Learning und Zeitreihenprognosen. Mein Fokus liegt auf dem, was ein System vertrauenswürdig macht: Grounding, Latenz, Evaluation und Fehlerverhalten.",
+    "bio2":  "Ich dokumentiere meine Arbeit öffentlich und veröffentliche wöchentlich Build-Notizen und Projektberichte auf dieser Seite. Davor über 4 Jahre als Software- und Systems Engineer bei Infosys und Novigo mit regulierten Bank- und Healthcare-Plattformen. Aktuell im MEng Business Intelligence & Data Analytics an der Hochschule Emden/Leer.",
     "cards": [
       { "icon": "graduation", "title": "Ausbildung",   "desc": "MEng Business Intelligence & Data Analytics — Hochschule Emden/Leer (Note: 1,45/5)" },
-      { "icon": "background", "title": "Hintergrund",  "desc": "Über 4 Jahre bei Infosys & Novigo Solutions im Bank- und Gesundheitsbereich" },
+      { "icon": "background", "title": "Hintergrund",  "desc": "Über 4 Jahre bei Infosys & Novigo im Bank- und Gesundheitsbereich; aktuell AI Solutions Engineer (Werkstudent) bei einer maritimen Software-Beratung" },
       { "icon": "languages",  "title": "Sprachen",     "desc": "Englisch (C1) · Deutsch (B1) · Kannada (C1) · Hindi (C1) · Tulu (C2)" },
-      { "icon": "focus",      "title": "Schwerpunkte", "desc": "ML/KI · Datenanalyse · Business Intelligence · Full-Stack-Entwicklung" }
+      { "icon": "focus",      "title": "Schwerpunkte", "desc": "RAG- & LLM-Systeme · Edge ML · Zeitreihenprognosen · MLOps" }
     ]
   },
 
@@ -39,11 +39,19 @@
     "title": ["Berufliche", "Erfahrung"],
     "items": [
       {
+        "type": "Werkstudent",
+        "highlights": [
+          "KI-/ML-Engineering für maritime Software – LLM-/RAG-Integration, Computer Vision und Edge-Deployment",
+          "Verantwortung für Features von Anfang bis Ende: Retrieval- und Grounding-Logik, Modellquantisierung, Testabdeckung und containerisiertes Deployment",
+          "Forschungsarbeit als Grundlage einer Masterarbeit zu Edge-ML für sicherheitskritische Erkennung"
+        ]
+      },
+      {
         "type": "Vollzeit",
         "highlights": [
-          "Leitung von Datenvisualisierung & API-Integration für eine groß angelegte Healthcare-Digitalisierungsplattform",
-          "Verbesserung der Dateninteroperabilität mit Angular, TypeScript und Salesforce",
-          "Vorantreiben agiler Entwicklung und funktionsübergreifender Zusammenarbeit mit Workflow-Management in Jira"
+          "Aufbau von Digital-Onboarding-Plattformen für US-Banken – Anforderungsanalyse, API-Design, Angular-/TypeScript-Frontend und Produktions-Deployment",
+          "Umsetzung rollenbasierter Zugriffskontrolle und PII-sicherer Datenverarbeitung für compliance-sensible Bankprozesse",
+          "Konzeption von CI/CD-Pipelines (Jenkins, GitHub Actions) und iterative Releases in Agile/Jira"
         ]
       },
       {
@@ -68,40 +76,40 @@
     "title": ["Ausgewählte", "Projekte"],
     "items": [
       {
+        "subtitle":    "Retrieval-Augmented Chat-Assistent",
+        "category":    "LLM / RAG",
+        "description": "Ein Retrieval-Augmented-Assistent, der Fragen zu meiner Arbeit beantwortet. Hybride Suche über eine eingebettete Wissensbasis, eine Grounding-Schicht, die Antworten an Quellen bindet, und ein semantischer Cache, der die Latenz wiederkehrender Anfragen von Sekunden auf Millisekunden senkt. Läuft kostengünstig auf Edge-Workern.",
+        "highlights":  ["8 s → <10 ms bei Cache-Treffern", "Quellenbasierte Antworten", "Serverless / Edge"]
+      },
+      {
         "subtitle":    "LSTM & ARIMA-Prognosen",
         "category":    "Maschinelles Lernen",
-        "description": "Entwicklung von LSTM- und ARIMA-Modellen zur Prognose von NIFTY-50-Eröffnungs- und Schlusskursen mit einem MAPE unter 3 %. Aufbau reproduzierbarer Datenpipelines, automatisierter Prognoseworkflows und eines Streamlit-Dashboards mit CI/CD über GitHub Actions.",
-        "highlights":  ["MAPE < 3 %", "CI/CD-Pipeline", "Streamlit-Dashboard"]
+        "description": "Entwicklung von LSTM- und ARIMA-Modellen zur Prognose von NIFTY-50-Eröffnungs- und Schlusskursen mit einem MAPE unter 3 %. Aufbau reproduzierbarer Datenpipelines, Walk-Forward-Validierung, automatisierter Prognoseworkflows und eines Streamlit-Dashboards mit CI/CD über GitHub Actions.",
+        "highlights":  ["MAPE < 3 %", "Walk-Forward-Validierung", "CI/CD + Streamlit"]
       },
       {
-        "subtitle":    "MQTT-basierte IoT-Messaging-Plattform",
-        "category":    "IoT / Full-Stack",
-        "description": "Eine IoT-Kommunikationsplattform auf Basis des MQTT-Protokolls – wie WhatsApp für Maschinen. Geräte veröffentlichen und abonnieren Topics in Echtzeit und ermöglichen so den sofortigen Signalaustausch über verteilte IoT-Knoten.",
-        "highlights":  ["Pub/Sub MQTT", "Echtzeit-IoT", "Leichtgewichtiges Protokoll"]
+        "subtitle":    "Edge-KI auf einem Mikrocontroller",
+        "category":    "Embedded ML",
+        "description": "End-to-End-TinyML-Personenerkennung: OpenCV-Vorverarbeitung, ein in TensorFlow/Keras trainiertes CNN, INT8-Quantisierung und Deployment auf TensorFlow Lite Micro auf einem Arduino-Board. Cosinus-Ähnlichkeits-Schwellenwerte weisen unbekannte Gesichter ab; die Quantisierung reduziert die Modellgröße um rund 95 %.",
+        "highlights":  ["INT8-quantisiert", "~95 % kleineres Modell", "Läuft auf dem Gerät"]
       },
       {
-        "subtitle":    "Intelligenter Inventar-Scanner",
-        "category":    "Anwendung",
-        "description": "Eine intelligente Barcode-Scan-Anwendung mit Lagerverwaltungsfunktionen. Unterstützt mehrere Barcodeformate, Echtzeit-Abfragen und Datenexport für Lager- und Einzelhandels-Workflows.",
-        "highlights":  ["Multiformatscan", "Inventar-Sync", "Berichte exportieren"]
+        "subtitle":    "MQTT-IoT-Messaging-Plattform",
+        "category":    "IoT / Systeme",
+        "description": "Eine IoT-Kommunikationsplattform auf Basis des MQTT-Protokolls – Geräte veröffentlichen und abonnieren Topics in Echtzeit und ermöglichen sofortigen Signalaustausch über verteilte Knoten. Containerisiert mit Docker Compose.",
+        "highlights":  ["Pub/Sub MQTT", "Echtzeit", "Dockerisiert"]
       },
       {
-        "subtitle":    "Edge-KI auf Arduino",
-        "category":    "Eingebettete KI",
-        "description": "End-to-End-TinyML-Gesichtserkennung auf Arduino Nano 33 BLE Sense mit INT8-quantisierten CNN-Embeddings, TensorFlow Lite Micro und Cosinus-Ähnlichkeits-basierter adaptiver Schwellenwertbestimmung.",
-        "highlights":  ["INT8-quantisiert", "Cosinus-Ähnlichkeit", "RGB-LED-Feedback"]
+        "subtitle":    "Computer-Vision-Inventar-Scanner",
+        "category":    "Computer Vision",
+        "description": "Eine Barcode-Scan-Anwendung mit Lagerverwaltung. Unterstützt mehrere Barcodeformate über OpenCV und ZBar, Echtzeit-Abfragen und Datenexport für Lager- und Einzelhandels-Workflows.",
+        "highlights":  ["Multiformatscan", "OpenCV + ZBar", "Berichte exportieren"]
       },
       {
-        "subtitle":    "Angular Single-Page-Anwendung",
-        "category":    "Frontend",
-        "description": "Demonstration von Single-Page-Application-Routing-Mustern in TypeScript und Angular – Lazy Loading, Route Guards, State Management und verschachtelte Navigationsarchitekturen.",
-        "highlights":  ["Lazy Loading", "Route Guards", "State Management"]
-      },
-      {
-        "subtitle":    "Jupyter Data-Science-Notebooks",
-        "category":    "Data-Science",
-        "description": "Sammlung von Python-Data-Science-Notebooks mit statistischer Analyse, Datenbereinigung, Feature Engineering, Visualisierung und explorativer Datenanalyse an mehreren realen Datensätzen.",
-        "highlights":  ["EDA", "Statistische Analyse", "Visualisierung"]
+        "subtitle":    "Data-Science-Notebooks",
+        "category":    "Datenanalyse",
+        "description": "Sammlung von Python-Notebooks mit statistischer Analyse, Datenbereinigung, Feature Engineering, Visualisierung und explorativer Datenanalyse an realen Datensätzen.",
+        "highlights":  ["EDA", "Feature Engineering", "Visualisierung"]
       }
     ]
   },
@@ -116,7 +124,7 @@
   "contact": {
     "tag":         "// kontakt",
     "title":       ["Lass uns", "zusammenarbeiten"],
-    "description": "Offen für Möglichkeiten in Data Analytics, Business Intelligence und Softwareentwicklung. Wohnhaft in Berlin – offen für Remote- und Vor-Ort-Stellen.",
+    "description": "Offen für Rollen in AI-/ML-Engineering, ML-Systemen und Data Science. Wohnhaft in Berlin – offen für Remote- und Vor-Ort-Stellen.",
     "labels": {
       "email":    "E-Mail",
       "phone":    "Telefon",

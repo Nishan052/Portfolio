@@ -7,21 +7,21 @@ Date: 2026-09-08
 
 ---
 
-Getting a working model onto a device takes five steps, and four of them can change the model without reporting anything.
+You train an AI model on a big computer. Then you put it on a camera. Five steps sit in between, and four can change it on the way.
 
-Training is documented exhaustively. Running inference on a device is documented well. The part in between gets a paragraph, and it is where the weeks go.
+The middle ones are the ones nobody writes about.
 
-Export rewrites your graph. The exporter fuses operations, folds constants and renames things, so the network a later tool complains about may not appear anywhere in your source code.
+First it is exported: written out in a form other tools can open. On the way, parts get merged and renamed. So the part a later tool complains about may not be in your code.
 
-Conversion shrinks the weights to integers, and how much accuracy survives depends on the sample data you hand it. This is the step most often run with a default setting and no measurement afterwards.
+Then it is converted. Your model holds numbers as decimals. Small chips want whole numbers, so every one gets rounded. How much accuracy survives depends on the sample data you give it. Most people take the default and never check.
 
-Compilation splits the network at the first operation the chip cannot handle, and hands everything after that point back to the ordinary processor. No error. No warning. An order of magnitude of performance, gone quietly.
+Then it is compiled for one specific chip. That chip cannot do every kind of sum. At the first one it cannot, it stops and hands the rest back to the slow general processor. No error. No warning.
 
-Running it surfaces the rest: thermal limits, a shared memory bus, and a cost for moving data no desktop simulator charges you.
+Then you run it. The device gets hot and slows down. Moving data costs time your laptop never charged for.
 
-None of these steps are hard. Each is simply allowed to alter your model silently, so by the time accuracy is down four points the cause is three steps back and nothing logged it.
+None of this is hard. Each step can change your model in silence. By the time you see the accuracy drop, the cause is three steps back and nothing wrote it down.
 
-I wrote up the whole path, with what each step is permitted to do to you. Part one of a series that takes the quietest steps apart.
+I wrote up the whole path, and what each step can do to your model.
 
 Full breakdown: https://nishanpoojary.com/blogs/edge-pipeline-map
 

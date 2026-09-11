@@ -1,43 +1,43 @@
 [
   {
     "id":     "01",
-    "title":  "Stock Market Price Prediction",
+    "title":  "RAG Portfolio Assistant",
     "color":  "#00e5ff",
-    "iconKey": "TrendingUp",
-    "tech":   ["Python", "Pandas", "NumPy", "LSTM", "ARIMA", "Streamlit", "GitHub Actions"],
-    "github": "https://github.com/Nishan052/Stock-Price-Prediction"
-  },
-  {
-    "id":     "02",
-    "title":  "SignalDock",
-    "color":  "#a855f7",
-    "iconKey": "Radio",
-    "tech":   ["MQTT", "Angular", "TypeScript", "WebSockets", "Python", "IoT", "Broker"],
-    "github": "https://github.com/Nishan052/SignalDock"
-  },
-  {
-    "id":     "03",
-    "title":  "Barcode Scanner",
-    "color":  "#f59e0b",
-    "iconKey": "ScanSearch",
-    "tech":   ["Python", "OpenCV", "ZBar", "SQLite", "GUI", "REST API"],
-    "github": "https://github.com/Nishan052/barcodeScanner"
-  },
-  {
-    "id":     "04",
-    "title":  "TinyML Face Verification",
-    "color":  "#10b981",
-    "iconKey": "Bot",
-    "tech":   ["Python", "TensorFlow Lite", "PyTorch", "Arduino", "C", "LiteRT"],
+    "iconKey": "Sparkles",
+    "tech":   ["Python", "FastAPI", "Vector Search", "Semantic Cache", "LLM", "Cloudflare Workers"],
     "github": "https://github.com/Nishan052"
   },
   {
+    "id":     "02",
+    "title":  "NIFTY 50 Price Forecasting",
+    "color":  "#a855f7",
+    "iconKey": "TrendingUp",
+    "tech":   ["Python", "LSTM", "ARIMA", "Pandas", "NumPy", "Streamlit", "GitHub Actions"],
+    "github": "https://github.com/Nishan052/Stock-Price-Prediction"
+  },
+  {
+    "id":     "03",
+    "title":  "TinyML Person Recognition",
+    "color":  "#10b981",
+    "iconKey": "Bot",
+    "tech":   ["Python", "TensorFlow", "Keras", "INT8 Quantization", "TFLite Micro", "Arduino", "C"],
+    "github": "https://github.com/Nishan052"
+  },
+  {
+    "id":     "04",
+    "title":  "SignalDock",
+    "color":  "#f59e0b",
+    "iconKey": "Radio",
+    "tech":   ["MQTT", "Python", "Angular", "TypeScript", "WebSockets", "IoT", "Docker"],
+    "github": "https://github.com/Nishan052/SignalDock"
+  },
+  {
     "id":     "05",
-    "title":  "SPA Routing App",
+    "title":  "Barcode Scanner",
     "color":  "#3b82f6",
-    "iconKey": "ArrowLeftRight",
-    "tech":   ["TypeScript", "Angular", "RxJS", "Lazy Loading"],
-    "github": "https://github.com/Nishan052/Routing-app"
+    "iconKey": "ScanSearch",
+    "tech":   ["Python", "OpenCV", "ZBar", "SQLite", "REST API"],
+    "github": "https://github.com/Nishan052/barcodeScanner"
   },
   {
     "id":     "06",

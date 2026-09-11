@@ -92,8 +92,8 @@ The number it prints is the one worth knowing, and it is not how many operators 
       url: 'https://onnx.ai/onnx/repo-docs/IR.html'
     },
     {
-      text: 'Poojary, N. (2026) npu-op-compat: first-unsupported-operator analysis. edge-agents.',
-      url: 'https://github.com/Nishan052/edge-agents'
+      text: 'Poojary, N. (2026) npu-op-compat: first-unsupported-operator analysis. AgentLake.',
+      url: 'https://github.com/Nishan052/AgentLake'
     },
     {
       text: 'Redmon, J. et al. (2016) "You Only Look Once: Unified, Real-Time Object Detection". CVPR.',

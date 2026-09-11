@@ -96,8 +96,8 @@ The general shape of this is worth taking away even if you never touch ONNX. Whe
       url: 'https://coral.ai/docs/edgetpu/models-intro/'
     },
     {
-      text: 'Poojary, N. (2026) npu-op-compat: a dependency-free ONNX operator reader. edge-agents.',
-      url: 'https://github.com/Nishan052/edge-agents'
+      text: 'Poojary, N. (2026) npu-op-compat: a dependency-free ONNX operator reader. AgentLake.',
+      url: 'https://github.com/Nishan052/AgentLake'
     }
   ]
 };
