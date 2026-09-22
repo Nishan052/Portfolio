@@ -75,6 +75,10 @@ async function callOllama(messages, maxTokens = 600) {
     body: JSON.stringify({
       model:    OLLAMA_LLM,
       stream:   false,
+      // Constrain decoding to valid JSON. Without it llama3.2 wrote malformed
+      // JSON on 10 of 133 chunks (an unquoted value, a bad escape), and each
+      // one fell back to an unenriched chunk.
+      format:   'json',
       options:  { temperature: 0.1, num_predict: maxTokens },
       messages,
     }),
