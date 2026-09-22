@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import siteConfig from '../../config/site';
 import './ChatWidget.css';
+import ChatMarkdown from './chatMarkdown';
 
 // ─── Inline SVGs ──────────────────────────────────────────────────────────────
 const IconChat = () => (
@@ -297,7 +298,9 @@ function ChatWidget() {
           {messages.map((msg, idx) => (
             <div key={idx} className={`chat-msg ${msg.role}`}>
               <div className="chat-bubble">
-                {msg.content}
+                {/* The model answers in Markdown. What a visitor typed stays
+                    exactly as they typed it. */}
+                {msg.role === 'assistant' ? <ChatMarkdown text={msg.content} /> : msg.content}
               </div>
             </div>
           ))}

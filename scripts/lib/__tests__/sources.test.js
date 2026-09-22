@@ -28,3 +28,16 @@ describe('every source in the repo', () => {
     expect(bad).toEqual([]);
   });
 });
+
+describe('the chatbot blog list', () => {
+  // The chatbot answers "what is the latest post" from this file, so a stale
+  // copy is a wrong answer in production. It is regenerated on every build;
+  // this catches a commit that changed a post without regenerating it.
+  test('matches the blog files', () => {
+    const { execFileSync } = require('child_process');
+    const path = require('path');
+    expect(() => execFileSync('node',
+      [path.join(__dirname, '..', '..', 'build-blog-index.js'), '--check'],
+      { stdio: 'pipe' })).not.toThrow();
+  });
+});

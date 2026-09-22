@@ -72,6 +72,33 @@ async function loadPDFs() {
 // ─── src/data/blogs/*.js ─────────────────────────────────────────────────────
 // Fields are pulled out with regexes rather than by importing the module: these
 // are ESM files using webpack's require.context, so plain Node cannot execute them.
+// Every blog post's slug, title and date, newest first: the same order the
+// blog page uses. The chatbot answers "what is the latest post" from this list,
+// because similarity search cannot rank by date.
+function listBlogs() {
+  const blogsDir = path.join(ROOT, 'src', 'data', 'blogs');
+  if (!fs.existsSync(blogsDir)) return [];
+  return fs.readdirSync(blogsDir)
+    .filter(f => f.endsWith('.js') && f !== 'index.js')
+    .map(file => {
+      const raw   = fs.readFileSync(path.join(blogsDir, file), 'utf-8');
+      const title = raw.match(/title:\s*['"`](.+?)['"`]/);
+      const date  = raw.match(/date:\s*['"`](.+?)['"`]/);
+      const id    = raw.match(/\bid:\s*(\d+)/);
+      // The series tells the model what a post is about. Without it, asked for
+      // "posts about edge AI", it guessed from titles and got one wrong.
+      const series = raw.match(/series:\s*['"`](.+?)['"`]/);
+      const part   = raw.match(/\bpart:\s*(\d+)/);
+      if (!title || !date) return null;
+      return { slug: file.replace('.js', ''), title: title[1], date: date[1],
+               series: series ? series[1] : null, part: part ? Number(part[1]) : null,
+               id: id ? Number(id[1]) : 0 };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id)
+    .map(({ id, ...post }) => post);
+}
+
 function loadBlogs() {
   const blogsDir = path.join(ROOT, 'src', 'data', 'blogs');
   if (!fs.existsSync(blogsDir)) return [];
@@ -321,4 +348,4 @@ async function loadAllSources({ only = null, sources = null } = {}) {
   return sources ? all.filter(s => sources.includes(s.id)) : all;
 }
 
-module.exports = { loadAllSources, contentHash, asciiId, SOURCE_GROUPS: ['pdfs', 'blogs', 'json'] };
+module.exports = { loadAllSources, contentHash, asciiId, listBlogs, SOURCE_GROUPS: ['pdfs', 'blogs', 'json'] };

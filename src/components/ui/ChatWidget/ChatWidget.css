@@ -277,6 +277,31 @@
   border-bottom-left-radius: 4px;
 }
 
+/* ─── Formatted answers ───────────────────────────────────────
+   Bot replies arrive as Markdown and are rendered as elements, so the bubble
+   stops preserving raw whitespace and the blocks carry their own spacing. */
+.chat-msg.assistant .chat-bubble { white-space: normal; }
+.chat-md-p { margin: 0; }
+.chat-md-p + .chat-md-p,
+.chat-md-p + .chat-md-list,
+.chat-md-list + .chat-md-p { margin-top: 0.55rem; }
+.chat-md-list { margin: 0.35rem 0 0; padding-left: 1.15rem; }
+.chat-md-list li + li { margin-top: 0.2rem; }
+.chat-bubble strong { font-weight: 600; color: var(--text); }
+.chat-bubble em { font-style: italic; }
+.chat-bubble code {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 0.8em;
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  background: var(--accent-soft);
+}
+.chat-bubble a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ─── Typing Indicator ────────────────────────────────────── */
 .chat-typing {
   display: flex;
