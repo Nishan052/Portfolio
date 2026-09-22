@@ -23,6 +23,7 @@ on:
       - 'src/data/*.json'
       - 'data/**'
       - 'scripts/sync-kb.js'
+      - 'scripts/check-groq.js'
       - 'scripts/lib/**'
       - '.github/workflows/kb-sync.yml'
 
@@ -66,6 +67,13 @@ jobs:
       - name: Unit-test the reconciliation logic
         # This code decides what gets deleted from the index — never sync on a red build.
         run: npx jest -c scripts/jest.config.js
+
+      - name: Groq models exist, and the account is on the free plan
+        # A retired model fails here, loudly, instead of degrading the sync or
+        # the chat widget in silence. A paid-looking account is a warning.
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: node scripts/check-groq.js
 
       - name: Sync knowledge base
         env:

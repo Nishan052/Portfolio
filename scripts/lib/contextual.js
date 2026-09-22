@@ -18,7 +18,12 @@
  */
 
 const GROQ_BASE      = 'https://api.groq.com/openai/v1';
-const ENRICH_MODEL   = process.env.ENRICH_MODEL    || 'llama-3.3-70b-versatile';
+// llama-3.3-70b-versatile was retired from Groq and returned 404, which the
+// fallback below absorbed silently: chunks went in unenriched and every sync
+// still reported success. gpt-oss-120b is on the free plan, and it is the chat
+// widget's second model rather than its first, so a sync does not eat the
+// budget visitors are answered from. scripts/check-groq.js fails CI if it goes.
+const ENRICH_MODEL   = process.env.ENRICH_MODEL    || 'openai/gpt-oss-120b';
 const GROQ_API_KEY   = process.env.GROQ_API_KEY;
 const ENRICH_PROVIDER= (process.env.ENRICH_PROVIDER || 'ollama').toLowerCase(); // 'ollama' | 'groq'
 const OLLAMA_BASE    = process.env.OLLAMA_BASE_URL  || 'http://localhost:11434';
@@ -40,6 +45,10 @@ async function callGroq(messages, maxTokens = 600) {
       headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: ENRICH_MODEL, stream: false, max_tokens: maxTokens, temperature: 0.1, messages,
+        // gpt-oss reasons before answering, and the reasoning counts against
+        // max_tokens. At the default effort it can spend the whole budget and
+        // return no JSON at all.
+        ...(ENRICH_MODEL.startsWith('openai/gpt-oss') && { reasoning_effort: 'low' }),
       }),
       signal: AbortSignal.timeout(30000),
     });

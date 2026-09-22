@@ -66,3 +66,15 @@ describe('roles and projects carry what the site says about them', () => {
     for (const item of en.projects.items) expect(text).toContain(item.description);
   });
 });
+
+describe('the Groq model check', () => {
+  // check-groq.js reads model ids out of the source. If it ever reads none, the
+  // live check passes vacuously, which is how two retired models went unseen.
+  test('finds every chat model and the enrichment model', () => {
+    const { modelsInCode } = require('../../check-groq');
+    const { chat, enrich } = modelsInCode();
+    expect(chat.length).toBeGreaterThanOrEqual(2);
+    for (const id of [...chat, enrich]) expect(id).toMatch(/^[\w.-]+\/[\w.-]+$|^[\w.-]+$/);
+    expect(enrich).toBeTruthy();
+  });
+});
