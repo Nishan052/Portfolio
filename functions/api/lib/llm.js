@@ -20,12 +20,20 @@ const GROQ_BASE = 'https://api.groq.com/openai/v1';
  * Both configurations keep chain-of-thought out of `delta.content`, which is the
  * only field extractGroqContent reads — so the client never sees reasoning.
  */
+// Groq meters each model separately (8,000 tokens a minute apiece on this
+// account), so every working fallback is more capacity, not just insurance.
+//
+// The chain was two models until September 2026, and the second no longer
+// existed: qwen3.6-27b returned 404, so any rate limit on the first model went
+// straight to the visitor as "AI service unavailable". Checked against
+// GET /openai/v1/models; re-check it when a fallback starts failing.
 const MODELS = [
   { id: 'openai/gpt-oss-20b',  params: { reasoning_effort: 'low'  } },
+  { id: 'openai/gpt-oss-120b', params: { reasoning_effort: 'low'  } },
   // qwen is capped at 1000 output tokens/minute on the on_demand tier, so a
   // 1024-token request is rejected outright with a 429 before it can answer.
   // Per-model params are spread last, so this overrides the call site's budget.
-  { id: 'qwen/qwen3.6-27b',    params: { reasoning_effort: 'none', max_tokens: 800 } },
+  { id: 'qwen/qwen3.8-27b',    params: { reasoning_effort: 'none', max_tokens: 800 } },
 ];
 
 /**
@@ -40,6 +48,18 @@ const MODELS = [
  * @param {string} label - Call site name, used in log and error messages
  * @returns {Promise<Response>} The first successful Groq response
  */
+const MAX_RATE_LIMIT_WAIT_S = 4;
+
+/** Seconds Groq asks us to wait, from the header or its "try again in 1.5s". */
+export function retryAfterSeconds(response, detail = '') {
+  const header = Number(response.headers?.get?.('retry-after'));
+  if (Number.isFinite(header) && header > 0) return header;
+  const m = /try again in (?:(\d+)m)?([\d.]+)(ms|s)/i.exec(detail);
+  if (!m) return null;
+  const secs = m[3] === 'ms' ? Number(m[2]) / 1000 : Number(m[2]);
+  return (m[1] ? Number(m[1]) * 60 : 0) + secs;
+}
+
 async function groqRequest(env, body, label) {
   if (!env.GROQ_API_KEY) throw new Error('GROQ_API_KEY not set in environment');
 
@@ -70,6 +90,24 @@ async function groqRequest(env, body, label) {
     }
 
     const detail = (await response.text()).slice(0, 200);
+
+    // A per-minute limit usually clears within seconds, and Groq says how many.
+    // Waiting that long once is a slow answer; not waiting is no answer. Only
+    // short waits, so a visitor is never left hanging on a long one.
+    const wait = response.status === 429 && retryAfterSeconds(response, detail);
+    if (wait && wait <= MAX_RATE_LIMIT_WAIT_S) {
+      await new Promise(r => setTimeout(r, Math.ceil(wait * 1000) + 250));
+      const again = await fetch(`${GROQ_BASE}/chat/completions`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...body, model: model.id, ...model.params }),
+      }).catch(() => null);
+      if (again?.ok) {
+        console.warn(`${label}: rate limited on ${model.id}, answered after waiting ${wait}s`);
+        return again;
+      }
+    }
+
     failures.push(`${model.id}: ${response.status} ${detail}`);
 
     // A rejected key fails identically on every model — stop rather than

@@ -18,7 +18,7 @@ import { embedText }        from './lib/embed.js';
 import { streamGroq, extractGroqContent, expandToSubQueries } from './lib/llm.js';
 import { queryPinecone }    from './lib/pinecone.js';
 import { checkRateLimit, getExactCache, setExactCache } from './lib/cache.js';
-import { buildSystemPrompt, formatContext } from './lib/system-prompt.js';
+import { buildSystemPrompt, formatContext, PROMPT_VERSION } from './lib/system-prompt.js';
 import {
   ALLOWED_ORIGINS,
   PRIMARY_ORIGIN,
@@ -150,7 +150,9 @@ export async function onRequestPost({ request, env }) {
 
   // 4. Exact cache check — key includes lang so EN/DE responses don't collide
   // M2: Cache hit/miss tracking
-  const cacheKey = lang === 'de' ? `de:${message}` : message;
+  // Versioned by the prompt and facts it was answered from: without it, a
+  // corrected answer stayed hidden behind the cached wrong one for a day.
+  const cacheKey = `${PROMPT_VERSION}:${lang === 'de' ? `de:${message}` : message}`;
   const cached = await getExactCache(env, cacheKey);
   if (cached) {
     if (logger) {

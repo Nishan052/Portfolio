@@ -132,3 +132,20 @@ export function formatContext(chunks) {
     })
     .join('\n\n');
 }
+
+/**
+ * A fingerprint of everything an answer depends on besides retrieval: the
+ * prompt wording and the generated facts, posts and roles. Part of the cache
+ * key, so a deploy that changes any of them retires every cached answer
+ * instead of serving the old one for up to 24 hours. FNV-1a: synchronous, and
+ * a cache key needs to be distinct, not secret.
+ */
+export const PROMPT_VERSION = (() => {
+  const text = buildSystemPrompt('', 'en') + buildSystemPrompt('', 'de');
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(36);
+})();
