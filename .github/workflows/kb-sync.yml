@@ -13,13 +13,18 @@ on:
   schedule:
     - cron: '0 4 * * 1'
 
-  # Immediate indexing when content lands on main.
+  # Immediate indexing when content lands on main, or when the code that
+  # decides what gets indexed changes. Without the last two, a fix to the sync
+  # itself sat unrun until the next Monday.
   push:
     branches: [main, master]
     paths:
       - 'src/data/blogs/**'
       - 'src/data/*.json'
       - 'data/**'
+      - 'scripts/sync-kb.js'
+      - 'scripts/lib/**'
+      - '.github/workflows/kb-sync.yml'
 
   workflow_dispatch:
     inputs:
