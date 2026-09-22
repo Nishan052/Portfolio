@@ -21,7 +21,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "prebuild": "node scripts/build-blog-index.js",
+    "prebuild": "node scripts/build-site-index.js",
     "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test": "react-scripts test",
     "test:retrieval": "node tests/retrieval-quality.test.js --verbose",

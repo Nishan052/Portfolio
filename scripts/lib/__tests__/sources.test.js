@@ -29,15 +29,40 @@ describe('every source in the repo', () => {
   });
 });
 
-describe('the chatbot blog list', () => {
+describe('the chatbot site index', () => {
   // The chatbot answers "what is the latest post" from this file, so a stale
   // copy is a wrong answer in production. It is regenerated on every build;
   // this catches a commit that changed a post without regenerating it.
-  test('matches the blog files', () => {
+  test('matches the data and blog files', () => {
     const { execFileSync } = require('child_process');
     const path = require('path');
     expect(() => execFileSync('node',
-      [path.join(__dirname, '..', '..', 'build-blog-index.js'), '--check'],
+      [path.join(__dirname, '..', '..', 'build-site-index.js'), '--check'],
       { stdio: 'pipe' })).not.toThrow();
+  });
+});
+
+describe('roles and projects carry what the site says about them', () => {
+  // The chatbot only knows what is indexed. It used to get titles and tech
+  // lists alone, so asked about edge AI it could not mention the current role's
+  // edge deployment work, which the site describes in plain sight.
+  const fs = require('fs');
+  const path = require('path');
+  const read = (...p) => JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'src', ...p), 'utf-8'));
+
+  test('every role and project has its translated description, one for one', () => {
+    const en = read('i18n', 'en.json');
+    expect(en.experience.items).toHaveLength(read('data', 'experience.json').length);
+    expect(en.projects.items).toHaveLength(read('data', 'projects.json').length);
+  });
+
+  test('the indexed text includes those descriptions', async () => {
+    const en = read('i18n', 'en.json');
+    const sources = await loadAllSources({ only: ['json'] });
+    const text = sources.map(s => s.text).join('\n');
+    for (const item of en.experience.items) {
+      for (const h of item.highlights) expect(text).toContain(h);
+    }
+    for (const item of en.projects.items) expect(text).toContain(item.description);
   });
 });

@@ -43,13 +43,24 @@ function sanitizeContext(text) {
  * @param {string} [lang='en']      - Response language: 'en' or 'de'
  * @returns {string} Full system prompt
  */
-// Generated from src/data/blogs by scripts/build-blog-index.js on every build.
+// Generated from src/data and src/i18n by scripts/build-site-index.js on every build.
 // Retrieval ranks by similarity, so it cannot answer "what is the latest post":
 // it once named an August post weeks after four newer ones went up. The list
 // lets the model answer from dates instead of from whichever chunk matched.
-import BLOG_INDEX from './blog-index.js';
+import { HEADLINE, ROLES, PROJECTS, POSTS as BLOG_INDEX } from './site-index.js';
 
 const RECENT_POSTS = 10;
+
+export function formatRoles(roles = ROLES) {
+  return roles.map(r =>
+    `${r.role} at ${r.company} (${r.period}${r.type ? `, ${r.type.toLowerCase()}` : ''})` +
+    (r.summary ? `: ${r.summary}` : '')).join('; ');
+}
+
+export function formatProjects(projects = PROJECTS) {
+  return projects.map(p =>
+    `${p.title}${p.subtitle ? ` (${p.subtitle}` : ' ('}${p.subtitle ? ', ' : ''}${p.tech.join('/')})`).join(', ');
+}
 
 export function formatBlogIndex(posts = BLOG_INDEX, limit = RECENT_POSTS) {
   if (!posts.length) return '';
@@ -66,14 +77,14 @@ export function buildSystemPrompt(retrievedContext, lang = 'en') {
     ? 'IMPORTANT: You must always respond in German (Deutsch), regardless of the language the user writes in. All your answers must be in German.'
     : 'Respond in English.';
 
-  return `You are an AI assistant for Nishan Poojary's portfolio website. Help visitors learn about Nishan — a Senior Software Developer and MEng student based in Berlin, Germany.
+  return `You are an AI assistant for Nishan Poojary's portfolio website. Help visitors learn about Nishan: ${HEADLINE || 'AI/ML engineer'}, and an MEng student based in Berlin, Germany.
 
 ${langInstruction}
 
 Key facts about Nishan:
-- Work: Senior Software Developer at Novigo Solutions (Jun 2023–Feb 2025, Angular/TypeScript/Salesforce); Senior System Engineer at Infosys Helix (May 2021 – Jun 2023, Angular/Git/Jira/Swagger/Spring Boot/Java/Healthcare)
+- Work, most recent first: ${formatRoles()}
 - Education: MEng Business Intelligence & Data Analytics at Hochschule Emden/Leer (started Mar 2025, Grade 1.45); BE Mechanical Engineering, VTU (2016–2020, CGPA 7.3)
-- Projects: Stock Market Price Prediction (LSTM/ARIMA, MAPE < 3%), SignalDock (MQTT IoT platform), Barcode Scanner (OpenCV/Python), TinyML Face Verification (Arduino/INT8 CNN), SPA Routing App (Angular), Python Data Notebooks
+- Projects: ${formatProjects()}
 - Skills: Python, R, SQL, Power BI, Tableau, TensorFlow, Angular, React, TypeScript, Spring Boot, Salesforce
 - Languages: English (C1), German (A2), Kannada (C1), Hindi (C1), Tulu (C1)
 - Contact: nishanchandrashekarpoojary@gmail.com | GitHub: github.com/Nishan052 | LinkedIn: linkedin.com/in/nishan-chandrashekar-poojary-756147184/
@@ -84,13 +95,14 @@ ${formatBlogIndex()}
 
 Guidelines:
 1. Answer primarily based on the context provided below. For which post is latest, newest or most recent, or how many posts there are, use the blog list above, never the context
-2. For details not in the context, use the key facts above
-3. If still unsure, say: "I don't have specific details on that. You can reach Nishan at nishanchandrashekarpoojary@gmail.com"
-4. Cite specific projects, roles, or dates when relevant
-5. Keep answers concise (2-4 sentences unless more detail is asked for)
-6. Never fabricate statistics, dates, or technologies
-7. Be professional but warm and approachable in tone
-8. Format answers in Markdown: **bold** for a post title or key term, and a short bulleted list only when listing several items
+2. When asked what Nishan knows, does or has written about a topic, cover all three: his current role, his projects, and his posts in the matching series from the blog list. Posts show what he knows as much as projects do
+3. For details not in the context, use the key facts above
+4. If still unsure, say: "I don't have specific details on that. You can reach Nishan at nishanchandrashekarpoojary@gmail.com"
+5. Cite specific projects, roles, or dates when relevant
+6. Keep answers concise (2-4 sentences unless more detail is asked for)
+7. Never fabricate statistics, dates, or technologies
+8. Be professional but warm and approachable in tone
+9. Format answers in Markdown: **bold** for a post title or key term, and a short bulleted list only when listing several items
 
 Relevant context from Nishan's portfolio:
 ---

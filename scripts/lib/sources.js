@@ -99,6 +99,32 @@ function listBlogs() {
     .map(({ id, ...post }) => post);
 }
 
+// The chatbot's standing facts about work and projects, generated rather than
+// typed into the prompt. Typed by hand, they still named a job that ended in
+// February 2025 and projects the site no longer shows.
+function listRoles() {
+  const roles = readJSON('experience.json') || [];
+  const tx = siteText('experience');
+  return roles.map((r, i) => ({
+    role: r.role.replace(/\s*→\s*/g, ' to ').replace(/\s+/g, ' ').trim(),
+    company: r.company, period: `${r.period} to ${r.end}`,
+    type: tx[i]?.type || null,
+    summary: tx[i]?.highlights?.[0] || null,
+  }));
+}
+
+function listProjects() {
+  const projects = readJSON('projects.json') || [];
+  const tx = siteText('projects');
+  return projects.map((p, i) => ({
+    title: p.title, subtitle: tx[i]?.subtitle || null, tech: p.tech.slice(0, 5),
+  }));
+}
+
+function siteHeadline() {
+  return readJSON('..', 'i18n', 'en.json')?.hero?.role || null;
+}
+
 function loadBlogs() {
   const blogsDir = path.join(ROOT, 'src', 'data', 'blogs');
   if (!fs.existsSync(blogsDir)) return [];
@@ -157,19 +183,33 @@ function readJSON(...segments) {
   return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf-8')) : null;
 }
 
+// What a visitor actually reads about each role and project lives in the
+// English translation file, paired with the data files by position, exactly as
+// ExperienceSection and ProjectsSection pair them. Without it the knowledge base
+// held job titles and tech lists only, so the chatbot could not say what any
+// role involved and filled the gap with guesses.
+function siteText(section) {
+  const en = readJSON('..', 'i18n', 'en.json');
+  return en?.[section]?.items || [];
+}
+
 function loadExperience() {
   const expData = readJSON('experience.json');
   if (!expData) return [];
 
-  return expData.map(role => {
+  const described = siteText('experience');
+
+  return expData.map((role, i) => {
+    const tx = described[i] || {};
     const text = `
 Role: ${role.role}
 Company: ${role.company}
 Period: ${role.period} to ${role.end} (${role.duration})
 Location: ${role.location}
-Skills: ${role.skills.join(', ')}
+${tx.type ? `Type: ${tx.type}\n` : ''}Skills: ${role.skills.join(', ')}
 ${role.subRoles ? `\nProgression:\n${role.subRoles.map(r => `- ${r.title} (${r.period})`).join('\n')}` : ''}
-      `.trim();
+${tx.highlights?.length ? `\nWhat the role involves:\n${tx.highlights.map(h => `- ${h}`).join('\n')}` : ''}
+      `.trim().replace(/\n{3,}/g, '\n\n');
 
     const id = `experience_${role.company.replace(/\s+/g, '_').toLowerCase()}`;
     return makeSource(id, 'work_experience', text, { company: role.company });
@@ -180,12 +220,17 @@ function loadProjects() {
   const projData = readJSON('projects.json');
   if (!projData) return [];
 
-  return projData.map(project => {
+  const described = siteText('projects');
+
+  return projData.map((project, i) => {
+    const tx = described[i] || {};
     const text = `
-Project: ${project.title}
-Technologies: ${project.tech.join(', ')}
+Project: ${project.title}${tx.subtitle ? ` (${tx.subtitle})` : ''}
+${tx.category ? `Category: ${tx.category}\n` : ''}Technologies: ${project.tech.join(', ')}
 GitHub: ${project.github}
-      `.trim();
+${tx.description ? `\n${tx.description}` : ''}
+${tx.highlights?.length ? `\nHighlights: ${tx.highlights.join('; ')}` : ''}
+      `.trim().replace(/\n{3,}/g, '\n\n');
 
     const id = `project_${project.title.replace(/\s+/g, '_').toLowerCase().slice(0, 30)}`;
     return makeSource(id, 'project', text, { projectTitle: project.title });
@@ -348,4 +393,4 @@ async function loadAllSources({ only = null, sources = null } = {}) {
   return sources ? all.filter(s => sources.includes(s.id)) : all;
 }
 
-module.exports = { loadAllSources, contentHash, asciiId, listBlogs, SOURCE_GROUPS: ['pdfs', 'blogs', 'json'] };
+module.exports = { loadAllSources, contentHash, asciiId, listBlogs, listRoles, listProjects, siteHeadline, SOURCE_GROUPS: ['pdfs', 'blogs', 'json'] };
