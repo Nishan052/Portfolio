@@ -25,8 +25,24 @@ function contentHash(text) {
   return crypto.createHash('sha256').update(text, 'utf8').digest('hex').slice(0, 16);
 }
 
+// Pinecone rejects any vector ID that is not ASCII ("Vector ID must be ASCII").
+// IDs are built from names in the data files, and names are not ASCII:
+// "Georg Schröder" made every sync fail from the commit that added it.
+//
+// Only non-ASCII characters change. An ID that is already ASCII comes out byte
+// for byte identical, which matters because the ID is how sync recognises a
+// vector it has already indexed: changing existing IDs would re-embed them as
+// new and prune the old ones as orphans.
+const GERMAN = { ä: 'ae', ö: 'oe', ü: 'ue', Ä: 'Ae', Ö: 'Oe', Ü: 'Ue', ß: 'ss' };
+function asciiId(id) {
+  return id
+    .replace(/[äöüÄÖÜß]/g, c => GERMAN[c])
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')   // é -> e
+    .replace(/[^\x20-\x7E]/g, '_');                      // anything left
+}
+
 function makeSource(id, type, text, metadata = {}) {
-  return { id, type, text, metadata, contentHash: contentHash(text) };
+  return { id: asciiId(id), type, text, metadata, contentHash: contentHash(text) };
 }
 
 // ─── PDFs in data/ ───────────────────────────────────────────────────────────
@@ -305,4 +321,4 @@ async function loadAllSources({ only = null, sources = null } = {}) {
   return sources ? all.filter(s => sources.includes(s.id)) : all;
 }
 
-module.exports = { loadAllSources, contentHash, SOURCE_GROUPS: ['pdfs', 'blogs', 'json'] };
+module.exports = { loadAllSources, contentHash, asciiId, SOURCE_GROUPS: ['pdfs', 'blogs', 'json'] };
