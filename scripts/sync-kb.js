@@ -146,6 +146,7 @@ function writeJobSummary(report) {
     ['Unchanged (skipped)', report.unchanged.length],
     ['Stale chunks removed', report.staleChunksDeleted.length],
     ['Orphan sources pruned', report.orphansPruned.length],
+    ['Indexed WITHOUT enrichment', (report.unenriched || []).length],
   ];
 
   const lines = [
@@ -226,6 +227,7 @@ async function main() {
     unchanged: unchanged.map(s => s.id),
     orphansPruned: [],
     staleChunksDeleted: [],
+    unenriched: [],
     errors: [],
   };
 
@@ -261,6 +263,14 @@ async function main() {
   for (const task of toIngest) {
     console.log(`\n[${task.reason.toUpperCase()}] ${task.source.id}`);
     const vectors = await vectorizeSource(task.source);
+
+    // Enrichment falls back to bare text rather than failing the sync, which is
+    // right: unenriched content still beats unindexed content. It must not be
+    // silent, though. A retired model once left 133 chunks bare across a month
+    // of syncs that all reported success.
+    for (const v of vectors) {
+      if (!v.metadata.keyPoints?.length && !v.metadata.keyTerms?.length) report.unenriched.push(v.id);
+    }
     await upsertBatched(index, vectors);
 
     // A shorter rewrite leaves high-index chunks behind; they would keep
@@ -288,6 +298,13 @@ async function main() {
 
   const after = await index.describeIndexStats();
   report.vectorsAfter = after.totalRecordCount ?? null;
+
+  if (report.unenriched.length) {
+    const msg = `${report.unenriched.length} chunk(s) indexed without enrichment. ` +
+                'Check the enrichment model, then run: node scripts/reenrich.js';
+    console.warn(`\n[WARN] ${msg}`);
+    if (process.env.GITHUB_ACTIONS) console.log(`::warning::${msg}`);
+  }
 
   console.log('\n[OK] Sync complete.');
   console.log(`     Vectors: ${report.vectorsBefore} → ${report.vectorsAfter}`);
