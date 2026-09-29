@@ -30,7 +30,7 @@ export function createContext(root, host) {
     scenes: Array.from(root.querySelectorAll(".dk-scene")),
 
     /** pointer target, parallax and highlighted work domain: shared with the WebGL engine */
-    st: { rx: 0, ry: 0, nx: 0, ny: 0, mx: 0, my: 0, on: 0, mxT: 0, myT: 0, onT: 0, vel: 0, open: 0, hole: 0, foc: 0, focI: host.roleCount - 1 },
+    st: { rx: 0, ry: 0, nx: 0, ny: 0, mx: 0, my: 0, on: 0, mxT: 0, myT: 0, onT: 0, vel: 0, open: 0, hole: 0, foc: 0, focI: 0 },
     /** viewport size, refreshed on resize */
     view: { W: window.innerWidth, H: window.innerHeight },
     /** scene index, gesture lock, the live engine (null until it loads, or if WebGL is unavailable) */

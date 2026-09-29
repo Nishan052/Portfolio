@@ -124,3 +124,18 @@ back with the rotation's transpose. Checked on the helix at two cursor positions
   plane, or the front surface of the globe/planet when the cursor is over one), radial push in 3D, converted back to the
   group's space with the rotation transpose. Radius = `uRad` (about 15% of the smaller screen side).
   Checked in Chrome: hero letters (round clearing), globe limb (small notch), helix earlier (round clearing).
+
+---
+
+# Four fixes: globe caption, forecast labels, experience outlines, role order
+
+1. **Globe caption vs dock.** `placeOverlays` (gl/engine.js) now measures the caption after its text is set and keeps it clear
+   of the dock: it slides to the right of the dock when there is room, otherwise lifts above it. Verified: caption
+   1067-1234 x 635-675 vs dock 490-1056 x 638-686 (no overlap) with the clock text showing.
+2. **Forecast labels.** "history" / "forecast" in the NIFTY demo moved below the baseline (y 147), clear of the candles.
+3. **Experience glow.** Removed the moving repel bubble (`uFoc`, `WORK_C`). Each employer now has a thin outline (2px, tags
+   20-23) drawn on top of its thick border: the ship, tall, middle and small building. The selected role's outline
+   lights up (`uPart`: previous, current, crossfade, scene weight) with a cross-fade when the role changes.
+4. **Order.** Role tabs are newest first (Maritime 2026 ... Consulting 2021); the first tab is selected on entry and the
+   tour runs newest to oldest. Tab k lights outline k (ship, tall, middle, small).
+Tests updated (Experience order); 152 pass.

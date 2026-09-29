@@ -59,12 +59,14 @@ describe("About", () => {
 
 describe("Experience", () => {
   const deck = { selectRole: jest.fn(), hoverRole: jest.fn(), focusRole: jest.fn() };
-  test("one tab per role, oldest first, with only the selected panel shown", () => {
-    const { container } = render(<Experience t={t} role={experience.length - 1} deck={() => deck} />);
+  test("one tab per role, newest first, with only the selected panel shown", () => {
+    const { container } = render(<Experience t={t} role={0} deck={() => deck} />);
     const tabs = screen.getAllByRole("tab");
     expect(tabs).toHaveLength(experience.length);
-    expect(tabs[tabs.length - 1]).toHaveAttribute("aria-selected", "true");
-    expect(tabs[0]).toHaveAttribute("aria-selected", "false");
+    expect(tabs[0]).toHaveTextContent(String(experience[0].period.split(" ").pop()));   // the latest role is first
+    expect(tabs[tabs.length - 1]).toHaveTextContent(String(experience[experience.length - 1].period.split(" ").pop()));
+    expect(tabs[0]).toHaveAttribute("aria-selected", "true");
+    expect(tabs[tabs.length - 1]).toHaveAttribute("aria-selected", "false");
     expect(container.querySelectorAll(".dk-role.dk-on")).toHaveLength(1);
   });
   test("clicking a tab hands the choice to the controller", () => {

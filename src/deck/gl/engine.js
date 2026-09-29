@@ -47,7 +47,7 @@ export function createEngine({ root, mount, host, theme, state }) {
   canvas.className = "dk-gl"; canvas.setAttribute("aria-hidden", "true");
   let W = window.innerWidth, H = window.innerHeight, VH = H;
   let U = null, GL = null, targets = [], N = 0, drawN = 0;
-  let PLANET_R = 100, GLOBE_R = 150, HELIX_H = 200, WORK_C = [];
+  let PLANET_R = 100, GLOBE_R = 150, HELIX_H = 200;
   let themeName = theme === "light" ? "light" : "dark";
   const st = state;
   const M = { a: 0, b: 0, t: 0 };
@@ -55,6 +55,7 @@ export function createEngine({ root, mount, host, theme, state }) {
   let lastT = 0, fpsAcc = 0, fpsN = 0, lastInside = false;
   let glHeartbeat = 0, glRecoverTries = 0, watchdog = null, disposed = false, failed = false;
   let impulse = 0, prevT = null, lastBerlinTxt = "";
+  let partFrom = state.focI, partTo = state.focI, partT = 1;   // experience outlines: previous / current / crossfade
   const cap = root.querySelector(".dk-globe-cap"), capSub = root.querySelector(".dk-globe-cap-sub");
   const chromaR = root.querySelector("#dk-chroma-r"), chromaB = root.querySelector("#dk-chroma-b");
 
@@ -82,7 +83,7 @@ export function createEngine({ root, mount, host, theme, state }) {
 
   function rebuildTargets() {
     const b = buildAll(W, VH, N, host.nameBox && host.nameBox());
-    targets = b.targets; WORK_C = b.WORK_C; PLANET_R = b.PLANET_R; GLOBE_R = b.GLOBE_R; HELIX_H = b.HELIX_H;
+    targets = b.targets; PLANET_R = b.PLANET_R; GLOBE_R = b.GLOBE_R; HELIX_H = b.HELIX_H;
     U.uGR.value = GLOBE_R; U.uHelixH.value = HELIX_H;
   }
 
@@ -124,7 +125,7 @@ export function createEngine({ root, mount, host, theme, state }) {
       uHelixH: { value: HELIX_H }, uFun: { value: 0 }, uWarp: { value: 0 }, uShake: { value: 0 }, uMaskX: { value: 0 },
       uMaskA: { value: 0 }, uHole: { value: 0 }, uCamZ: { value: camera.position.z }, uLight: { value: p.light }, uAlphaK: { value: p.alphaK }, uDustDim: { value: p.light * DUST_DIM },
       uMouse: { value: V3(9999, 9999, 0) }, uHoleC: { value: V3(9999, 9999, 0) },
-      uRip: { value: new THREE.Vector4(0, 0, -99, 0) }, uFoc: { value: new THREE.Vector4(0, 0, 120, 0) },
+      uRip: { value: new THREE.Vector4(0, 0, -99, 0) }, uPart: { value: new THREE.Vector4(0, 0, 1, 0) },
       uFunT: { value: new THREE.Vector2() }, uMouseW: { value: new THREE.Vector3(9999, 9999, 0) }, uFunS: { value: new THREE.Vector2(60, 30) },
       cIce: { value: C(p.ice) }, cVio: { value: C(p.vio) }, cAmb: { value: C(p.amb) }, cWat: { value: C(p.wat) }, cCya: { value: C(p.cya) }, cBer: { value: C(p.ber) },
     };
@@ -223,12 +224,21 @@ export function createEngine({ root, mount, host, theme, state }) {
     const vis5 = w5 > 0.3 && host.getCur() === 5;
     cap.style.opacity = vis5 ? 1 : 0; cap.style.visibility = vis5 ? "visible" : "hidden";
     if (!vis5) return;
-    const cx2 = W / 2 + pts.position.x, cy2 = VH / 2 - pts.position.y + U.uGR.value * 1.12;
-    cap.style.left = cx2 + "px"; cap.style.top = Math.min(cy2, VH - 44) + "px";
     // hover the glow point: the caption becomes a live Berlin clock instead of the hint text
     const lb = host.labels(), inHere = root.classList.contains("dk-in-globe");
-    const txt = inHere && berlinFmt ? berlinFmt.format(new Date()) + " · " + lb.localTime : (host.fine ? lb.enter : lb.touch);
+    const txt = inHere && berlinFmt ? berlinFmt.format(new Date()) + " \u00b7 " + lb.localTime : (host.fine ? lb.enter : lb.touch);
     if (capSub && txt !== lastBerlinTxt) { capSub.textContent = txt; lastBerlinTxt = txt; }
+
+    // Sit under the globe, but never on the dock: if the caption would touch it, slide it clear to the side of the
+    // dock when there is room, otherwise lift it above.
+    const capW = cap.offsetWidth, capH = cap.offsetHeight;
+    let left = W / 2 + pts.position.x, top = VH / 2 - pts.position.y + U.uGR.value * 1.12;
+    const dock = root.querySelector(".dk-dock"), d = dock && dock.getBoundingClientRect();
+    if (d && left + capW / 2 > d.left - 12 && left - capW / 2 < d.right + 12 && top + capH > d.top - 8) {
+      const slid = d.right + 12 + capW / 2;
+      if (slid + capW / 2 <= W - 12 && left >= d.left) left = Math.max(left, slid); else top = d.top - 8 - capH;
+    }
+    cap.style.left = left + "px"; cap.style.top = Math.max(0, Math.min(top, VH - capH - 12)) + "px";
   }
 
   function frame(time) {
@@ -281,7 +291,10 @@ export function createEngine({ root, mount, host, theme, state }) {
 
     // work scene: the highlighted domain glows (hover a tab, or it tours by itself)
     const w2 = wOf(2); st.foc += ((w2 > 0.5 ? 1 : 0) - st.foc) * (1 - Math.exp(-dt * 5));
-    const wc = WORK_C[st.focI]; if (wc) U.uFoc.value.set(wc[0], wc[1], wc[2], st.foc * 0.9);
+    // the selected employer's outline glows; changing role cross-fades from the previous outline to the new one
+    if (st.focI !== partTo) { partFrom = partTo; partTo = st.focI; partT = 0; }
+    partT = Math.min(1, partT + dt * 3.5);
+    U.uPart.value.set(partFrom, partTo, partT * partT * (3 - 2 * partT), st.foc);
 
     placeOverlays(w4, w5, pts);
 

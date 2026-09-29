@@ -7,6 +7,9 @@ import LAND_B64 from './landmask';
 export const LAT_B = 52.52 * Math.PI / 180;
 export const LON_B = 13.40 * Math.PI / 180;
 
+/** Tag of the first employer outline in the experience scene (tags OUTLINE_TAG .. +3, one per role tab). */
+export const OUTLINE_TAG = 20;
+
 /** Where the "group" scenes (about, planet, globe) sit, and how big they are. */
 export function layout(W, VH) { return { cx: W * .235, cy: -VH * .02, size: Math.min(W * .46, VH * .84) }; }
 
@@ -41,7 +44,7 @@ export function fitName(W, VH, box) {
 
 /** Build all six targets for a viewport of W x VH with N particles. `nameBox` is the free band for the name (see fitName). */
 export function buildAll(W, VH, N, nameBox) {
-  var PLANET_R = 100, GLOBE_R = 150, HELIX_H = 200, WORK_C = [];
+  var PLANET_R = 100, GLOBE_R = 150, HELIX_H = 200;
 function rnd(a,b){return a+Math.random()*(b-a)}
 function gauss(){var u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
 function makeTarget(fn){
@@ -115,7 +118,6 @@ function helixFn(S){
 /* experience: a career skyline and the maritime ship, four landmarks the domain tabs glow */
 function workLayers(){
   var cw=700, ch=520, base=400, rr=Math.random;
-  var C=[[75,335],[195,275],[330,235],[560,420]];
   var ice=raster(cw,ch,function(g){
     g.fillStyle='#fff'; g.strokeStyle='#fff'; g.lineWidth=4;
     [[30,90,130],[140,110,250],[270,120,330]].forEach(function(b){
@@ -145,7 +147,17 @@ function workLayers(){
     g.strokeStyle='#fff'; g.lineWidth=3;
     for(var r=0;r<4;r++){ g.beginPath(); for(var x=0;x<=cw;x+=8){ var y=base+58+r*17+Math.sin(x*.045+r)*4; if(x===0) g.moveTo(x,y); else g.lineTo(x,y) } g.stroke() }
   });
-  return {w:cw,h:ch,C:C,layers:[{p:pixPts(ice,cw,ch,2),tag:0,wgt:50},{p:pixPts(vio,cw,ch,2),tag:1,wgt:14},{p:pixPts(amb,cw,ch,1),tag:2,wgt:12},{p:pixPts(wat,cw,ch,3),tag:3,wgt:24}]};
+  // One thin outline per employer, in the order of the role tabs (newest first): the ship, then the tall, middle and
+  // small buildings. Tagged OUTLINE_TAG + part so the shader can light exactly one of them as its role is selected.
+  function outline(draw){ return pixPts(raster(cw,ch,function(g){ g.strokeStyle='#fff'; g.lineWidth=2; draw(g) }),cw,ch,1) }
+  var parts=[
+    outline(function(g){ g.beginPath(); g.moveTo(430,base-6); g.lineTo(690,base-6); g.lineTo(660,base+50); g.lineTo(456,base+50); g.closePath(); g.stroke(); g.strokeRect(628,base-84,52,78) }),
+    outline(function(g){ g.strokeRect(270,base-330,120,330); g.beginPath(); g.moveTo(325.5,base-376); g.lineTo(325.5,base-330); g.stroke() }),
+    outline(function(g){ g.strokeRect(140,base-250,110,250) }),
+    outline(function(g){ g.strokeRect(30,base-130,90,130) })
+  ];
+  var glow=parts.map(function(p,i){ return {p:p,tag:OUTLINE_TAG+i,wgt:[3.5,3.5,2.6,2.2][i]} });
+  return {w:cw,h:ch,layers:[{p:pixPts(ice,cw,ch,2),tag:0,wgt:50},{p:pixPts(vio,cw,ch,2),tag:1,wgt:14},{p:pixPts(amb,cw,ch,1),tag:2,wgt:12},{p:pixPts(wat,cw,ch,3),tag:3,wgt:24}].concat(glow)};
 }
 
 /* toolkit: a banded planet with a ringed system (tags 9/10 planet, 8 ring; spun in the shader) */
@@ -225,7 +237,6 @@ function buildTargets(){
   // 2 experience
   var K=workLayers(), kk=Math.min(W*.47,VH*.8)/K.w;
   t.push(makeTarget(layerFn(K.layers,K.w,K.h,L.cx,L.cy,kk,.05)));
-  WORK_C=K.C.map(function(c){return [L.cx+(c[0]-K.w/2)*kk, L.cy-(c[1]-K.h/2)*kk, 96*kk]});
   // 3 projects: a dense data grid covering the whole background, waving continuously (tag 4)
   t.push(makeTarget(function(){
     if(Math.random()<.05) return dust();
@@ -241,5 +252,5 @@ function buildTargets(){
   return t;
 }
   var targets = buildTargets();
-  return { targets: targets, WORK_C: WORK_C, PLANET_R: PLANET_R, GLOBE_R: GLOBE_R, HELIX_H: HELIX_H };
+  return { targets: targets, PLANET_R: PLANET_R, GLOBE_R: GLOBE_R, HELIX_H: HELIX_H };
 }

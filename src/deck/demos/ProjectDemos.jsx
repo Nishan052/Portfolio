@@ -63,8 +63,8 @@ export const DemoCandles = ({ t }) => (
         </g>
       );
     })}
-    <text x="26" y="20" className="dk-m-fill" style={MONO} fontSize="11">{t("deck.demos.history")}</text>
-    <text x="330" y="20" className="dk-a-fill" style={MONO} fontSize="11">{t("deck.demos.forecast")}</text>
+    <text x="26" y="147" className="dk-m-fill" style={MONO} fontSize="10">{t("deck.demos.history")}</text>
+    <text x="330" y="147" className="dk-a-fill" style={MONO} fontSize="10">{t("deck.demos.forecast")}</text>
   </Frame>
 );
 

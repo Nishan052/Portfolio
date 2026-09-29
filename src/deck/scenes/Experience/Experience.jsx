@@ -3,8 +3,8 @@ import { SCENE } from "../../controller/constants";
 import { Scene, Split, Chip } from "../shared";
 import "./Experience.css";
 
-// oldest to newest, so the four domain tabs read left to right like the icons on the route
-const CHRON = [3, 2, 1, 0];
+// newest first (experience.json is already newest first); tab k lights the k-th outline in the skyline: ship, tall, middle, small
+const ORDER = [0, 1, 2, 3];
 
 export default function Experience({ t, role, deck }) {
   const items = t("experience.items", { returnObjects: true });
@@ -15,7 +15,7 @@ export default function Experience({ t, role, deck }) {
         <p className="dk-mono dk-mute dk-kick" data-in>{t("experience.tag")}</p>
         <Split id="exp-h" text={t("deck.experience.title")} />
         <div className="dk-tabs" role="tablist" aria-label={t("deck.experience.roles")} data-in>
-          {CHRON.map((idx, k) => {
+          {ORDER.map((idx, k) => {
             const e = experience[idx];
             return (
               <button key={idx} className="dk-tab" role="tab" type="button" id={`dk-tab${k}`} aria-controls={`dk-role${k}`}
@@ -28,7 +28,7 @@ export default function Experience({ t, role, deck }) {
           })}
         </div>
         <div data-in>
-          {CHRON.map((idx, k) => {
+          {ORDER.map((idx, k) => {
             const e = experience[idx], tx = (Array.isArray(items) && items[idx]) || {};
             return (
               <article key={idx} className={`dk-role dk-veil${role === k ? " dk-on" : ""}`} role="tabpanel" id={`dk-role${k}`} aria-labelledby={`dk-tab${k}`}>

@@ -34,7 +34,7 @@ function Deck({ simple, instant, toggleTheme }) {
   const deckRef = useRef(null);
   const carRef = useRef(null);
   const [cur, setCur] = useState(() => Math.max(0, sceneFromHash(window.location.hash)));
-  const [role, setRole] = useState(ROLE_COUNT - 1);          // newest role first
+  const [role, setRole] = useState(0);          // newest role first
   const [booting, setBooting] = useState(() => !simple && !hasBooted());
   const [ixOpen, setIxOpen] = useState(false);
   const [toast, setToast] = useState("");
