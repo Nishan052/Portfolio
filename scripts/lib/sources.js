@@ -262,23 +262,37 @@ function loadCV() {
   const out = [];
   const p = cv.personal_information;
 
+  // Phone is deliberately NOT embedded. It stayed in cv.json (it belongs on the
+  // CV) but once it was retrievable the chatbot answered "give me his phone
+  // number" with it — and transposed two digits doing so. Email is the only
+  // contact channel the assistant should ever hand out.
   out.push(makeSource('cv_personal', 'personal_info', `
 Name: ${p.name}
 Location: ${p.location}
 Work Authorization: ${p.work_authorization}
 Email: ${p.email}
-Phone: ${p.phone}
 GitHub: ${p.github_url}
 LinkedIn: ${p.linkedin_url}
 Portfolio: ${p.portfolio}
 Blog: ${p.blog}
     `.trim()));
 
+  // Every optional field is spelled out here rather than left to the model to
+  // infer. Without an explicit end date it answered "when does he graduate" by
+  // assuming a standard two-year program and inventing March 2027; without the
+  // awarding university it expanded a bare "VTU" into "Vellore Institute of
+  // Technology". Absent facts get guessed, so absent facts get stated.
   out.push(makeSource('cv_education', 'education', `
 Education:
-${cv.education.map(e =>
-  `${e.degree} in ${e.field}\n${e.institution}, ${e.city}, ${e.country}\n${e.start} – ${e.end}${e.grade ? ` | Grade: ${e.grade}` : ''}`
-).join('\n\n')}
+${cv.education.map(e => [
+  `${e.degree} in ${e.field}`,
+  `${e.institution}, ${e.city}, ${e.country}`,
+  e.affiliated_university ? `Awarding university: ${e.affiliated_university}` : null,
+  `${e.start} – ${e.end}${e.grade ? ` | Grade: ${e.grade}` : ''}`,
+  e.expected_graduation ? `Expected graduation: ${e.expected_graduation}` : null,
+  e.thesis_topic ? `Master's thesis topic: ${e.thesis_topic}` : null,
+  e.coursework ? `Modules studied: ${e.coursework.join(', ')}` : null,
+].filter(Boolean).join('\n')).join('\n\n')}
     `.trim()));
 
   out.push(makeSource('cv_lang_certs', 'certifications', `

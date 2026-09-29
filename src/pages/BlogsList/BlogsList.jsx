@@ -22,12 +22,15 @@ function BlogIcon({ iconKey }) {
   return Icon ? <Icon size={36} aria-hidden="true" /> : null;
 }
 
-const CATEGORIES = ['all', 'project', 'research', 'news'];
+// A filter is offered only for a category that has at least one post, so an empty "AI News" button never
+// shows; it appears by itself as soon as a news post is added.
+const KNOWN_CATEGORIES = ['project', 'research', 'news'];
 
 export default function BlogsList() {
   const { t } = useEnglishTranslation();
   const [activeCategory, setActiveCategory] = useState('all');
   const [search, setSearch]                 = useState('');
+  const categories = useMemo(() => ['all', ...KNOWN_CATEGORIES.filter(c => blogs.some(b => b.category === c))], []);
 
   // Update document title
   useEffect(() => {
@@ -74,7 +77,7 @@ export default function BlogsList() {
           role="group"
           aria-label={t('a11y.filterPosts')}
         >
-          {CATEGORIES.map(cat => (
+          {categories.map(cat => (
             <button
               key={cat}
               type="button"

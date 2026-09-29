@@ -85,6 +85,66 @@ describe("DeckPage (plain-content mode)", () => {
     input.remove();
   });
 
+  describe("Down / Up keys", () => {
+    // jsdom has no layout: give the active scene's scroller a size so it looks taller than the screen
+    const makeScrollable = (container, { scrollTop = 0 } = {}) => {
+      const inner = container.querySelector(".dk-scene.dk-on .dk-scene-in");
+      Object.defineProperty(inner, "scrollHeight", { value: 2000, configurable: true });
+      Object.defineProperty(inner, "clientHeight", { value: 600, configurable: true });
+      inner.scrollTop = scrollTop;
+      inner.scrollTo = jest.fn();
+      return inner;
+    };
+
+    test("Down moves to the next scene when the scene fits the screen", async () => {
+      const { container } = await mount();
+      fireEvent.keyDown(window, { key: "ArrowDown" });
+      expect(container.querySelector("#about")).toHaveClass("dk-on");
+    });
+
+    test("Down scrolls a scene taller than the screen instead of doing nothing", async () => {
+      const { container } = await mount();
+      const inner = makeScrollable(container);
+      fireEvent.keyDown(window, { key: "ArrowDown" });
+      expect(inner.scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 90 }));
+      expect(container.querySelector("#hero")).toHaveClass("dk-on");        // still on the same scene
+    });
+
+    test("...and once it has scrolled to the end, Down moves on", async () => {
+      const { container } = await mount();
+      makeScrollable(container, { scrollTop: 1400 });                        // 1400 + 600 = the full 2000
+      fireEvent.keyDown(window, { key: "ArrowDown" });
+      expect(container.querySelector("#about")).toHaveClass("dk-on");
+    });
+
+    test("Up scrolls back up first, then goes to the previous scene", async () => {
+      const { container } = await mount();
+      fireEvent.click(screen.getByRole("button", { name: "About" }));
+      const inner = makeScrollable(container, { scrollTop: 300 });
+      fireEvent.keyDown(window, { key: "ArrowUp" });
+      expect(inner.scrollTo.mock.calls[0][0].top).toBe(210);          // 300 - 90
+      inner.scrollTop = 0;
+      fireEvent.keyDown(window, { key: "ArrowUp" });
+      expect(container.querySelector("#hero")).toHaveClass("dk-on");
+    });
+
+    test("quick repeated presses add up instead of restarting from the smooth scroll's current position", async () => {
+      const { container } = await mount();
+      const inner = makeScrollable(container);
+      fireEvent.keyDown(window, { key: "ArrowDown" });
+      fireEvent.keyDown(window, { key: "ArrowDown" });
+      fireEvent.keyDown(window, { key: "ArrowDown" });
+      expect(inner.scrollTo.mock.calls.map((c) => c[0].top)).toEqual([90, 180, 270]);
+    });
+
+    test("Space pages a tall scene by most of a screen", async () => {
+      const { container } = await mount();
+      const inner = makeScrollable(container);
+      fireEvent.keyDown(window, { key: " " });
+      expect(inner.scrollTo.mock.calls[0][0].top).toBeCloseTo(510, 0);   // 85% of the 600px screen
+    });
+  });
+
   test("keyboard shortcuts are ignored inside the chat panel", async () => {
     await mount();
     const panel = document.createElement("div");

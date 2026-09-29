@@ -15,19 +15,34 @@
 
   "education": [
     {
-      "degree": "Master of Science",
+      "degree": "Master of Engineering",
       "field": "Business Intelligence and Data Analytics",
       "institution": "Hochschule Emden/Leer",
       "city": "Emden",
       "country": "Germany",
       "start": "03/2025",
-      "end": "present",
-      "grade": "1.45/5"
+      "end": "12/2027 (expected)",
+      "expected_graduation": "December 2027",
+      "grade": "1.45/5",
+      "thesis_topic": "Man Overboard Detection using Track Geometry",
+      "coursework": [
+        "Business Analytics",
+        "Machine Learning",
+        "Data Science",
+        "Data Management",
+        "Computer Science",
+        "Controlling",
+        "ERP",
+        "Marketing",
+        "Digitalisation and Automation",
+        "Sustainable Innovation"
+      ]
     },
     {
       "degree": "Bachelor of Engineering",
       "field": "Mechanical Engineering",
       "institution": "Shri Madhwa Vadiraja Institute of Technology and Management",
+      "affiliated_university": "Visvesvaraya Technological University (VTU)",
       "city": "Udupi",
       "country": "India",
       "start": "06/2016",

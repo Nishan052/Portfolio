@@ -38,7 +38,7 @@ export function createNavigation(ctx, bridge) {
     const si = $(".dk-scene-in", inn); if (si) si.scrollTop = 0;
     if (state.engine) {
       state.engine.punch();
-      state.engine.morphTo(from, to, fast ? 1 : 1.5, () => { state.lock = false; });
+      state.engine.morphTo(from, to, fast ? 1.1 : 1.7, () => { state.lock = false; });
       state.engine.impulse(dir * 0.5);
     } else if (reduce) state.lock = false;
     else later(() => { state.lock = false; }, 500);

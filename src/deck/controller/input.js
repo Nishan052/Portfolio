@@ -3,6 +3,7 @@ import { SCENE, LAST_SCENE, sceneFromHash } from "./constants";
 
 const WHEEL_STEP = 90;       // accumulated wheel delta that commits a scene change
 const WHEEL_QUIET_MS = 180;  // no wheel events for this long = the gesture is over
+const SCROLL_STEP = 90;      // px an arrow key scrolls a tall scene
 
 // Elements marked data-no-deck (the chat widget) keep their own wheel/touch gestures. Only the
 // *panel* (data-no-deck="panel", where the visitor types) also keeps the keyboard: the chat's toggle
@@ -25,6 +26,7 @@ export function createInput(ctx, nav, bridge, charge) {
   const { host, on, $, root, state, view } = ctx;
   const activeInner = () => $(".dk-scene.dk-on .dk-scene-in");
   let acc = 0, gestureUsed = false, relT = null, quietT = null, lastInner = 0;
+  let goal = null, goalAt = 0;   // where the last arrow-key scroll was heading
 
   on(window, "wheel", (e) => {
     if (host.isIndexOpen() || inNoDeck(e.target)) return;
@@ -74,11 +76,20 @@ export function createInput(ctx, nav, bridge, charge) {
     if (key === "/" || key.toLowerCase() === "k" || key.toLowerCase() === "i") { e.preventDefault(); host.openIndex(); return; }
     const inner = activeInner();
     if (key === " " && (tg === "button" || tg === "a" || tg === "summary")) return;  // Space activates the focused control
-    if (key === "ArrowDown" || key === "PageDown" || key === " ") {
-      if (inner && canScroll(inner, 1)) { if (key !== " ") return; }
-      else { e.preventDefault(); nav.goScene(state.cur + 1); return; }
+    // Down / Up / Page keys / Space: a scene taller than the screen scrolls first, and only at its end does the
+    // key move to the next (or previous) scene. Nothing else scrolls it, since the page itself never scrolls.
+    const dir = key === "ArrowDown" || key === "PageDown" || key === " " ? 1 : key === "ArrowUp" || key === "PageUp" ? -1 : 0;
+    if (dir) {
+      e.preventDefault();
+      if (inner && canScroll(inner, dir)) {
+        const step = key === "ArrowDown" || key === "ArrowUp" ? SCROLL_STEP : inner.clientHeight * 0.85;
+        // Key repeats add up: aim from where the last press was heading, not from wherever the smooth scroll has reached
+        const from = performance.now() - goalAt < 450 && goal !== null ? goal : inner.scrollTop;
+        goal = Math.max(0, Math.min(inner.scrollHeight - inner.clientHeight, from + dir * step)); goalAt = performance.now();
+        inner.scrollTo({ top: goal, behavior: ctx.reduce ? "auto" : "smooth" });
+      } else nav.goScene(state.cur + dir);
+      return;
     }
-    if (key === "ArrowUp" || key === "PageUp") { if (inner && canScroll(inner, -1)) return; e.preventDefault(); nav.goScene(state.cur - 1); return; }
     if (key === "Home") nav.goScene(0);
     else if (key === "End") nav.goScene(LAST_SCENE);
     else if (/^[1-6]$/.test(key)) nav.goScene(+key - 1);

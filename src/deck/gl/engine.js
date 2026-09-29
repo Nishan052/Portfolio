@@ -11,19 +11,23 @@ import { VERT, FRAG } from "./shaders";
 import { buildAll, layout, LON_B } from "./targets";
 
 /* Palette per site theme (colours as 0-1 RGB; keep in step with src/styles/tokens.css: amb = brand, vio = support,
-   cya = spare). Dark is the additive-glow look; light swaps to ink-coloured points drawn with
+   cya = spare, ber = the Berlin marker, its own hue so it never blends into the globe). Dark is the additive-glow look; light swaps to ink-coloured points drawn with
    normal blending (additive light on a pale page would simply vanish). */
 const PALETTE = {
   dark: {
     light: 0, px: 1, alphaK: 1,
-    ice: [0.8, 0.84, 1], vio: [0.31, 0.88, 0.71], amb: [0.545, 0.576, 1], wat: [0.32, 0.78, 1], cya: [1, 0.56, 0.69],
+    ice: [0.8, 0.84, 1], vio: [0.31, 0.88, 0.71], amb: [0.545, 0.576, 1], wat: [0.32, 0.78, 1], cya: [1, 0.56, 0.69], ber: [1, 0.42, 0.55],
   },
   light: {
     light: 1, px: 1.15, alphaK: 2.6,
-    ice: [0.05, 0.07, 0.22], vio: [0.04, 0.48, 0.36], amb: [0.25, 0.28, 0.84], wat: [0.05, 0.42, 0.75], cya: [0.75, 0.15, 0.38],
+    ice: [0.05, 0.07, 0.22], vio: [0.04, 0.48, 0.36], amb: [0.25, 0.28, 0.84], wat: [0.05, 0.42, 0.75], cya: [0.75, 0.15, 0.38], ber: [0.86, 0.12, 0.3],
   },
 };
 
+/* The scatter in the shader peaks at t = .5. The scene swap (and the group's move and turn) happens in the
+   middle of it, between SWAP_FROM and SWAP_TO, so the shape is never seen sliding across the screen. */
+const SWAP_FROM = 0.35, SWAP_TO = 0.65, PREVIEW_MAX = 0.4;
+const swap = (t) => { const x = Math.max(0, Math.min(1, (t - SWAP_FROM) / (SWAP_TO - SWAP_FROM))); return x * x * (3 - 2 * x); };
 const DUST_DIM = 0.55;   // how much dust is dimmed at uLight = 1
 const MX = (W) => [0, 0.03, 0.03, 2, 0.06, 0.12].map((v) => v * W);
 const MA = [0, 0.78, 0.78, 0.55, 0.7, 0.6];
@@ -88,7 +92,7 @@ export function createEngine({ root, mount, host, theme, state }) {
       if (animate) gsap.to(c, { r: v[0], g: v[1], b: v[2], duration: 0.7, ease: "power2.inOut", overwrite: true });
       else c.setRGB(v[0], v[1], v[2]);
     };
-    set(U.cIce.value, p.ice); set(U.cVio.value, p.vio); set(U.cAmb.value, p.amb); set(U.cWat.value, p.wat); set(U.cCya.value, p.cya);
+    set(U.cIce.value, p.ice); set(U.cVio.value, p.vio); set(U.cAmb.value, p.amb); set(U.cWat.value, p.wat); set(U.cCya.value, p.cya); set(U.cBer.value, p.ber);
     U.uAlphaK.value = p.alphaK;
     U.uPx.value = basePx(GL.dpr);
     GL.mat.blending = p.light ? THREE.NormalBlending : THREE.AdditiveBlending;
@@ -121,8 +125,8 @@ export function createEngine({ root, mount, host, theme, state }) {
       uMaskA: { value: 0 }, uHole: { value: 0 }, uCamZ: { value: camera.position.z }, uLight: { value: p.light }, uAlphaK: { value: p.alphaK }, uDustDim: { value: p.light * DUST_DIM },
       uMouse: { value: V3(9999, 9999, 0) }, uHoleC: { value: V3(9999, 9999, 0) },
       uRip: { value: new THREE.Vector4(0, 0, -99, 0) }, uFoc: { value: new THREE.Vector4(0, 0, 120, 0) },
-      uFunT: { value: new THREE.Vector2() }, uFunS: { value: new THREE.Vector2(60, 30) },
-      cIce: { value: C(p.ice) }, cVio: { value: C(p.vio) }, cAmb: { value: C(p.amb) }, cWat: { value: C(p.wat) }, cCya: { value: C(p.cya) },
+      uFunT: { value: new THREE.Vector2() }, uMouseW: { value: new THREE.Vector3(9999, 9999, 0) }, uFunS: { value: new THREE.Vector2(60, 30) },
+      cIce: { value: C(p.ice) }, cVio: { value: C(p.vio) }, cAmb: { value: C(p.amb) }, cWat: { value: C(p.wat) }, cCya: { value: C(p.cya) }, cBer: { value: C(p.ber) },
     };
     const mat = new THREE.ShaderMaterial({
       uniforms: U, vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false,
@@ -166,14 +170,14 @@ export function createEngine({ root, mount, host, theme, state }) {
     if (!(M.a === from && M.b === to)) { const base = M.t > 0.5 ? M.b : M.a; setPair(base, to); M.t = 0; }
     tw = gsap.to(M, { t: 1, duration: dur, ease: "power2.inOut", overwrite: true, onComplete() { finish(to); if (then) then(); } });
   }
-  function wOf(i) { return (M.a === i ? 1 - M.t : 0) + (M.b === i ? M.t : 0); }
+  function wOf(i) { const s = swap(M.t); return (M.a === i ? 1 - s : 0) + (M.b === i ? s : 0); }
   function preview(dir, amt) {
     const cur = host.getCur();
     if (!GL || (tw && tw.isActive())) return;
     let to = cur + dir;
     if (to < 0 || to > 5) { amt = Math.min(amt, 0.12); to = cur; }
     if (M.t < 0.01 || (M.a === cur && M.b === to)) setPair(cur, to);
-    if (M.a === cur && M.b === to) M.t = Math.min(0.55, amt * 0.55);
+    if (M.a === cur && M.b === to) M.t = Math.min(PREVIEW_MAX, amt * PREVIEW_MAX);   // a preview only loosens the shape: scatter, no swap
   }
   function releasePreview() {
     if (!GL || (tw && tw.isActive())) return;
@@ -234,7 +238,8 @@ export function createEngine({ root, mount, host, theme, state }) {
     U.uTime.value = reduce ? 0 : tS;
     U.uMix.value = M.t;
     const a0 = M.a < 0 ? 0 : M.a, b0 = M.b < 0 ? 0 : M.b, mxs = MX(W);
-    U.uMaskX.value = mxs[a0] * (1 - M.t) + mxs[b0] * M.t; U.uMaskA.value = MA[a0] * (1 - M.t) + MA[b0] * M.t;
+    const sw = swap(M.t);
+    U.uMaskX.value = mxs[a0] * (1 - sw) + mxs[b0] * sw; U.uMaskA.value = MA[a0] * (1 - sw) + MA[b0] * sw;
 
     // motion energy: the field reacts to the gesture as well as to the morph itself
     if (prevT === null) prevT = M.t;
@@ -259,6 +264,7 @@ export function createEngine({ root, mount, host, theme, state }) {
     const dx = st.mx - gx, dy = st.my - gy, d2 = dx * dx + dy * dy, zf = d2 < R * R ? Math.sqrt(R * R - d2) : 0;
     GL.inv.copy(pts.matrixWorld).invert();
     GL.v.set(st.mx, st.my, zf * (w4 + w5)).applyMatrix4(GL.inv); U.uMouse.value.copy(GL.v);
+    U.uMouseW.value.set(st.mx, st.my, zf * (w4 + w5));   // the repel is a sphere around this point, in world space
 
     // the active sphere (globe or planet): an opening forms where you cross its edge, then closes behind you
     const inside = (w4 > 0.6 || w5 > 0.6) && st.on > 0.3 && d2 < (R * 1.04) * (R * 1.04);
@@ -346,7 +352,7 @@ export function createEngine({ root, mount, host, theme, state }) {
     clearInterval(watchdog);
     canvas.removeEventListener("webglcontextlost", onLost, false);
     canvas.removeEventListener("webglcontextrestored", onRestored, false);
-    if (U) gsap.killTweensOf([U.uBoot, U.uFun, U.uWarp, U.uShake, U.uLight, U.cIce.value, U.cVio.value, U.cAmb.value, U.cWat.value, U.cCya.value]);
+    if (U) gsap.killTweensOf([U.uBoot, U.uFun, U.uWarp, U.uShake, U.uLight, U.cIce.value, U.cVio.value, U.cAmb.value, U.cWat.value, U.cCya.value, U.cBer.value]);
     if (GL) { try { GL.renderer.forceContextLoss(); } catch (e) { /* ignore */ } }
     teardownGL(); U = null;
     canvas.remove();

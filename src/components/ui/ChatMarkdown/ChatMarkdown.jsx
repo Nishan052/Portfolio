@@ -21,6 +21,11 @@ function safeHref(url) {
   if (/^https?:\/\//i.test(url)) return url;
   if (/^(www\.|nishanpoojary\.com)/i.test(url)) return `https://${url}`;
   if (url.startsWith('/')) return url;
+  // The prompt asks for Nishan's email as a link, and without this it rendered
+  // as plain text. A single plain address only — no comma-separated recipient
+  // list, and no ?subject=/&body= query, so a link can never be dressed up as a
+  // pre-filled message on the reader's behalf.
+  if (/^mailto:[^\s@,?&]+@[^\s@,?&]+\.[a-z]{2,}$/i.test(url)) return url;
   return null;
 }
 

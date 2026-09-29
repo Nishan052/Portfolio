@@ -159,7 +159,7 @@
 
   "blogs": {
     "pageTitle":       "Blog",
-    "pageSubtitle":    "Deep-dives into my projects, AI/ML research breakdowns, and weekly advancements in data science — with proper citations.",
+    "pageSubtitle":    "Deep-dives into my projects, AI/ML research breakdowns, and weekly advancements in data science with proper citations.",
     "backToPortfolio": "← Back to Portfolio",
     "backToBlog":      "← Back to Blog",
     "search":          "Search posts…",

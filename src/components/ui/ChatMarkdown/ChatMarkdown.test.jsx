@@ -29,6 +29,22 @@ describe('ChatMarkdown', () => {
     expect(screen.getByText(/bad/).closest('a')).toBeNull();
   });
 
+  test('the email becomes a mailto link, but a dressed-up one does not', () => {
+    // The prompt asks for the address as a link; before mailto was allowed it
+    // rendered as plain text. A mailto carrying a subject/body or a second
+    // recipient is not a plain address, so it stays text.
+    const { container } = render(<ChatMarkdown text={
+      'Reach him at [nishan@example.com](mailto:nishan@example.com), not ' +
+      '[this](mailto:nishan@example.com?subject=Hi&body=x) or ' +
+      '[that](mailto:a@example.com,b@example.com)'} />);
+    const links = [...container.querySelectorAll('a')];
+    expect(links).toHaveLength(1);
+    expect(links[0].getAttribute('href')).toBe('mailto:nishan@example.com');
+    // The rejected ones still read as text, they just are not clickable.
+    expect(container.textContent).toContain('this');
+    expect(container.textContent).toContain('that');
+  });
+
   test('the shape the model really writes: heading, bullets, indented notes', () => {
     // Copied from a production answer. Every line of it used to need to be a
     // bullet for the block to count as a list, so this rendered a literal "- ".
