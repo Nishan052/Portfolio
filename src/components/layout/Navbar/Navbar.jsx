@@ -66,8 +66,8 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
 
   const handleNav = useCallback((id) => {
     if (isOnBlog) {
-      navigate("/");
-      setTimeout(() => scrollTo(id), 100);
+      // the home deck opens on the scene named by the hash (#skills maps to the toolkit scene)
+      navigate({ pathname: "/", hash: id });
     } else {
       scrollTo(id);
     }
@@ -139,7 +139,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
                     key={l}
                     type="button"
                     onClick={() => switchLang(l)}
-                    aria-label={l === "en" ? t("a11y.switchToEn") : t("a11y.switchToDe")}
+                    aria-label={l === "en" ? `EN — ${t("a11y.switchToEn")}` : `DE — ${t("a11y.switchToDe")}`}
                     aria-pressed={currentLang === l}
                     className={`lang-btn ${currentLang === l ? "lang-btn--active" : "lang-btn--inactive"}`}
                   >
@@ -207,7 +207,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
           onClick={handleBlogsClick}
           aria-current={isOnBlog ? "page" : undefined}
           tabIndex={menuOpen ? 0 : -1}
-          style={{ color: "var(--accent)", fontFamily: "'DM Mono',monospace", fontWeight: 700 }}
+          style={{ color: "var(--accent)", fontFamily: "var(--font-mono)", fontWeight: 700 }}
         >
           <span aria-hidden="true" className="mobile-nav-num">0{NAV_KEYS.length + 1}.</span>
           <LuSparkles aria-hidden="true" size={13} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} /> {t("nav.blog")}

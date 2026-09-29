@@ -5,7 +5,8 @@
     "projects":   "Projekte",
     "skills":     "Fähigkeiten",
     "contact":    "Kontakt",
-    "blog":       "Blog"
+    "blog":       "Blog",
+    "portfolio":  "Portfolio"
   },
 
   "hero": {
@@ -213,5 +214,187 @@
     "heroStats":      "Wichtige Statistiken",
     "subRoles":       "Karriereverlauf",
     "languageToggle": "Sprache wechseln"
+  },
+
+  "deck": {
+    "scenes": [
+      {
+        "name": "Hallo",
+        "desc": "Der Name, die Rolle, die Kurzfassung"
+      },
+      {
+        "name": "Über mich",
+        "desc": "Wer hinter der Arbeit steckt"
+      },
+      {
+        "name": "Erfahrung",
+        "desc": "Wo ich gearbeitet habe, nach Branche"
+      },
+      {
+        "name": "Projekte",
+        "desc": "Sechs Projekte mit Live-Demos"
+      },
+      {
+        "name": "Werkzeuge",
+        "desc": "Tools und Sprachen, gruppiert"
+      },
+      {
+        "name": "Kontakt",
+        "desc": "Sag Hallo aus Berlin"
+      }
+    ],
+    "nav": {
+      "index": "Index",
+      "blog": "Blog",
+      "prev": "Vorherige Szene",
+      "next": "Nächste Szene",
+      "scenes": "Szenen",
+      "scroll": "oder scrollen",
+      "brand": "Zurück zur ersten Szene",
+      "live": "Szene {{name}}, {{n}} von 6"
+    },
+    "hero": {
+      "location": "Berlin, Deutschland",
+      "explore": "Entdecken",
+      "cue": "scrollen oder ↓ drücken",
+      "stats": "Eckdaten"
+    },
+    "about": {
+      "title": "Die Person hinter dem Code."
+    },
+    "experience": {
+      "title": "Berufserfahrung",
+      "roles": "Stationen",
+      "domains": [
+        "Maritim",
+        "Banking",
+        "Gesundheit",
+        "Beratung"
+      ]
+    },
+    "projects": {
+      "title": "Ausgewählte Projekte",
+      "hint": "Ziehen, wischen oder die Pfeile nutzen. Jede Karte zeigt eine kleine Demo dessen, was das Projekt macht.",
+      "prev": "Vorheriges Projekt",
+      "next": "Nächstes Projekt",
+      "card": "{{title}} auf GitHub"
+    },
+    "toolkit": {
+      "title": "Mein Werkzeugkasten",
+      "lead": "Alles, womit ich baue, gruppiert nach Aufgabe.",
+      "all": "Alle Tools als Liste",
+      "certs": "// zertifizierungen",
+      "certCount_one": "{{count}} Zertifikat",
+      "certCount_other": "{{count}} Zertifikate",
+      "icons": [
+        {
+          "name": "RAG",
+          "sub": "Retrieval und Grounding"
+        },
+        {
+          "name": "LLMs",
+          "sub": "Sprachmodelle"
+        },
+        {
+          "name": "Edge-ML",
+          "sub": "Inferenz auf dem Gerät"
+        },
+        {
+          "name": "Prognose",
+          "sub": "Zeitreihenmodelle"
+        },
+        {
+          "name": "MLOps",
+          "sub": "Ausliefern und überwachen"
+        },
+        {
+          "name": "Vektorsuche",
+          "sub": "Embeddings und Retrieval"
+        }
+      ]
+    },
+    "contact": {
+      "title": "Lass uns zusammenarbeiten.",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "selected": "Markiert",
+      "email": "Schreib mir",
+      "foot": "Berlin, Deutschland · offen für Remote- und Vor-Ort-Stellen · © {{year}} Nishan Poojary"
+    },
+    "fx": {
+      "sending": "Sende",
+      "sent": "Gesendet",
+      "mailCopied": "Adresse kopiert – dein Mailprogramm sollte sich jetzt öffnen",
+      "mailFail": "Falls sich dein Mailprogramm nicht öffnet, nutze die oben angezeigte Adresse"
+    },
+    "index": {
+      "placeholder": "Geh, wohin du willst. Tippe eine Szene oder Aktion",
+      "aria": "Index und Befehle",
+      "search": "Szenen und Aktionen durchsuchen",
+      "empty": "Dazu gibt es keinen Treffer",
+      "copyEmail": {
+        "name": "E-Mail-Adresse kopieren",
+        "desc": "Legt sie in die Zwischenablage"
+      },
+      "github": {
+        "name": "GitHub öffnen",
+        "desc": "github.com/Nishan052"
+      },
+      "linkedin": {
+        "name": "LinkedIn öffnen",
+        "desc": "linkedin.com/in/nishan-poojary"
+      },
+      "blog": {
+        "name": "Blog lesen",
+        "desc": "Ausführliche Beiträge zu den Projekten"
+      },
+      "emailCopied": "E-Mail-Adresse kopiert",
+      "copyFail": "Kopiere sie aus der Kontakt-Szene",
+      "foot": {
+        "move": "bewegen",
+        "open": "öffnen",
+        "close": "schließen",
+        "hover": "Über eine Szene fahren, um sie in den Partikeln zu sehen"
+      }
+    },
+    "globe": {
+      "enter": "in den Globus eintauchen",
+      "touch": "den Globus berühren",
+      "localTime": "Ortszeit"
+    },
+    "note": {
+      "title": "Am besten am Desktop",
+      "text": "Wechsle zur Desktop-Ansicht für ein besseres Erlebnis.",
+      "dismiss": "Schließen"
+    },
+    "demos": {
+      "grounded": "belegte Antwort",
+      "history": "Verlauf",
+      "forecast": "Prognose",
+      "scanning": "Bild wird geprüft…",
+      "detected": "Person · 0,97",
+      "quantised": "INT8 · TFLite Micro",
+      "onDevice": "Arduino · auf dem Gerät",
+      "topic": "topic/room1"
+    },
+    "boot": {
+      "label": "Kontext wird eingebettet",
+      "aria": "Lädt"
+    },
+    "tabs": [
+      "Hallo",
+      "Profil",
+      "Karriere",
+      "Projekte",
+      "Tools",
+      "Kontakt"
+    ],
+    "footer": {
+      "links": "Links",
+      "email": "E-Mail",
+      "blog": "Blog",
+      "top": "Nach oben",
+      "nav": "Seitenlinks"
+    }
   }
 }

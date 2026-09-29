@@ -1,0 +1,7 @@
+/* Contact scene. Colours and fonts: src/styles/tokens.css. */
+.dk-c-desc{font-size:clamp(17px,1.7vw,23px);max-width:34ch;line-height:1.35;font-weight:300;padding:12px 14px;margin-top:22px}
+.dk-mailbox{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 22px}
+.dk-mail{font:500 14px var(--mono);letter-spacing:.02em;user-select:all;border-bottom:1px solid var(--line);padding:4px 0}
+.dk-copy{border:1px solid var(--line);border-radius:999px;padding:6px 14px;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;transition:all .3s;background:var(--bg)}
+.dk-copy:hover{border-color:var(--brand);color:var(--brand)}
+.dk-foot{margin-top:26px;color:var(--mute)}

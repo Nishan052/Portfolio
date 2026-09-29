@@ -210,7 +210,7 @@ export default function BlogPost() {
       {/* Article */}
       <article className="blogpost-article" aria-labelledby="post-title">
         {/* Header */}
-        <header className="blogpost-header" style={{ '--post-accent': blog.color }}>
+        <header className="blogpost-header">
           <div className="blogpost-meta-top">
             <span className={`blogpost-category blogpost-category--${blog.category}`}>
               {categoryLabel}

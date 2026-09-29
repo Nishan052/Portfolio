@@ -1,0 +1,13 @@
+/* INDEX / command palette overlay. Colours and fonts: src/styles/tokens.css. */
+.dk .dk-ix-q:focus-visible{outline:none}
+.dk-index{position:fixed;inset:0;z-index:200;background:rgba(var(--bg-rgb),.9);display:none;padding:calc(env(safe-area-inset-top,0px) + 84px) var(--gut) 40px;overflow:auto}
+.dk-index.dk-on{display:block}
+.dk-ix-in{max-width:760px;margin:0 auto}
+.dk-ix-q{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--text);font:400 clamp(20px,3vw,30px) var(--display);letter-spacing:-.03em;padding:8px 0 16px;outline:none}
+.dk-ix-q::placeholder{color:var(--mute)}
+.dk-ix-list{margin-top:18px}
+.dk-ix-list li button{width:100%;display:grid;grid-template-columns:44px 1fr auto;align-items:baseline;gap:12px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line);transition:padding .4s cubic-bezier(.16,1,.3,1),color .2s}
+.dk-ix-list li button:hover,.dk-ix-list li button[data-sel="true"]{padding-left:16px;color:var(--brand)}
+.dk-ix-list .dk-nm{font-family:var(--display);font-weight:600;font-size:clamp(20px,2.6vw,32px);letter-spacing:-.04em}
+.dk-ix-list .dk-ds{color:var(--mute);font-size:13px}
+.dk-ix-foot{margin-top:22px;display:flex;gap:16px;flex-wrap:wrap;color:var(--mute)}

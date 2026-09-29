@@ -5,7 +5,8 @@
     "projects":   "Projects",
     "skills":     "Skills",
     "contact":    "Contact",
-    "blog":       "Blog"
+    "blog":       "Blog",
+    "portfolio":  "Portfolio"
   },
 
   "hero": {
@@ -24,7 +25,7 @@
   "about": {
     "tag":   "// about me",
     "title": ["The Person", "Behind the Code"],
-    "bio1":  "I build AI/ML systems that run in production — retrieval-augmented generation, LLM integration, edge machine learning, and time-series forecasting. I focus on the parts that make a system trustworthy: grounding, latency, evaluation, and failure modes.",
+    "bio1":  "I build AI/ML systems that run in production, retrieval-augmented generation, LLM integration, edge machine learning, and time-series forecasting. I focus on the parts that make a system trustworthy: grounding, latency, evaluation, and failure modes.",
     "bio2":  "I document my work in public, publishing build notes and project write-ups on this site every week. Before that, 4+ years as a software and systems engineer at Infosys and Novigo, building regulated banking and healthcare platforms. Currently completing an MEng in Business Intelligence & Data Analytics at Hochschule Emden/Leer.",
     "cards": [
       { "icon": "graduation", "title": "Education",   "desc": "MEng Business Intelligence & Data Analytics — Hochschule Emden/Leer (Grade: 1.45/5)" },
@@ -213,5 +214,187 @@
     "heroStats":      "Key statistics",
     "subRoles":       "Career progression",
     "languageToggle": "Switch language"
+  },
+
+  "deck": {
+    "scenes": [
+      {
+        "name": "Hello",
+        "desc": "The name, the role, the short version"
+      },
+      {
+        "name": "About",
+        "desc": "Who is behind the work"
+      },
+      {
+        "name": "Experience",
+        "desc": "Where I have worked, by domain"
+      },
+      {
+        "name": "Projects",
+        "desc": "Six projects with live demos"
+      },
+      {
+        "name": "Toolkit",
+        "desc": "Tools and languages, grouped"
+      },
+      {
+        "name": "Contact",
+        "desc": "Say hello from Berlin"
+      }
+    ],
+    "nav": {
+      "index": "Index",
+      "blog": "Blog",
+      "prev": "Previous scene",
+      "next": "Next scene",
+      "scenes": "Scenes",
+      "scroll": "or scroll",
+      "brand": "Back to the first scene",
+      "live": "{{name}} scene, {{n}} of 6"
+    },
+    "hero": {
+      "location": "Berlin, Germany",
+      "explore": "Explore",
+      "cue": "scroll or press ↓",
+      "stats": "Highlights"
+    },
+    "about": {
+      "title": "The person behind the code."
+    },
+    "experience": {
+      "title": "Professional experience",
+      "roles": "Roles",
+      "domains": [
+        "Maritime",
+        "Banking",
+        "Healthcare",
+        "Consulting"
+      ]
+    },
+    "projects": {
+      "title": "Featured projects",
+      "hint": "Drag, swipe or use the arrows. Each card runs a small demo of what the project does.",
+      "prev": "Previous project",
+      "next": "Next project",
+      "card": "{{title}} on GitHub"
+    },
+    "toolkit": {
+      "title": "My toolkit",
+      "lead": "Everything I build with, grouped by what it does.",
+      "all": "All tools, as a list",
+      "certs": "// certifications",
+      "certCount_one": "{{count}} certificate",
+      "certCount_other": "{{count}} certificates",
+      "icons": [
+        {
+          "name": "RAG",
+          "sub": "Retrieval and grounding"
+        },
+        {
+          "name": "LLMs",
+          "sub": "Language models"
+        },
+        {
+          "name": "Edge ML",
+          "sub": "On-device inference"
+        },
+        {
+          "name": "Forecasting",
+          "sub": "Time-series models"
+        },
+        {
+          "name": "MLOps",
+          "sub": "Ship and monitor"
+        },
+        {
+          "name": "Vector search",
+          "sub": "Embeddings and retrieval"
+        }
+      ]
+    },
+    "contact": {
+      "title": "Let's work together.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "selected": "Selected",
+      "email": "Email me",
+      "foot": "Berlin, Germany · open to remote and on-site roles · © {{year}} Nishan Poojary"
+    },
+    "fx": {
+      "sending": "Sending",
+      "sent": "Sent",
+      "mailCopied": "Address copied — your mail app should open now",
+      "mailFail": "If your mail app does not open, use the address shown above"
+    },
+    "index": {
+      "placeholder": "Go anywhere. Type a scene or an action",
+      "aria": "Index and commands",
+      "search": "Search scenes and actions",
+      "empty": "Nothing matches that",
+      "copyEmail": {
+        "name": "Copy email address",
+        "desc": "Puts it on your clipboard"
+      },
+      "github": {
+        "name": "Open GitHub",
+        "desc": "github.com/Nishan052"
+      },
+      "linkedin": {
+        "name": "Open LinkedIn",
+        "desc": "linkedin.com/in/nishan-poojary"
+      },
+      "blog": {
+        "name": "Read the blog",
+        "desc": "Write-ups of the projects"
+      },
+      "emailCopied": "Email address copied",
+      "copyFail": "Copy it from the Contact scene",
+      "foot": {
+        "move": "move",
+        "open": "open",
+        "close": "close",
+        "hover": "Hover a scene to preview it in the particles"
+      }
+    },
+    "globe": {
+      "enter": "enter the globe",
+      "touch": "touch the globe",
+      "localTime": "local time"
+    },
+    "note": {
+      "title": "Best on desktop",
+      "text": "Switch to desktop view for a better experience.",
+      "dismiss": "Dismiss"
+    },
+    "demos": {
+      "grounded": "grounded answer",
+      "history": "history",
+      "forecast": "forecast",
+      "scanning": "scanning frame…",
+      "detected": "person · 0.97",
+      "quantised": "INT8 · TFLite Micro",
+      "onDevice": "Arduino · on-device",
+      "topic": "topic/room1"
+    },
+    "boot": {
+      "label": "embedding context",
+      "aria": "Loading"
+    },
+    "tabs": [
+      "Hello",
+      "About",
+      "Work",
+      "Projects",
+      "Tools",
+      "Contact"
+    ],
+    "footer": {
+      "links": "Links",
+      "email": "Email",
+      "blog": "Blog",
+      "top": "Back to top",
+      "nav": "Site links"
+    }
   }
 }

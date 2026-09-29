@@ -1,0 +1,75 @@
+/* ==========================================================================
+   Home "deck": the shell shared by everything in src/deck: root, resets, type helpers, chips and
+   buttons, the scene container, simple mode (tablet + phone) and the chat-widget offset.
+   Each component's own rules sit next to it (components/*, scenes/*, demos/).
+
+   Every class and keyframe is namespaced dk- and every element rule is scoped under .dk, so nothing
+   here can leak into the rest of the site (which has its own .btn, .card, .nav). Element resets use
+   :where() so they carry no specificity and every dk- class can override them. Colours and fonts
+   come from src/styles/tokens.css.
+   ========================================================================== */
+.dk{
+  --gut:clamp(16px,4.2vw,64px);
+  --vh:100%;
+  --display:var(--font-display);
+  --body:var(--font-body);
+  --mono:var(--font-mono);
+}
+.dk{position:fixed;inset:0;z-index:100;isolation:isolate;overflow:hidden;background:var(--bg);color:var(--text);font:400 16px/1.55 var(--body);-webkit-font-smoothing:antialiased;touch-action:none;overscroll-behavior:none}
+html.dk-lock,html.dk-lock body{overflow:hidden;overscroll-behavior:none;height:100%}
+:where(.dk) *{box-sizing:border-box}
+:where(.dk) :is(h1,h2,h3,h4,p,ol,ul){margin:0}
+.dk :is(h1,h2,h3,h4){font-family:var(--display)}   /* beats global.css's bare h1-h4 font rule */
+:where(.dk) :is(ol,ul){padding:0;list-style:none}
+:where(.dk) a{color:inherit;text-decoration:none}
+:where(.dk) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:where(.dk) :focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:0}
+.dk ::selection{background:var(--brand);color:var(--ink-on-brand)}
+.dk-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.dk-mono{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;line-height:1.5}
+.dk-mute{color:var(--mute)}
+:where(.dk) kbd{font:500 10px var(--mono);border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--mute)}
+.dk-gl{position:fixed;left:0;top:0;width:100%;height:var(--vh);z-index:0;pointer-events:none}
+.dk-veil{background:var(--scrim)}
+.dk-disp{font-family:var(--display);font-weight:700;letter-spacing:-.045em;line-height:.98;text-wrap:balance;text-shadow:0 0 26px rgba(var(--bg-rgb),.95),0 0 3px rgba(var(--bg-rgb),.95)}
+.dk-w{display:inline-block;white-space:nowrap;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
+.dk-ch{display:inline-block;will-change:transform}
+.dk h2.dk-disp{font-size:clamp(32px,4.6vw,72px)}
+.dk[lang="de"] h2.dk-disp{font-size:clamp(26px,3.7vw,58px)}
+.dk-deck{position:fixed;left:0;right:0;top:0;bottom:0;z-index:2}
+.dk-scene{position:absolute;inset:0;opacity:0;visibility:hidden;pointer-events:none;padding:calc(env(safe-area-inset-top,0px) + 84px) var(--gut) 92px}
+.dk-scene.dk-on{opacity:1;visibility:visible;pointer-events:auto}
+.dk-scene-in{max-width:600px;max-height:100%;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding:2px 6px 8px 0}
+.dk-scene-in.dk-wide{max-width:none;width:100%}
+.dk-scene-in::-webkit-scrollbar{width:4px}
+.dk-scene-in::-webkit-scrollbar-thumb{background:var(--line)}
+.dk-kick{margin-bottom:16px}
+.dk-chips{display:flex;flex-wrap:wrap;gap:8px}
+.dk-chip{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 13px;font:500 12px var(--mono);letter-spacing:.04em;transition:all .35s cubic-bezier(.34,1.56,.64,1);background:var(--bg)}
+.dk-chip:hover{background:var(--brand);color:var(--ink-on-brand);border-color:var(--brand);transform:translateY(-3px)}
+.dk-actions{display:flex;gap:12px;flex-wrap:wrap}
+.dk-btn{position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:999px;font-weight:600;font-size:15px;border:1px solid var(--text);will-change:transform;background:var(--bg);transition:border-color .3s,color .3s}
+.dk-btn::before{content:"";position:absolute;inset:0;background:var(--brand);transform:scaleX(var(--fill,0));transform-origin:left;z-index:-1}
+.dk-btn.dk-solid{background:var(--text);color:var(--bg)}
+.dk-btn:hover{border-color:var(--brand)}
+.dk-btn.dk-solid:hover{background:var(--brand);border-color:var(--brand)}
+.dk-btn.dk-charging{color:var(--ink-on-brand);border-color:var(--brand)}
+.dk-btn.dk-charging.dk-solid{background:var(--text)}
+@keyframes dk-blink{0%,100%{opacity:.25}50%{opacity:1}}
+.dk.dk-simple .dk-gl{display:none}
+.dk.dk-simple .dk-scene-in:not(.dk-wide){margin-left:auto;margin-right:auto;max-width:680px}
+.dk.dk-simple .dk-veil{background:transparent}
+@media (max-width:899px){
+  .dk-scene-in{max-width:none;padding-right:0}
+}
+/* simple mode: solid header on top, tab bar (--tab-h) at the bottom; scenes scroll between them */
+.dk.dk-simple{--tab-h:60px}
+.dk.dk-simple .dk-scene{padding:calc(env(safe-area-inset-top,0px) + 88px) var(--gut) calc(var(--tab-h) + env(safe-area-inset-bottom,0px) + 20px)}
+/* the chat widget floats over the deck: clear of the tab bar at every simple width */
+html.dk-simple-mode .chat-toggle{bottom:calc(env(safe-area-inset-bottom,0px) + 74px)}
+@media (min-width:769px){
+  html.dk-simple-mode .chat-window{bottom:calc(env(safe-area-inset-bottom,0px) + 74px + 52px + 12px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .dk *{animation:none!important;transition:none!important}
+}

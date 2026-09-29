@@ -1,0 +1,10 @@
+/* About scene. Colours and fonts: src/styles/tokens.css. */
+.dk-bio{margin-top:26px;font-size:clamp(16px,1.4vw,19px);max-width:56ch;padding:14px 16px}
+.dk-sources{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.dk-src{background:var(--scrim);padding:14px 16px;transition:background .3s}
+.dk-src:hover{background:rgba(var(--brand-rgb),.08)}
+.dk-src .dk-mono{color:var(--brand);margin-bottom:6px}
+.dk-src p:last-child{color:var(--mute);font-size:14px;line-height:1.45}
+@media (max-width:899px){
+  .dk-sources{grid-template-columns:1fr}
+}

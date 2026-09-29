@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import siteConfig from '../../../config/site';
 import './ChatWidget.css';
-import ChatMarkdown from '../chatMarkdown';
+import ChatMarkdown from '../ChatMarkdown';
 
 // ─── Inline SVGs ──────────────────────────────────────────────────────────────
 const IconChat = () => (
@@ -252,11 +252,11 @@ function ChatWidget() {
       <div
         ref={chatWindowRef}
         className={`chat-window${isOpen ? ' open' : ''}`}
+        data-no-deck="panel"
         role="dialog"
         aria-label={t('chat.header')}
         aria-modal="true"
         aria-hidden={!isOpen}
-        {...(!isOpen && { inert: '' })}
       >
         {/* Header */}
         <div className="chat-header">
@@ -384,6 +384,7 @@ function ChatWidget() {
         ref={toggleBtnRef}
         type="button"
         className={`chat-toggle${isOpen ? ' open' : ''}`}
+        data-no-deck=""
         onClick={toggleChat}
         aria-label={isOpen ? t('a11y.closeChat') : t('a11y.openChat')}
         aria-expanded={isOpen}

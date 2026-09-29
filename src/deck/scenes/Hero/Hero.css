@@ -1,0 +1,20 @@
+/* Hello scene. Colours and fonts: src/styles/tokens.css. */
+.dk-hero{padding-top:calc(env(safe-area-inset-top,0px) + 96px)}
+.dk-hero-in{display:flex;flex-direction:column;justify-content:space-between;height:100%;padding-right:0}
+.dk-hero-h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.dk.dk-nogl .dk-hero-h1{position:static;width:auto;height:auto;clip:auto;overflow:visible;font-family:var(--display);font-weight:800;font-size:clamp(48px,13vw,170px);letter-spacing:-.05em;line-height:.95;margin-top:6vh}
+.dk-hero-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:28px;flex-wrap:wrap}
+.dk-hero-desc{max-width:440px;padding:16px 18px;border-left:1px solid var(--line)}
+.dk-hero-side{display:grid;gap:24px;justify-items:end}
+.dk-stats{display:flex;gap:34px}
+.dk-stats b{display:block;font-family:var(--display);font-weight:300;font-size:36px;letter-spacing:-.05em;line-height:1}
+.dk-cue{color:var(--mute);display:flex;align-items:center;gap:10px}
+.dk-cue i{display:inline-block;width:1px;height:26px;background:var(--brand);animation:dk-cue 1.8s ease-in-out infinite;transform-origin:top}
+@keyframes dk-cue{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+.dk.dk-simple .dk-hero-in{justify-content:flex-start;gap:28px}
+.dk.dk-simple .dk-hero-role{margin-top:8px}
+@media (max-width:899px){
+  .dk-hero-side{justify-items:start}
+  .dk-stats{gap:22px}
+  .dk-bio,.dk-c-desc,.dk-hero-desc{padding-left:0;padding-right:0}
+}

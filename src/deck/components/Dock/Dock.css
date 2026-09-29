@@ -1,0 +1,18 @@
+/* Bottom dock: previous / scene dots / next. Colours and fonts: src/styles/tokens.css. */
+.dk-dock{position:fixed;z-index:60;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 22px);display:flex;align-items:center;gap:6px;padding:6px;border:1px solid var(--line);border-radius:999px;background:rgba(var(--bg-rgb),.86)}
+.dk-dock button{display:flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:999px;transition:background .3s,color .3s}
+.dk-dock .dk-arrow{width:34px;padding:0;justify-content:center;color:var(--mute)}
+.dk-dock .dk-arrow:hover:not(:disabled){color:var(--text);background:var(--hover)}
+.dk-dock .dk-arrow:disabled{opacity:.25;cursor:default}
+.dk-dock .dk-dot{width:7px;height:7px;border-radius:50%;border:1px solid var(--mute);transition:all .4s cubic-bezier(.16,1,.3,1)}
+.dk-dock .dk-lbl{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;max-width:0;overflow:hidden;white-space:nowrap;opacity:0;transition:max-width .5s cubic-bezier(.16,1,.3,1),opacity .4s}
+.dk-dock .dk-sc:hover .dk-lbl,.dk-dock .dk-sc.dk-on .dk-lbl{max-width:110px;opacity:1}
+.dk-dock .dk-sc.dk-on{background:rgba(var(--brand-rgb),.12);color:var(--brand)}
+.dk-dock .dk-sc.dk-on .dk-dot{background:var(--brand);border-color:var(--brand);transform:scale(1.25)}
+.dk-dock .dk-sep{width:1px;height:18px;background:var(--line);margin:0 4px}
+.dk-dock .dk-hint{color:var(--mute);padding:0 10px 0 6px;display:flex;align-items:center;gap:6px}
+@media (max-width:899px){
+  .dk-dock .dk-sc .dk-lbl,.dk-dock .dk-sep,.dk-dock .dk-hint{display:none}
+  .dk-dock .dk-sc{padding:0 8px}
+  .dk-dock .dk-sc.dk-on .dk-lbl{display:inline;max-width:90px}
+}

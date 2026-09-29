@@ -28,7 +28,8 @@ src/
 ├── components/             # One file per UI component
 │   ├── ThreeBackground.jsx   Three.js animated canvas
 │   ├── FloatingOrbs.jsx      Decorative blurred blobs
-│   ├── Navbar.jsx            Fixed top nav + mobile drawer
+│   ├── Navbar.jsx            Fixed top nav + mobile drawer (classic home only)
+│   ├── SiteBar.jsx           Slim top bar shared by the deck and the blog
 │   ├── HeroSection.jsx       Full-screen landing hero
 │   ├── AboutSection.jsx      Bio + info cards
 │   ├── ExperienceSection.jsx Work history timeline
@@ -36,6 +37,18 @@ src/
 │   ├── SkillsSection.jsx     Skill icons + certifications
 │   ├── ContactSection.jsx    Contact link list
 │   └── Footer.jsx            Site footer
+│
+├── deck/                   # The home page ("/"): particle scene deck (desktop) / plain scenes (< 1100px)
+│   ├── DeckPage.jsx          Shell: composes the pieces, owns UI state, mounts the controller
+│   ├── scenes/               Hero, About, Experience, Projects, Toolkit, Contact (one folder each)
+│   ├── components/           Dock (desktop), TabBar + DeckFooter (tablet/phone), Palette, DeskNote, BootLoader, Overlays, ParticleLayer
+│   ├── controller/           Navigation, input, pointer, charge effect, boot (imperative side)
+│   ├── demos/                Project-card demos + toolkit icons
+│   └── gl/                   WebGL particle engine, lazy-loaded on wide screens only
+│
+├── styles/
+│   ├── tokens.css            Design tokens: palette (dark/light) + typefaces, the one source of truth
+│   └── global.css            Reset + shared utilities
 │
 ├── context/
 │   └── ThemeContext.js       THEMES object + React context + useTheme hook

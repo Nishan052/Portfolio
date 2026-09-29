@@ -1,0 +1,67 @@
+/* Project-card demos and toolkit icon animations (dk-d-*, dk-f-*, dk-c-*, dk-i-*). Colours and fonts: src/styles/tokens.css. */
+.dk-tile svg{width:44px;height:44px;display:block;margin-bottom:10px}
+.dk-a-fill{fill:var(--brand)}
+.dk-a-str{stroke:var(--brand)}
+.dk-m-fill{fill:var(--mute)}
+.dk-d-rg{fill:var(--mute);fill-opacity:.35;animation:dk-rg 6s linear infinite}
+.dk-d-rg1{animation-delay:1.2s}
+.dk-d-rg2{animation-delay:2.4s}
+@keyframes dk-rg{0%{fill:var(--mute);fill-opacity:.35}5%,25%{fill:var(--brand);fill-opacity:1}32%,100%{fill:var(--mute);fill-opacity:.35}}
+.dk-d-flow{stroke-dasharray:4 8;animation:dk-flow 1s linear infinite}
+@keyframes dk-flow{to{stroke-dashoffset:-24}}
+.dk-d-pk{opacity:0}
+.dk-d-pk1{animation:dk-pk1 3.6s linear infinite}
+.dk-d-pk2{animation:dk-pk2 3.6s linear infinite 1.3s}
+.dk-d-pk3{animation:dk-pk3 3.6s linear infinite 1.9s}
+@keyframes dk-pk1{0%{transform:translateX(0);opacity:0}8%{opacity:1}40%{transform:translateX(137px);opacity:1}44%,100%{transform:translateX(137px);opacity:0}}
+@keyframes dk-pk2{0%{transform:translate(0,0);opacity:0}10%{opacity:1}50%{transform:translate(137px,-32px);opacity:1}56%,100%{transform:translate(137px,-32px);opacity:0}}
+@keyframes dk-pk3{0%{transform:translate(0,0);opacity:0}10%{opacity:1}50%{transform:translate(137px,32px);opacity:1}56%,100%{transform:translate(137px,32px);opacity:0}}
+.dk-d-scan,.dk-d-glow{animation:dk-scan 3.4s cubic-bezier(.65,0,.35,1) infinite alternate}
+@keyframes dk-scan{to{transform:translateX(304px)}}
+.dk-d-hb{transform-box:fill-box;transform-origin:bottom;animation:dk-hb 3.2s ease-in-out infinite}
+@keyframes dk-hb{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.62)}}
+.dk-d-sd{transform-box:fill-box;transform-origin:center;animation:dk-blink 2.4s ease-in-out infinite}
+.dk-d-type{transform-box:fill-box;transform-origin:left;animation:dk-typ 5s cubic-bezier(.65,0,.35,1) infinite}
+.dk-d-type2{animation-delay:.5s}
+.dk-d-type3{animation-delay:1s}
+@keyframes dk-typ{0%,30%{transform:scaleX(0)}60%,92%{transform:scaleX(1)}100%{transform:scaleX(0)}}
+.dk-f-scan{animation:dk-fscan 4s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes dk-fscan{0%{transform:translateY(0);opacity:0}8%{opacity:1}42%{transform:translateY(84px);opacity:1}48%,100%{transform:translateY(84px);opacity:0}}
+.dk-f-lm{transform-box:fill-box;transform-origin:center;animation:dk-flm 4s ease-in-out infinite}
+@keyframes dk-flm{0%,38%{opacity:0;transform:scale(.2)}50%,88%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.2)}}
+.dk-f-box{animation:dk-fbox 4s ease-in-out infinite}
+@keyframes dk-fbox{0%,10%{opacity:.25}50%,88%{opacity:1}100%{opacity:.25}}
+.dk-f-emb{transform-box:fill-box;transform-origin:bottom;animation:dk-femb 4s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes dk-femb{0%,35%{transform:scaleY(.25)}60%,90%{transform:scaleY(1)}100%{transform:scaleY(.25)}}
+.dk-f-link{stroke-dasharray:5 6;animation:dk-flow 1s linear infinite,dk-flink 4s ease-in-out infinite}
+@keyframes dk-flink{0%,45%{opacity:0}60%,90%{opacity:1}100%{opacity:0}}
+.dk-f-ok{animation:dk-fok 4s ease-in-out infinite}
+@keyframes dk-fok{0%,52%{opacity:0;transform:translateY(6px)}64%,90%{opacity:1;transform:none}100%{opacity:0}}
+.dk-f-wait{animation:dk-fwait 4s ease-in-out infinite}
+@keyframes dk-fwait{0%,8%{opacity:0}16%,44%{opacity:1}52%,100%{opacity:0}}
+.dk-c-up{fill:var(--text)}
+.dk-c-fc{fill:var(--brand);animation:dk-cfc 5s ease-in-out infinite}
+@keyframes dk-cfc{0%,25%{opacity:0}45%,90%{opacity:1}100%{opacity:0}}
+.dk-c-fc2{animation-delay:.2s}
+.dk-c-fc3{animation-delay:.4s}
+.dk-c-fc4{animation-delay:.6s}
+.dk-c-fc5{animation-delay:.8s}
+.dk-tile svg{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.dk-i-mag{animation:dk-sweep 4s ease-in-out infinite}
+@keyframes dk-sweep{0%,100%{transform:translate(0,0)}33%{transform:translate(-24px,-30px)}66%{transform:translate(-24px,-18px)}}
+.dk-i-ln{animation:dk-blink 4s ease-in-out infinite}
+.dk-i-dt{fill:currentColor;stroke:none;animation:dk-hop 2.4s ease-in-out infinite}
+@keyframes dk-hop{0%,100%{transform:translateY(0)}20%{transform:translateY(-9px)}40%{transform:translateY(0)}}
+.dk-i-core{transform-box:fill-box;transform-origin:center;animation:dk-beat 2.4s ease-in-out infinite}
+@keyframes dk-beat{50%{transform:scale(1.4)}}
+.dk-i-pin{stroke-dasharray:4 4;animation:dk-flow 1.2s linear infinite}
+.dk-i-line{stroke-dasharray:1;stroke-dashoffset:1;animation:dk-draw3 3.6s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes dk-draw3{0%{stroke-dashoffset:1}55%,100%{stroke-dashoffset:0}}
+.dk-i-tip{fill:var(--brand);stroke:none;transform-box:fill-box;transform-origin:center;animation:dk-blink 1.8s ease-in-out infinite}
+.dk-i-rot{transform-box:fill-box;transform-origin:center;animation:dk-turn 4.8s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes dk-turn{0%,20%{transform:rotate(0)}60%,100%{transform:rotate(180deg)}}
+.dk-i-net{animation:dk-flow 1.6s linear infinite}
+.dk-i-nd{fill:currentColor;stroke:none;transform-box:fill-box;transform-origin:center;animation:dk-beat 2s ease-in-out infinite}
+@media (max-width:899px){
+  .dk-tile svg{width:34px;height:34px}
+}

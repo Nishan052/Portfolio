@@ -6,17 +6,19 @@ Evidence: Single-partition rule from coral.ai Table 1; arithmetic reproduced by 
 Date: 2026-09-06
 
 ---
-A network I checked this week does 93 percent of its work on the wrong chip.
+Many devices have a special chip for fast AI. A YOLO-style object detector I tested ran 93 percent of its work on the slow processor.
 
 Not because 93 percent of its steps are unsupported. Because one is.
 
-The device has a chip built to run models fast, Google's Edge tensor processing unit. It only knows certain kinds of step. At the first step it does not know, it stops and hands the rest to the ordinary processor.
+The fast chip here is Google's Edge tensor processing unit. It only knows certain kinds of step. At the first step it does not know, it stops and hands the rest to the slow processor.
 
 It splits the model once. It cannot pick the work back up later.
 
 So the position of that first unknown step decides nearly everything. The count of them barely matters.
 
-This network used the same activation step seven times. The chip supports a close relative of it, but not this one. The first copy sat second in a list of fifteen. Fourteen steps went to the slow processor behind it.
+YOLO, short for You Only Look Once, is a popular family of models that find objects in images.
+
+This one used the same activation step seven times. The chip supports a close relative of it, but not this one. The first copy sat second in a list of fifteen. Fourteen steps went to the slow processor behind it.
 
 That flips the usual fix. Counting tells you seven things need replacing. Only the first one carries any weight. Change that one step and almost the whole network runs on the fast chip.
 

@@ -6,14 +6,14 @@ html { scroll-behavior: auto; overflow-x: hidden; } /* prevent wide children fro
 
 /* ─── Base ──────────────────────────────────────────────────────────────────── */
 body {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
   overflow-x: hidden;
   transition: background 0.45s ease, color 0.45s ease;
 }
 
-h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
+h1, h2, h3, h4 { font-family: var(--font-display); }
 
 /* ─── Skip link (WCAG 2.4.1 Bypass Blocks) ─────────────────────────────────── */
 .skip-link {
@@ -22,8 +22,8 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
   left: 16px;
   padding: 10px 20px;
   background: var(--accent);
-  color: #000;
-  font-family: 'DM Mono', monospace;
+  color: var(--ink-on-brand);
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   font-weight: 700;
   border-radius: 0 0 10px 10px;
@@ -87,7 +87,7 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
 
 /* ─── Section labels ────────────────────────────────────────────────────────── */
 .section-tag {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px; letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--accent);
@@ -123,7 +123,7 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
 }
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 60px rgba(0, 229, 255, 0.09);
+  box-shadow: 0 20px 60px rgba(var(--brand-rgb), 0.09);
 }
 
 /* ─── Skill pill ────────────────────────────────────────────────────────────── */
@@ -131,7 +131,7 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
   display: inline-flex; align-items: center; gap: 5px;
   padding: 5px 12px; border-radius: 100px;
   font-size: 11px; font-weight: 500;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   background: var(--accent-soft);
   border: 1px solid var(--border);
   color: var(--accent);
@@ -149,7 +149,7 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
   display: inline-flex; align-items: center; gap: 8px;
   padding: 11px 26px; border-radius: 100px;
   font-size: 14px; font-weight: 600;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-body);
   background: var(--accent);
   color: var(--bg);
   border: none; cursor: pointer; text-decoration: none;
@@ -157,7 +157,7 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
 }
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 229, 255, 0.35);
+  box-shadow: 0 8px 30px rgba(var(--brand-rgb), 0.35);
   filter: brightness(1.1);
 }
 
@@ -165,7 +165,7 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
   display: inline-flex; align-items: center; gap: 8px;
   padding: 11px 26px; border-radius: 100px;
   font-size: 14px; font-weight: 600;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-body);
   background: transparent; color: var(--accent);
   border: 1px solid var(--border);
   cursor: pointer; text-decoration: none;
@@ -210,7 +210,7 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
 .hero-role {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: clamp(0.65rem, 2vw, 0.9rem);
   color: var(--accent); letter-spacing: 3px; text-transform: uppercase;
 }
@@ -222,7 +222,7 @@ h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
 .scroll-indicator {
   display: flex; flex-direction: column; align-items: center; gap: 5px;
   color: var(--text-muted); font-size: 10px;
-  font-family: 'DM Mono', monospace; letter-spacing: 2px;
+  font-family: var(--font-mono); letter-spacing: 2px;
   animation: bounce 2s infinite;
 }
 

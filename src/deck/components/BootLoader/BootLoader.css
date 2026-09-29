@@ -1,0 +1,11 @@
+/* Boot loader (controller/boot.js animates it). Colours and fonts: src/styles/tokens.css. */
+.dk-boot{position:fixed;inset:0;z-index:300;background:var(--bg);display:grid;place-items:center;animation:dk-bootfail .6s 7s forwards}
+@keyframes dk-bootfail{to{opacity:0;visibility:hidden}}
+.dk-boot-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.dk-boot-field{position:absolute;inset:0;width:100%;height:100%}
+.dk-boot-in{position:relative;z-index:1;width:min(420px,80vw);display:grid;gap:18px}
+.dk-boot-orb{position:relative;width:100%;height:clamp(96px,20vw,170px)}
+.dk-boot-ball{position:absolute;left:0;top:0;width:34px;height:34px;margin:-17px 0 0 -17px;background:var(--ball);border-radius:46% 54% 58% 42%/48% 42% 58% 52%;box-shadow:0 0 30px 6px var(--ball-glow),0 0 64px 20px rgba(var(--brand-rgb),.22);animation:dk-orbwob 2.2s ease-in-out infinite alternate}
+@keyframes dk-orbwob{0%{border-radius:46% 54% 58% 42%/48% 42% 58% 52%;transform:scale(1)}50%{border-radius:58% 42% 46% 54%/42% 58% 44% 56%;transform:scale(1.1)}100%{border-radius:42% 58% 50% 50%/56% 44% 52% 48%;transform:scale(.94)}}
+.dk-boot-line{height:1px;background:var(--line);position:relative;overflow:hidden}
+.dk-boot-bar{position:absolute;inset:0;background:var(--brand);transform:scaleX(0);transform-origin:left}

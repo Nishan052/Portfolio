@@ -1,0 +1,14 @@
+.site-backdrop {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 45% at 88% 0%, rgba(var(--brand-rgb), .11), transparent 70%),
+    radial-gradient(50% 40% at 0% 100%, rgba(var(--support-rgb), .06), transparent 70%),
+    var(--bg);
+}
+.site-backdrop::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(var(--line) 1px, transparent 1.6px) 0 0 / 30px 30px;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 70%);
+  mask-image: linear-gradient(to bottom, #000, transparent 70%);
+  opacity: .7;
+}

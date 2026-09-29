@@ -139,7 +139,7 @@ function BlogCard({ blog }) {
   };
 
   return (
-    <article role="listitem" className="blog-card-wrapper" style={{ '--card-accent': blog.color }}>
+    <article role="listitem" className="blog-card-wrapper">
       <Link
         to={`/blogs/${blog.slug}`}
         className="blog-card"

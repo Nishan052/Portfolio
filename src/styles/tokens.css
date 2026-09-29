@@ -1,0 +1,75 @@
+/* ==========================================================================
+   Design tokens — the one place the site's palette and typefaces are defined.
+   Every page (home deck, blog, chat, the older sections) reads these; nothing else
+   should hard-code a colour or a font name.
+
+   Theme: App sets data-theme="dark" | "light" on <html>. Dark is the default so
+   there is no unstyled flash before React mounts. The deck root also carries the
+   attribute, so it stays correct when rendered on its own (tests).
+
+   Names: the short set (--bg --text --mute --line --brand --support --spare) is the
+   design vocabulary; the second block keeps the older semantic names (--accent
+   --surface --border --text-muted ...) as aliases so existing components follow
+   the new palette without being rewritten.
+   ========================================================================== */
+
+:root {
+  --font-display: 'Lexend', 'Unbounded', 'Arial Black', system-ui, sans-serif;
+  --font-body:    'Geist', system-ui, sans-serif;
+  --font-mono:    'Geist Mono', ui-monospace, monospace;
+}
+
+/* Palette: "Indigo Signal". brand = lead accent (links, labels, active states, buttons),
+   support = second accent, spare = third accent / error-adjacent highlights. Change the look by
+   changing values here; the role names stay. */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0A0B14;         --bg-rgb: 10, 11, 20;     --panel: #12142A;   --viz-bg: #0D0F1E;
+  --line: rgba(180, 188, 255, .18);
+  --text: #F2F3FB;       --mute: #A3A8C8;
+  --brand: #8B93FF;      --brand-rgb: 139, 147, 255;
+  --support: #4FE0B5;    --support-rgb: 79, 224, 181;    --support-a: rgba(79, 224, 181, .2);
+  --spare: #FF8FB1;      --spare-rgb: 255, 143, 177;
+  --danger: #FF6B6B;     --danger-rgb: 255, 107, 107;
+  --scrim: rgba(10, 11, 20, .88);
+  --ink-on-brand: #0A0B1E;   --tile-sub-hover: #3b4266;   --hover: rgba(255, 255, 255, .08);
+  --glass-a: rgba(26, 30, 62, .8);   --glass-b: rgba(12, 14, 30, .8);
+  --glass-line: rgba(180, 188, 255, .22);   --glass-hi: rgba(255, 255, 255, .06);
+  --shadow: rgba(0, 0, 0, .65);
+  --ball: #fff;          --ball-glow: rgba(255, 255, 255, .4);
+  --code-bg: #0C0E1C;    --code-text: #E6E8F8;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #F8F4EC;         --bg-rgb: 248, 244, 236;  --panel: #FFFDF8;   --viz-bg: #EFEADF;
+  --line: rgba(32, 38, 90, .16);
+  --text: #0F1226;       --mute: #4A5072;
+  --brand: #4048D6;      --brand-rgb: 64, 72, 214;
+  --support: #0B7A5B;    --support-rgb: 11, 122, 91;     --support-a: rgba(11, 122, 91, .16);
+  --spare: #C02660;      --spare-rgb: 192, 38, 96;
+  --danger: #C62828;     --danger-rgb: 198, 40, 40;
+  --scrim: rgba(248, 244, 236, .9);
+  --ink-on-brand: #FFFFFF;   --tile-sub-hover: #BDB8CC;   --hover: rgba(15, 18, 38, .06);
+  --glass-a: rgba(255, 253, 248, .86);   --glass-b: rgba(241, 236, 226, .86);
+  --glass-line: rgba(32, 38, 90, .16);   --glass-hi: rgba(255, 255, 255, .7);
+  --shadow: rgba(32, 38, 90, .28);
+  --ball: #1B2050;       --ball-glow: rgba(27, 32, 80, .28);
+  --code-bg: #F0EBE0;    --code-text: #1B2050;
+}
+
+/* Older semantic names, derived from the vocabulary above */
+:root,
+[data-theme="dark"],
+[data-theme="light"] {
+  --surface:         rgba(var(--bg-rgb), .72);
+  --surface-hover:   var(--hover);
+  --text-muted:      var(--mute);
+  --accent:          var(--brand);
+  --accent-soft:     rgba(var(--brand-rgb), .12);
+  --accent2:         var(--support);
+  --border:          var(--line);
+  --nav-bg:          rgba(var(--bg-rgb), .9);
+  --section-overlay: rgba(var(--bg-rgb), .55);
+}

@@ -61,6 +61,19 @@ const siteConfig = {
     highlightSkills: ["Python", "PyTorch", "TensorFlow", "RAG / LLMs", "SQL", "Docker"],
   },
 
+  // ── Home deck (src/deck) ────────────────────────────────────────────────────
+  deck: {
+    /** Below this width the deck is plain content: no WebGL, no particle loader, no three.js download. */
+    simpleMax:     1100,
+    /** Seconds from clicking a warp button (GitHub, LinkedIn, email) until the link actually opens. */
+    navDelay:      3,
+    /** "Best on desktop" note (simple mode only): ms until it slides in, and ms until it leaves by itself. */
+    noteDelay:     1500,
+    noteVisible:   12000,
+    /** Dots in the boot loader burst (0 under reduced motion). */
+    bootParticles: 1800,
+  },
+
   // ── Footer ──────────────────────────────────────────────────────────────────
   footer: {
     copyrightYear: "2026",

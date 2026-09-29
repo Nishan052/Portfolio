@@ -1,0 +1,5 @@
+.dk-footer{margin-top:14px}
+.dk-footer-links{display:flex;flex-wrap:wrap;gap:8px 20px;padding:16px 0 4px;border-top:1px solid var(--line)}
+.dk-footer-links a{color:var(--text);transition:color .3s}
+.dk-footer-links a:hover{color:var(--brand)}
+.dk-footer .dk-foot{margin-top:12px}

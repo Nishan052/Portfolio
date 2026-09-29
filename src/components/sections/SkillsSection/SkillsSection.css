@@ -6,7 +6,7 @@
 }
 
 .skills-category-label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -63,7 +63,7 @@
 }
 
 .certs-label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -90,7 +90,7 @@
 .cert-org {
   font-size: 11px;
   color: var(--accent);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 @media (max-width: 480px) {

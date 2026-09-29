@@ -36,7 +36,7 @@
 
 .project-category-badge {
   font-size: 10px;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   letter-spacing: 2px;
   padding: 3px 10px;
   border-radius: 100px;
@@ -70,14 +70,14 @@
 }
 
 .project-id-label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 1px;
   opacity: 0.7;
 }
 
 .project-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(0.98rem, 2vw, 1.1rem);
   color: var(--text);
@@ -86,7 +86,7 @@
 .project-subtitle {
   font-size: 11px;
   color: var(--text-muted);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   margin-top: 2px;
 }
 
@@ -128,7 +128,7 @@
   border-radius: 100px;
   background: var(--accent-soft);
   color: var(--text-muted);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 @media (max-width: 768px) {

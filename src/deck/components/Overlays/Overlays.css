@@ -1,0 +1,21 @@
+/* Charge flash and wave, toast, custom cursor and ring, globe caption. Colours and fonts: src/styles/tokens.css. */
+.dk-flash{position:fixed;inset:0;z-index:280;pointer-events:none;opacity:0;background:radial-gradient(circle at var(--fx,50%) var(--fy,50%),rgba(255,238,205,.9) 0,rgba(255,190,110,.34) 13%,rgba(var(--brand-rgb),0) 44%)}
+.dk-wave-fx{position:fixed;inset:0;z-index:279;pointer-events:none;opacity:0;--wr:0px;background:radial-gradient(circle at var(--fx,50%) var(--fy,50%),rgba(var(--brand-rgb),0) calc(var(--wr) - 110px),rgba(var(--brand-rgb),.09) calc(var(--wr) - 40px),rgba(255,208,146,.6) calc(var(--wr) - 3px),rgba(255,208,146,0) var(--wr))}
+.dk-toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 84px);transform:translate(-50%,20px);z-index:290;background:var(--text);color:var(--bg);padding:12px 20px;font:500 13px var(--mono);letter-spacing:.03em;opacity:0;pointer-events:none;max-width:calc(100vw - 32px);text-align:center;transition:opacity .4s,transform .5s cubic-bezier(.16,1,.3,1)}
+.dk-toast.dk-on{opacity:1;transform:translate(-50%,0)}
+.dk-cur,.dk-ring{position:fixed;left:0;top:0;z-index:250;pointer-events:none;opacity:0;transition:opacity .5s}
+.dk.dk-has-ptr .dk-cur,.dk.dk-has-ptr .dk-ring{opacity:1}
+.dk-cur{width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#fff;mix-blend-mode:difference}
+.dk-ring{width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:1px solid rgba(255,255,255,.75);mix-blend-mode:difference;transition:width .35s cubic-bezier(.16,1,.3,1),height .35s cubic-bezier(.16,1,.3,1),margin .35s cubic-bezier(.16,1,.3,1),opacity .5s,border-color .3s,box-shadow .3s}
+.dk-ring.dk-big{width:38px;height:38px;margin:-19px 0 0 -19px}
+.dk.dk-in-globe .dk-ring{border-color:var(--spare);box-shadow:0 0 22px 4px rgba(var(--spare-rgb),.55),inset 0 0 14px rgba(var(--spare-rgb),.5);mix-blend-mode:normal}
+.dk.dk-in-globe .dk-cur{background:var(--spare);box-shadow:0 0 14px 4px rgba(var(--spare-rgb),.8);mix-blend-mode:normal}
+.dk.dk-touch .dk-cur,.dk.dk-touch .dk-ring{display:none}
+/* The system cursor is hidden only once our own has received a mouse move (dk-has-ptr), so it can never
+   be hidden with nothing drawn in its place: after a remount, a resize or a switch to touch it comes back. */
+.dk.dk-has-ptr,.dk.dk-has-ptr a,.dk.dk-has-ptr button,.dk.dk-has-ptr input{cursor:none}
+.dk-globe-cap{color:var(--text);position:fixed;z-index:4;text-align:center;opacity:0;visibility:hidden;pointer-events:none;transform:translateX(-50%)}
+.dk-globe-cap i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--brand);margin-right:8px;animation:dk-blink 1.2s ease-in-out infinite}
+.dk-globe-cap span{display:block;color:var(--spare);margin-top:4px}
+@keyframes dk-ring{0%{transform:scale(.3);opacity:.8}100%{transform:scale(1.6);opacity:0}}
+.dk.dk-simple .dk-toast{bottom:calc(var(--tab-h) + env(safe-area-inset-bottom,0px) + 16px)}
