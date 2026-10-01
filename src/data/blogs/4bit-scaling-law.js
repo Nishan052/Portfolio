@@ -61,7 +61,7 @@ So "four-bit" names a family of schemes rather than one scheme, and two of them 
 
 The study measured accuracy under a memory budget. Speed is a separate question with a separate answer.
 
-Producing one token requires reading every weight out of memory, so throughput is roughly memory bandwidth divided by bytes read per token. Halving the bits roughly doubles that ceiling. The effect is real, it is simply not what this result is about, and the two get run together constantly in discussions of quantisation.
+Producing one token requires reading every weight out of memory. Memory bandwidth is how fast that data reaches the chip, so throughput is roughly memory bandwidth divided by bytes read per token. Halving the bits roughly doubles that ceiling. The effect is real, it is simply not what this result is about, and the two get run together constantly in discussions of quantisation.
 
 ![Fewer bits means both a smaller footprint, which is what the scaling law measured, and fewer bytes read per token, which is a separate bandwidth effect. Both improve at once, which is why they get conflated.](/diagrams/4bit-scaling-law-3.svg)
 

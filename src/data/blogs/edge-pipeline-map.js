@@ -21,7 +21,7 @@ const post = {
 
 Start with the hardware, because every difficulty downstream comes from one fact about it.
 
-A neural accelerator is a fixed circuit that executes a published list of operations on 8-bit integers, and that list is short. The Coral Edge TPU documents its own, and so does every competing part. An operation outside the list never runs on that chip at all.
+A neural accelerator is a fixed circuit that executes a published list of operations on 8-bit integers, and that list is short. The Coral Edge tensor processing unit (TPU) documents its own, and so does every competing part. An operation outside the list never runs on that chip at all.
 
 Now look at what you trained. A convolutional vision model written in PyTorch is a 32-bit floating point graph that may contain any operation the framework can express, in any arrangement, with shapes decided at runtime. Nothing about it was constrained by the chip, because at training time the chip was not involved.
 

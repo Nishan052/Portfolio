@@ -12,7 +12,7 @@ const post = {
   part:      3,
   readTime:  '12 min',
   tags:      ['EdgeAI', 'Accelerators', 'ONNX', 'Deployment', 'Compilers'],
-  excerpt:   'The Edge TPU compiler splits a model once, so the position of the first unsupported operator decides how much of it runs on the chip.',
+  excerpt:   'Google\'s Edge tensor processing unit (TPU) splits a model once, so the first layer it cannot run decides how much runs on the chip.',
 
   content: `
 ![One layer decides whether your model uses the accelerator at all](/videos/edgetpu-position-dominates.mp4)
@@ -21,7 +21,7 @@ const post = {
 
 Part one described the compiler as the step where a model gets silently split. This part is about the rule that governs the split, because everything surprising downstream follows from it.
 
-Google's Edge tensor processing unit compiles ahead of time. It walks the graph in order, and at the first operator it cannot execute it stops. Everything up to that point becomes one compiled section that runs on the chip. Everything after it runs on the ordinary processor.
+The Edge TPU compiles ahead of time. It walks the graph in order. An operator is one step in that graph, such as a convolution or an activation. At the first operator the chip cannot execute, the compiler stops. Everything up to that point becomes one compiled section that runs on the chip. Everything after it runs on the ordinary processor.
 
 It does not resume. It does not collect the supported operators further along and give you those too. There is one contiguous accelerated section per model, and the documentation says so in a single line on the supported operations page.
 
