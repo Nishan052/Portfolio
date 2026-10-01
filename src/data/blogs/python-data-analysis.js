@@ -37,13 +37,13 @@ flowchart TD
 
 ## Core Libraries
 
-### Pandas — Data Manipulation
-Pandas provides the \`DataFrame\` — a two-dimensional, labelled data structure that is the lingua franca of Python data science. Key operations: filtering, groupby aggregation, merge, pivot, and time-series resampling.
+### Pandas for data manipulation
+Pandas provides the \`DataFrame\`, a two-dimensional, labelled data structure that is the lingua franca of Python data science. Key operations: filtering, groupby aggregation, merge, pivot, and time-series resampling.
 
-### NumPy — Numerical Foundation
+### NumPy as the numerical foundation
 NumPy underpins Pandas, Matplotlib, and scikit-learn. Direct NumPy operations are 10–100× faster than Python loops on array data due to vectorised C-level operations.
 
-### Matplotlib & Seaborn — Visualisation
+### Matplotlib and Seaborn for visualisation
 
 \`\`\`mermaid
 flowchart LR
@@ -58,13 +58,13 @@ Seaborn builds on Matplotlib, providing statistical visualisations with minimal 
 ## Key Analyses Demonstrated
 
 ### 1. Missing Value Heatmap
-A heatmap reveals whether missingness is **random** (scattered) or **systematic** (whole columns/rows) — critical for choosing between imputation strategies.
+A heatmap reveals whether missingness is random (scattered) or systematic (whole columns/rows), which decides the imputation strategy.
 
 ### 2. Distribution Analysis
 Histograms reveal skewness, bimodality, and outliers. Box plots compare distributions across groups and highlight outliers via the IQR method.
 
 ### 3. Correlation Heatmap
-Correlation matrices surface **multicollinearity** before model training — two highly correlated features add redundancy, not signal.
+Correlation matrices surface multicollinearity before model training. Two highly correlated features add redundancy, not signal.
 
 ### 4. Pair Plot for Multivariate Relationships
 Seaborn pairplots show all pairwise scatter plots simultaneously, coloured by a target variable, revealing separability at a glance.
@@ -74,13 +74,13 @@ Seaborn pairplots show all pairwise scatter plots simultaneously, coloured by a 
 ## Design Decisions
 
 ### Why Jupyter Notebooks?
-Notebooks interleave code, output, and markdown narrative — making analysis **reproducible and communicable**. Each cell is independently executable, enabling iterative exploration.
+Notebooks interleave code, output, and markdown narrative, which makes analysis reproducible and easy to share. Each cell is independently executable, enabling iterative exploration.
 
 ### Why Seaborn over raw Matplotlib?
 Seaborn reduces 15-line Matplotlib plots to 2-line calls for common statistical charts. Its defaults are publication-quality. Matplotlib is reserved for custom layouts that Seaborn cannot express.
 
 ### Why GroupBy before Modelling?
-Understanding group-level statistics often surfaces the most actionable insights — and reveals whether a global model makes sense or whether subgroup models are needed.
+Understanding group-level statistics often surfaces the most actionable insights, and reveals whether a global model makes sense or whether subgroup models are needed.
 
 ---
 

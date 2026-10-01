@@ -17,15 +17,15 @@ const post = {
 
 Brute-force similarity search against ten million 1536-dimensional vectors requires loading every embedding into memory and scoring it against the query, like checking every book in a library with no catalog. One million 128-dimensional float32 vectors cost 512 MB of RAM. At production scale, exhaustive nearest-neighbor search runs for hundreds of milliseconds per request, far past what a user-facing application tolerates.
 
-The root problem is not hardware. It is search scope. Without structure, every query evaluates every vector. Clustering adds structure by partitioning the data set offline, so queries at runtime evaluate only the relevant partition rather than the full corpus.
+The root problem is search scope. Without structure, every query evaluates every vector. Clustering adds structure by partitioning the data set offline, so queries at runtime evaluate only the relevant partition.
 
-This is where k-means clustering fits into the RAG engineering story. Not as a labeling mechanism. Not as a classifier. As a **compression decision**: you accept slightly imperfect recall in exchange for orders-of-magnitude faster retrieval. Getting that tradeoff right requires understanding what the algorithm actually optimizes and where it structurally fails.
+This is where k-means clustering fits into the RAG engineering story. Not as a labeling mechanism. Not as a classifier. As a compression decision: you accept slightly imperfect recall in exchange for orders-of-magnitude faster retrieval. Getting that tradeoff right requires understanding what the algorithm actually optimizes and where it structurally fails.
 
 ## What Inertia Measures and What It Does Not
 
-K-means does not discover meaningful categories in your data. It minimizes **inertia**: the total squared distance between each point and its assigned cluster center, a measure of how tightly packed each group is. Lower inertia means points sit closer to their centroid. The algorithm stops when those centroids stop moving. What it produces is a partition, not a label. Two documents with identical content can land in different clusters on different runs if initialization differs.
+K-means does not discover meaningful categories in your data. It minimizes inertia: the total squared distance between each point and its assigned cluster center, a measure of how tightly packed each group is. Lower inertia means points sit closer to their centroid. The algorithm stops when those centroids stop moving. What it produces is a partition, not a label. Two documents with identical content can land in different clusters on different runs if initialization differs.
 
-The distance metric determines what "close" means. Euclidean distance treats all dimensions equally. **Cosine distance** normalizes for magnitude, making it the better choice for text embeddings where vector length varies but direction encodes semantic meaning. Applying Euclidean distance to high-dimensional embeddings breaks down because in high dimensions the gap between nearest and farthest neighbors collapses to near zero. This is the **curse of dimensionality**: distance loses its power to discriminate as dimensions increase.
+The distance metric determines what "close" means. Euclidean distance treats all dimensions equally. Cosine distance normalizes for magnitude, making it the better choice for text embeddings where vector length varies but direction encodes semantic meaning. Applying Euclidean distance to high-dimensional embeddings breaks down because in high dimensions the gap between nearest and farthest neighbors collapses to near zero. This is the curse of dimensionality: distance loses its power to discriminate as dimensions increase.
 
 K-means assumes convex clusters of roughly equal size. Density-based algorithms like DBSCAN handle irregular shapes, but do not produce the fixed partition structure that index construction requires. When the goal is search scope reduction, k-means is the practical default.
 
@@ -57,13 +57,13 @@ flowchart LR
 
 *Three phases of k-means: seeds are placed far apart, points and seeds converge through repeated assignment, and the stable regions become the lookup cells of the IVF index.*
 
-A centroid is not a data point. It is a computed position, like the average GPS coordinate of all delivery stops in a zone. It represents the center of its group even if no document sits at that exact location. **K-means++ initialization** places starting centroids far apart across the vector space, reducing the chance of the algorithm converging on a poor local partition.
+A centroid is a computed position, like the average GPS coordinate of all delivery stops in a zone. It represents the center of its group even if no document sits at that exact location. K-means++ initialization places starting centroids far apart across the vector space, reducing the chance of the algorithm converging on a poor local partition.
 
 The result is a Voronoi partition: the vector space gets divided into regions where every point belongs to the nearest centroid. These regions become the lookup cells for a retrieval index, each mapping to a list of document IDs. Cluster shapes in practice are rarely spherical. Real document embeddings form elongated or irregular patterns. Cluster assignments remain useful as a coarse filter because the goal is scope reduction, not perfect boundary placement.
 
 ## Clustering as a RAG Pre-Filter
 
-An **Inverted File Index** (IVF) turns the k-means output into a fast retrieval system by mapping each cluster region to the document IDs inside it.
+An Inverted File Index (IVF) turns the k-means output into a fast retrieval system by mapping each cluster region to the document IDs inside it.
 
 The workflow separates into two phases.
 
@@ -95,11 +95,11 @@ The 166x speed improvement comes entirely from clustering the index before queri
 
 ## Choosing Parameters and Monitoring Drift
 
-Two parameters govern IVF-based retrieval quality. **k** (number of clusters) controls partition granularity. A practical starting point is the square root of the corpus size. One million documents maps to roughly k=1000. At k=2048, each cluster holds about 500 documents on average. **nprobe** (cells searched per query) trades recall for speed. Start at 1% of k and increase until recall targets are met. At nprobe=48 out of k=2048, you search roughly 2.3% of the index.
+Two parameters govern IVF-based retrieval quality. k (number of clusters) controls partition granularity. A practical starting point is the square root of the corpus size. One million documents maps to roughly k=1000. At k=2048, each cluster holds about 500 documents on average. nprobe (cells searched per query) trades recall for speed. Start at 1% of k and increase until recall targets are met. At nprobe=48 out of k=2048, you search roughly 2.3% of the index.
 
 Cluster drift is a silent failure mode. New documents arriving after the last clustering pass get assigned to the nearest existing centroid, but those centroids never update. No error fires, latency stays flat, but relevance worsens over time.
 
-Track the **silhouette score** of your partition over time. The silhouette score measures how well each point fits its own cluster compared to the next closest one. A score near +1 indicates dense, well-separated clusters. A score near 0 signals heavy overlap. Reschedule a full clustering pass when the score falls below 0.4. Monthly recluster cycles work for most RAG corpora unless the corpus grows by more than 20% between passes.
+Track the silhouette score of your partition over time. The silhouette score measures how well each point fits its own cluster compared to the next closest one. A score near +1 indicates dense, well-separated clusters. A score near 0 signals heavy overlap. Reschedule a full clustering pass when the score falls below 0.4. Monthly recluster cycles work for most RAG corpora unless the corpus grows by more than 20% between passes.
 
 \`\`\`mermaid
 flowchart TD

@@ -6,9 +6,9 @@ Evidence: Tang & Zheng, arXiv:2609.32160; Check Point Research, Sep 2026; TypeSa
 Date: 2026-10-06
 
 ---
-Most of what an AI agent asks its model is not writing. It is deciding.
+Most questions an AI agent asks its model have a short list of answers.
 
-Which tool next. Is this ticket urgent. Did that step work.
+Which tool runs next? Is this ticket urgent? Did that step work?
 
 Each of those goes to a model built to write. It answers one word at a time. It can name a tool that does not exist. And it does not say how sure it is.
 
@@ -18,7 +18,7 @@ So it cannot invent an option. And your code can act on the number: go above 0.9
 
 On TypeSafe's own test, Jev matched a large model at 0.4 seconds a case instead of 10.1.
 
-Two catches. A review of 28 early studies, Tang and Zheng (arXiv:2609.32160), found no gain in accuracy yet. And Check Point steered Jev with prompt injection in 25 of 27 runs.
+There are two catches. A review of 28 early studies, Tang and Zheng (arXiv:2609.32160), found no gain in accuracy yet. And Check Point steered Jev with prompt injection in 25 of 27 runs.
 
 The answer is always on your list. It can still be the wrong one.
 

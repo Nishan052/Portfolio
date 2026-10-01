@@ -36,9 +36,9 @@ The above flowchart shows standard dense retrieval. Both query and chunk are com
 
 ## How late interaction keeps the detail
 
-**Late interaction** delays the comparison until after both sides are encoded at the token level. ColBERT, introduced by Khattab and Zaharia in 2020, encodes the query into one vector per token and the document into one vector per token. Instead of a single dot product, it scores relevance with a MaxSim operator: for each query token, find its highest similarity against any document token, then sum those maxima.
+Late interaction delays the comparison until after both sides are encoded at the token level. ColBERT, introduced by Khattab and Zaharia in 2020, encodes the query into one vector per token and the document into one vector per token. Instead of a single dot product, it scores relevance with a MaxSim operator: for each query token, find its highest similarity against any document token, then sum those maxima.
 
-This matters because a single query term can now match the exact phrase it belongs to, rather than the averaged gist of the passage. A query about a specific drug interaction can light up the two tokens that name the drugs, even if the surrounding paragraph discusses many other topics.
+A single query term can now match the exact phrase it belongs to. With one vector per passage, it could only match the passage's averaged gist. A query about a specific drug interaction can light up the two tokens that name the drugs, even if the surrounding paragraph discusses many other topics.
 
 \`\`\`mermaid
 flowchart TD
@@ -83,7 +83,7 @@ A large share of enterprise content lives in PDFs full of tables, charts, and la
 
 This skips the brittle parse-then-chunk pipeline entirely. The retriever matches a query against the visual page, including its figures and table cells, rather than against a flattened text extraction that may have scrambled the columns. For document-heavy retrieval, this removes a whole class of silent failures where the parser, not the retriever, was the real problem.
 
-The momentum here is real. The first dedicated workshop on late interaction and multi-vector retrieval was accepted for ECIR 2026, a signal that token-level methods have moved into the information-retrieval mainstream rather than staying a single-paper technique.
+The momentum here is real. The first dedicated workshop on late interaction and multi-vector retrieval was accepted for ECIR 2026, a signal that token-level methods have moved into the information-retrieval mainstream.
 
 ## When the extra cost is worth it
 

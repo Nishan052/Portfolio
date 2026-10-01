@@ -15,7 +15,7 @@ const post = {
   content: `
 ![Decision models like Jev and Laya: why agents started asking for decisions, not text](/videos/jev-laya-typed-decision-models.mp4)
 
-A support ticket arrives at your agent. Before anyone writes a reply, the agent asks its model four questions. Is this urgent? Which team owns it? Which tool should run first? Did that tool succeed? Each question has a short, known list of answers, and each one goes to a large language model (LLM) that answers by writing. It takes a few seconds, and sometimes it answers with a tool name you never defined. Two new models released in September 2026 exist because of exactly that mismatch.
+A support ticket arrives at your agent. Before anyone writes a reply, the agent asks its model four questions: is the ticket urgent, which team owns it, which tool should run first, and did that tool succeed? Each question has a short, known list of answers, and each one goes to a large language model (LLM) that answers by writing. It takes a few seconds, and sometimes it answers with a tool name you never defined. Two new models released in September 2026 exist because of exactly that mismatch.
 
 ## Most calls an agent makes are decisions with a known answer set
 
@@ -47,7 +47,7 @@ Before 2020, teams trained a separate classifier for each decision. A fine-tuned
 
 Prompted language models removed that cost. One model could answer any question written in plain words, so the classifiers were retired. Speed and calibration went with them.
 
-The patches followed. Structured output modes forced the reply into a fixed format, which fixed parsing and nothing else. Reading the probability of each label from the model's output scores brought back a confidence figure, but only where the provider exposed those scores, and the full generation cost remained.
+Structured output modes then forced the reply into a fixed format, which fixed parsing and nothing else. Reading the probability of each label from the model's output scores brought back a confidence figure, but only where the provider exposed those scores, and the full generation cost remained.
 
 ![A strip from fine-tuned classifiers, through prompted language models, structured output modes and label probabilities, to typed decision models.](/diagrams/jev-laya-typed-decision-models-2.svg)
 

@@ -9,15 +9,15 @@ const post = {
   readTime:  '14 min',
   tags:      ['Python', 'LSTM', 'ARIMA', 'Time Series', 'Streamlit', 'TensorFlow'],
   githubUrl: 'https://github.com/Nishan052/Stock-Price-Prediction',
-  excerpt:   'A walk-forward one-step forecasting system for the NIFTY 50 index, comparing classical ARIMA against a deep learning LSTM model — with a live Streamlit GUI and CI pipeline.',
+  excerpt:   'A walk-forward one-step forecasting system for the NIFTY 50 index, comparing classical ARIMA against a deep learning LSTM model, with a live Streamlit GUI and CI pipeline.',
 
   content: `
 ## Overview
 
-This project implements a **walk-forward one-step forecasting framework** for the NIFTY 50 stock index — India's benchmark equity index comprising the 50 largest NSE-listed companies. Two fundamentally different modelling philosophies are pitted against each other:
+This project implements a walk-forward one-step forecasting framework for the NIFTY 50 stock index, India's benchmark equity index comprising the 50 largest NSE-listed companies. It compares two different modelling approaches:
 
-- **ARIMA** (AutoRegressive Integrated Moving Average) — a classical econometric model
-- **LSTM** (Long Short-Term Memory) — a recurrent neural network capable of capturing non-linear dependencies
+- ARIMA (AutoRegressive Integrated Moving Average), a classical econometric model
+- LSTM (Long Short-Term Memory), a recurrent neural network capable of capturing non-linear dependencies
 
 A live demo is available at [nifty50indexprediction.streamlit.app](https://nifty50indexprediction.streamlit.app/).
 
@@ -55,15 +55,15 @@ flowchart TD
 
 ### 1. Walk-Forward Validation (not train/test split)
 
-A simple 80/20 split would leak future information into the training distribution — a classic mistake in financial ML. Walk-forward validation simulates live deployment: the model is only ever trained on data it *would have seen* at prediction time.
+A simple 80/20 split would leak future information into the training distribution, a classic mistake in financial ML. Walk-forward validation simulates live deployment: the model is only ever trained on data it *would have seen* at prediction time.
 
 ### 2. COVID Dummy Variable
 
-A binary \`COVID_dummy\` column flags the March–June 2020 crash period. This prevents ARIMA from misidentifying the structural break as a permanent trend change and helps LSTM weight those samples appropriately during training.
+A binary \`COVID_dummy\` column flags the March to June 2020 crash period. This prevents ARIMA from misidentifying the structural break as a permanent trend change and helps LSTM weight those samples appropriately during training.
 
 ### 3. AutoARIMA for Hyperparameter Selection
 
-Manually tuning (p, d, q) for every rolling window would be prohibitively slow. \`pmdarima.auto_arima\` runs the Akaike Information Criterion (AIC) search automatically on each window — keeping the pipeline fully automated.
+Manually tuning (p, d, q) for every rolling window would be prohibitively slow. \`pmdarima.auto_arima\` runs the Akaike Information Criterion (AIC) search automatically on each window, so the pipeline stays fully automated.
 
 ### 4. Pretrained Model Caching (GUI)
 
@@ -71,11 +71,11 @@ Re-training LSTM from scratch on every GUI launch would take minutes. Pre-traine
 
 ### 5. Separate GUI Codebase
 
-\`GUICode/\` is kept deliberately separate from \`Code/\` (the research pipeline). This reflects a **separation of concerns**: the GUI is a consumer of pre-computed artefacts, while the core pipeline is a reproducible research tool with its own test suite and CI.
+\`GUICode/\` is kept deliberately separate from \`Code/\` (the research pipeline). This reflects a separation of concerns: the GUI is a consumer of pre-computed artefacts, while the core pipeline is a reproducible research tool with its own test suite and CI.
 
 ---
 
-## Model Architecture — LSTM
+## Model Architecture: LSTM
 
 \`\`\`mermaid
 flowchart LR
@@ -85,10 +85,10 @@ flowchart LR
     D --> E["Dense\n→ 1 (Open or Close)"]
 \`\`\`
 
-- **Input**: Sliding window of the last *N* days of OHLC features + COVID dummy
-- **Loss**: Mean Squared Error
-- **Optimiser**: Adam
-- **Scaler**: MinMaxScaler per target (Open / Close) stored separately to prevent data leakage
+- Input: Sliding window of the last *N* days of OHLC features + COVID dummy
+- Loss: Mean Squared Error
+- Optimiser: Adam
+- Scaler: MinMaxScaler per target (Open / Close) stored separately to prevent data leakage
 
 ---
 
@@ -101,7 +101,7 @@ flowchart LR
 | ARIMA | Open   | Competitive | ~1.1% |
 | LSTM  | Open   | Best overall | ~0.85% |
 
-Neither model dominates universally — ARIMA is more interpretable and faster, LSTM edges ahead during volatile regimes.
+Neither model wins everywhere. ARIMA is more interpretable and faster, and LSTM edges ahead during volatile regimes.
 
 ---
 

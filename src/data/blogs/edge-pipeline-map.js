@@ -21,7 +21,7 @@ const post = {
 
 Start with the hardware, because every difficulty downstream comes from one fact about it.
 
-A neural accelerator is not a small processor. It is a fixed circuit that executes a published list of operations on 8-bit integers, and that list is short. The Coral Edge TPU documents its own; so does every competing part. An operation outside the list does not run slowly on that chip, it does not run on it at all.
+A neural accelerator is a fixed circuit that executes a published list of operations on 8-bit integers, and that list is short. The Coral Edge TPU documents its own, and so does every competing part. An operation outside the list never runs on that chip at all.
 
 Now look at what you trained. A convolutional vision model written in PyTorch is a 32-bit floating point graph that may contain any operation the framework can express, in any arrangement, with shapes decided at runtime. Nothing about it was constrained by the chip, because at training time the chip was not involved.
 
@@ -33,7 +33,7 @@ Those two things do not meet. There is no loader that accepts the first and prod
 
 ## Step one: train, the only forgiving step
 
-You train in a framework, on a desktop graphics card, in 32-bit floating point. Shapes can be dynamic, every operation you can express exists, and the precision is generous enough that small numerical choices do not matter.
+You train in a framework, on a desktop graphics card, in 32-bit floating point. Shapes can change at runtime, every operation you can express exists, and the precision is generous enough that small numerical choices do not matter.
 
 It is the only step where that is true. Decisions made here become constraints later, and the ones that hurt are invisible at the time: an activation function with no equivalent on the target chip, a layer requiring dynamic shapes, a preprocessing step in Python that will have to be rewritten in C. None of those are mistakes when you make them. They become mistakes two steps later.
 
@@ -57,11 +57,11 @@ The conversion needs a sample of representative input to work out the range each
 
 Now the fixed operation list arrives. If your graph uses something absent from it, the compiler does not fail. It splits the network, runs what it can on the accelerator, and hands the rest to the ordinary processor.
 
-What makes this expensive is a detail of how the split works. The Edge TPU takes **one contiguous run of operations**, not the supported ones scattered through the graph. So the first unsupported operation, wherever it sits, ends the accelerated section, and everything after it runs on the CPU.
+What makes this expensive is a detail of how the split works. The Edge TPU takes one contiguous run of operations, not the supported ones scattered through the graph. So the first unsupported operation, wherever it sits, ends the accelerated section, and everything after it runs on the CPU.
 
 ![The Edge TPU takes one contiguous run of operators, so the first unsupported one ends the accelerated section and everything after it runs on the CPU. A LeakyReLU at index one of fifteen strands 93 percent of the graph.](/diagrams/edge-pipeline-map-3.svg)
 
-*Why one missing operation is expensive, which half goes where, and the size of the effect. Position, not count, decides the damage: a single LeakyReLU at index one of a fifteen-operator backbone leaves 93% of the graph on the CPU, while the same operation at the end leaves 7%. Those are counts of operators worked out from the chip's published partition rule rather than times taken on a device, and part three does it properly.*
+*Why one missing operation is expensive, which half goes where, and the size of the effect. Position, not count, decides the damage: a single LeakyReLU at index one of a fifteen-operator backbone leaves 93% of the graph on the CPU, while the same operation at the end leaves 7%. Those figures count operators using the chip's published partition rule. No device timed them, and part three does the count properly.*
 
 ## Step five: run, where the datasheet stops applying
 

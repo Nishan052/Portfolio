@@ -17,17 +17,17 @@ const post = {
 
 Most RAG pipelines run the same way: a user query arrives, the system embeds it into a vector, and that vector searches the entire corpus. On a knowledge base of 10,000 chunks, full-index search on every request is fine. At 1 million chunks, it becomes expensive. At 10 million chunks, it becomes the main cost driver and a latency bottleneck that cannot be routed around without rearchitecting retrieval from scratch.
 
-The standard fix is partitioning: split the index into groups of semantically related documents, and at query time only search the relevant partition rather than everything. K-Means is the most common algorithm for building those partitions. Understanding its mechanics and failure modes is not optional knowledge for engineers building RAG systems that scale.
+The standard fix is partitioning: split the index into groups of semantically related documents, and at query time only search the relevant partition. K-Means is the most common algorithm for building those partitions. Understanding its mechanics and failure modes is not optional knowledge for engineers building RAG systems that scale.
 
 ## How K-Means works: assignment, update, convergence
 
 K-Means takes a dataset and a target number of clusters K, then repeats three steps until centroids stop moving.
 
-**Initialize centroids.** Place K centroids in the embedding space. The default method, K-Means++, places the first centroid randomly, then chooses each subsequent centroid with probability proportional to its squared distance from the nearest existing centroid. This biases initialization toward centroids that are far apart, reducing the chance that two centroids land in the same dense region.
+First, initialize the centroids. Place K centroids in the embedding space. The default method, K-Means++, places the first centroid randomly, then chooses each subsequent centroid with probability proportional to its squared distance from the nearest existing centroid. This biases initialization toward centroids that are far apart, reducing the chance that two centroids land in the same dense region.
 
-**Assign each point.** Compute the Euclidean distance from every point to every centroid. Assign each point to the nearest centroid. The set of points assigned to centroid j forms cluster j.
+Second, assign each point. Compute the Euclidean distance from every point to every centroid. Assign each point to the nearest centroid. The set of points assigned to centroid j forms cluster j.
 
-**Update centroids.** Move each centroid to the mean of all points assigned to it. The new position is the average coordinate across all dimensions for every point in the cluster.
+Third, update the centroids. Move each centroid to the mean of all points assigned to it. The new position is the average coordinate across all dimensions for every point in the cluster.
 
 Repeat assignment and update until centroid positions change by less than a configured tolerance, typically 1e-4. The algorithm is guaranteed to converge, but not necessarily to the global optimum. Running K-Means multiple times with different seeds and keeping the result with the lowest inertia (sum of squared distances from each point to its centroid) reduces the risk of settling into a poor local minimum. For 768-dimensional text embeddings at one million vectors, K-Means++ typically converges in 20 to 50 iterations.
 
@@ -50,9 +50,9 @@ flowchart TD
 
 K-Means makes three implicit assumptions that real data regularly violates:
 
-- **Spherical cluster bias.** K-Means minimizes Euclidean distance to centroids, which assumes clusters are roughly spherical and of similar size. Elongated clusters and arc-shaped distributions get split incorrectly. In text embedding spaces, topic clusters are often ellipsoidal because some topics have narrower semantic range than others. A cluster covering "Python syntax" is tighter than a cluster covering "software architecture," but K-Means treats them identically.
-- **Uniform density assumption.** K-Means assigns every point to exactly one cluster regardless of how sparse the region is. In a corpus covering both specialized technical content and broad general content, K-Means pushes centroids into sparse general regions even when those regions contain mostly low-signal documents that should not anchor a partition.
-- **Initialization sensitivity.** Even with K-Means++, different random seeds produce different centroid configurations. On high-dimensional text embeddings, the variance between seeds can be significant enough to route the same query to cluster 3 in one run and cluster 7 in another. Without fixing \`random_state\` and running multiple seeds, centroid routing is not reproducible across deployments.
+- Spherical cluster bias. K-Means minimizes Euclidean distance to centroids, which assumes clusters are roughly spherical and of similar size. Elongated clusters and arc-shaped distributions get split incorrectly. In text embedding spaces, topic clusters are often ellipsoidal because some topics have narrower semantic range than others. A cluster covering "Python syntax" is tighter than a cluster covering "software architecture," but K-Means treats them identically.
+- Uniform density assumption. K-Means assigns every point to exactly one cluster regardless of how sparse the region is. In a corpus covering both specialized technical content and broad general content, K-Means pushes centroids into sparse general regions even when those regions contain mostly low-signal documents that should not anchor a partition.
+- Initialization sensitivity. Even with K-Means++, different random seeds produce different centroid configurations. On high-dimensional text embeddings, the variance between seeds can be significant enough to route the same query to cluster 3 in one run and cluster 7 in another. Without fixing \`random_state\` and running multiple seeds, centroid routing is not reproducible across deployments.
 
 \`\`\`mermaid
 flowchart TD
@@ -100,11 +100,11 @@ flowchart LR
 
 Three practices are required before routing production traffic through K-Means centroids:
 
-1. **L2-normalize embeddings before clustering.** K-Means uses Euclidean distance, but text embedding models encode meaning in the direction of a vector, not its magnitude. Normalizing all vectors to unit length before clustering ensures that Euclidean distance and cosine similarity produce identical nearest-centroid rankings. Without normalization, magnitude differences that carry no semantic content bias centroid positions.
+1. L2-normalize embeddings before clustering. K-Means uses Euclidean distance, but text embedding models encode meaning in the direction of a vector, not its magnitude. Normalizing all vectors to unit length before clustering ensures that Euclidean distance and cosine similarity produce identical nearest-centroid rankings. Without normalization, magnitude differences that carry no semantic content bias centroid positions.
 
-2. **Run with n-init of at least 10 and pick by inertia.** Use at least 10 independent initializations. Keep the centroid configuration with the lowest inertia. The extra cost is paid once offline at clustering time and recovered at every query for the lifetime of the index.
+2. Run with n-init of at least 10 and pick by inertia. Use at least 10 independent initializations. Keep the centroid configuration with the lowest inertia. The extra cost is paid once offline at clustering time and recovered at every query for the lifetime of the index.
 
-3. **Benchmark recall before and after routing.** Measure recall@10 on a held-out query set with full-corpus search and with centroid routing at your target \`nprobe\`. If routing drops recall by more than 2 to 3 percentage points, increase \`nprobe\` until recall recovers. Centroid routing must be transparent to retrieval quality. Any recall drop that engineering accepts in exchange for latency savings should be a deliberate, measured decision rather than an invisible side effect of partitioning.
+3. Benchmark recall before and after routing. Measure recall@10 on a held-out query set with full-corpus search and with centroid routing at your target \`nprobe\`. If routing drops recall by more than 2 to 3 percentage points, increase \`nprobe\` until recall recovers. Centroid routing must be transparent to retrieval quality. Any recall drop that engineering accepts in exchange for latency savings should be a deliberate, measured decision.
 
 K-Means is not the right algorithm for every corpus. When cluster boundaries are irregular, cluster sizes highly uneven, or the corpus contains substantial noise, density-based approaches outperform it. But for a stable knowledge base where fast offline partitioning is the goal, K-Means with K-Means++ initialization and L2-normalized embeddings remains the most production-proven option available.
   `,

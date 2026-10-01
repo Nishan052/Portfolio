@@ -16,7 +16,7 @@ They did not ask which setting is most correct. They asked which gives the most 
 
 Below 4 the line turns back down. At 3 bits the damage was worse than the extra room was worth. So there is a floor, and it is close.
 
-Two things to keep in mind. How you round the numbers matters on its own, apart from how far you round them. And this is about accuracy for a memory budget, not speed. Speed is a separate test and does not come free.
+Two limits apply. How you round the numbers matters on its own, apart from how far you round them. And this is about accuracy for a memory budget, not speed. Speed is a separate test and does not come free.
 
 I am running the speed half on an M3 Air. Numbers when I have them.
 

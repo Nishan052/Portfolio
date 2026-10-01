@@ -427,6 +427,11 @@ Before submitting a post:
 8. **Field Test**: Verify all field lengths (title < 85, slug < 60, excerpt 80–150, etc.)
 9. **Word Count Test**: Use `wc -w` to verify 400–500 words
 10. **Link Test**: Test all references and GitHub URLs; no 404s
+11. **Humanizer Test**: Run the `humanizer` skill from `edge-agents` last, after every other check, and fix each sign of AI writing it reports without changing a fact:
+    ```bash
+    python3 ../edge-agents/.claude/skills/humanizer/scripts/humanize_check.py <draft or post>
+    ```
+    `publish-week` refuses copy with signs over budget, so a post that skips this step cannot be published through the pipeline.
 
 ---
 

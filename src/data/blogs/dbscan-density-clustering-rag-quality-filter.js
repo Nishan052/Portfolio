@@ -15,7 +15,7 @@ const post = {
   content: `
 ## RAG ingestion has a quality problem most teams ignore
 
-Every RAG system eventually develops the same pathology. Documents accumulate in the knowledge base faster than anyone reviews them. Legacy content from deprecated systems, auto-generated summaries of summaries, and lightly edited duplicates all end up indexed alongside high-quality source documents. At retrieval time, these low-signal documents compete with accurate ones for the top-k slots. The result is retrieved context that dilutes useful signal before it ever reaches the language model.
+Every RAG system eventually develops the same pathology. Documents accumulate in the knowledge base faster than anyone reviews them. Legacy content from deprecated systems, auto-generated summaries of summaries, and lightly edited duplicates all end up indexed alongside high quality source documents. At retrieval time, these low-signal documents compete with accurate ones for the top-k slots. The result is retrieved context that dilutes useful signal before it ever reaches the language model.
 
 Most teams treat this as a retrieval problem and tune similarity thresholds or increase top-k to compensate. Both adjustments make the underlying issue worse by admitting more noise into the prompt context. The correct fix is earlier: apply a quality filter during ingestion, before low-signal documents enter the index.
 
@@ -27,9 +27,9 @@ DBSCAN builds clusters by following density. Two parameters control what dense m
 
 The algorithm classifies every point as one of three types:
 
-- **Core point**: has at least min_samples neighbors within epsilon distance, including itself. Core points are the dense anchors from which clusters grow.
-- **Border point**: falls within epsilon of a core point but does not have enough neighbors to be a core point itself. Border points extend the boundary of a cluster without anchoring it.
-- **Noise point**: falls within epsilon of no core point. Noise points do not belong to any cluster and receive the label -1.
+- Core point: has at least min_samples neighbors within epsilon distance, including itself. Core points are the dense anchors from which clusters grow.
+- Border point: falls within epsilon of a core point but does not have enough neighbors to be a core point itself. Border points extend the boundary of a cluster without anchoring it.
+- Noise point: falls within epsilon of no core point. Noise points do not belong to any cluster and receive the label -1.
 
 Once every point is classified, clusters form by connecting core points that fall within epsilon of each other. Border points attach to the nearest core point's cluster. Noise points remain unassigned.
 
@@ -112,7 +112,7 @@ flowchart TD
 
 K-Means assigns every point to a cluster unconditionally. A document with no semantic relationship to anything else in the corpus still gets forced into the nearest centroid's cluster. That guaranteed full assignment is useful for partitioning but counterproductive for quality filtering: there is no concept of rejection.
 
-DBSCAN rejects by design. The noise label is not a failure state. It is the output that makes the algorithm useful as a filter. The shape flexibility is a secondary benefit. What matters for RAG ingestion is the unconditional ability to say "this document does not belong" without needing to define in advance what belonging means.
+DBSCAN rejects by design. The noise label is the output that makes the algorithm useful as a filter. The shape flexibility is a secondary benefit. What matters for RAG ingestion is the unconditional ability to say "this document does not belong" without needing to define in advance what belonging means.
 
 The practical constraint is compute. DBSCAN on one million 768-dimensional vectors requires an approximate nearest-neighbor structure to be tractable at scale. A more realistic approach is to run DBSCAN on a representative sample of 50,000 to 100,000 documents, characterize what noise points look like in that sample, and then apply a lightweight classifier to score the full corpus on each ingestion batch. The classifier learns the boundary between cluster-member and noise-candidate from the DBSCAN labels on the sample, and scales to any corpus size without repeating the expensive density computation.
   `,

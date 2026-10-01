@@ -25,9 +25,9 @@ First, a distinction the series has to make explicitly, because parts one and tw
 
 On a device of that second kind the binding constraint is physical. Every weight has to be held in memory, and every weight has to be read out of memory to produce each token, meaning each chunk of text roughly the size of a word-piece. So what the hardware limits is bytes, and a byte does not care whether it is spent on another parameter or on more precision for a parameter you already have.
 
-That is the whole reframing. Parameter count and numerical precision look like two independent decisions and are not: they are two ways of spending one fixed allowance. A 13B model at four bits and a 7B model at eight bits occupy almost exactly the same memory, so choosing between them is not a question of size, it is a question of which spends the same bytes better.
+That is the whole reframing. Parameter count and numerical precision look like two independent decisions and are not: they are two ways of spending one fixed allowance. A 13B model at four bits and a 7B model at eight bits occupy almost exactly the same memory, so the choice between them comes down to which one spends the same bytes better.
 
-![A device limits bytes held and bytes read rather than parameter count, so a 13B model at four bits and a 7B model at eight bits spend the same seven gigabytes.](/diagrams/4bit-scaling-law-1.svg)
+![A device limits bytes held and bytes read, so a 13B model at four bits and a 7B model at eight bits spend the same seven gigabytes.](/diagrams/4bit-scaling-law-1.svg)
 
 *Where the constraint comes from, the two ways of meeting it, and the question that leaves. The same seven gigabytes buys either more weights or more precision per weight. Nothing moves in this picture because neither route is yet the answer.*
 
@@ -43,11 +43,11 @@ The answer was four bits, almost everywhere. At a fixed total bit budget, four-b
 
 At three bits the relationship inverts. The accuracy lost per weight grows faster than the extra capacity bought by the bits you saved, so a larger model at three bits performs worse than a smaller one at four.
 
-That puts a floor under the argument. There is an optimum rather than a direction of travel, and pushing past it is not a smaller version of the same win. Compression has a point where it stops paying, and the measurement locates it.
+That puts a floor under the argument. The curve has an optimum at four bits, and going lower makes the trade worse. Compression has a point where it stops paying, and the measurement locates it.
 
 ![Across roughly 35,000 runs from 19 million to 176 billion parameters, four-bit weights give the most accuracy per bit stored, and below four bits the trade reverses.](/diagrams/4bit-scaling-law-2.svg)
 
-*Why the measurement had to be per bit, what thirty-five thousand runs found, and where the finding stops. Four bits is a peak rather than a direction of travel: below it, the accuracy lost per weight grows faster than the capacity the saved bits buy.*
+*Why the measurement had to be per bit, what thirty-five thousand runs found, and where the finding stops. Four bits is a peak: below it, the accuracy lost per weight grows faster than the capacity the saved bits buy.*
 
 ## The scheme matters as much as the width
 
@@ -69,11 +69,11 @@ Producing one token requires reading every weight out of memory, so throughput i
 
 ## What this changes in practice
 
-When memory is the binding constraint, and on a device it almost always is, the first move is not to reach for a smaller model. It is to take the largest model that fits at four bits.
+When memory is the binding constraint, and on a device it almost always is, the first move is to take the largest model that fits at four bits.
 
 That inverts the usual instinct, which is to choose a parameter count first and then quantise if the result does not fit. The measurement says to fix the budget first and let the budget choose the parameter count for you.
 
-There is one case where this advice runs out. If the largest model that fits at four bits is still too large, the answer is not three bits, because that is the direction the measurement rules out. It is a smaller model family at four bits, or a shorter context window, which frees memory without touching the weights at all. Reaching for three bits is the move that feels like it should work and is the one the data says does not.
+There is one case where this advice runs out. If the largest model that fits at four bits is still too large, the answer is a smaller model family at four bits, or a shorter context window, which frees memory without touching the weights at all. Three bits is the direction the measurement rules out.
 
 Two things follow for anyone deploying this. Record the exact quantisation format alongside any accuracy figure, because the format carries as much of the result as the bit count does. And measure accuracy after conversion on a held-out set, meaning data kept back and used only for scoring, because the conversion step is where the number moved and it is the step most often run with a default setting and no check afterwards.
 `,

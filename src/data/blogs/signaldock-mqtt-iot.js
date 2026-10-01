@@ -14,7 +14,7 @@ const post = {
   content: `
 ## Overview
 
-**SignalDock** is a lightweight IoT messaging sandbox built on the **MQTT protocol** — the de facto standard for machine-to-machine communication in IoT environments. The project containerises a complete publish-subscribe topology using Docker, making it fully portable and reproducible on any machine with Docker installed.
+SignalDock is a lightweight IoT messaging sandbox built on the MQTT protocol, the de facto standard for machine-to-machine communication in IoT environments. The project containerises a complete publish-subscribe topology using Docker, making it fully portable and reproducible on any machine with Docker installed.
 
 ---
 
@@ -46,7 +46,7 @@ flowchart TD
 ## Key Components
 
 ### Mosquitto Broker
-The **Eclipse Mosquitto** broker is the message hub. All clients connect to it and publish/subscribe to named **topics** (e.g. \`common/topic\`). The broker is stateless per message — it routes, does not store.
+The Eclipse Mosquitto broker is the message hub. All clients connect to it and publish/subscribe to named topics (e.g. \`common/topic\`). The broker is stateless per message: it routes messages and does not store them.
 
 ### Client Alpha (Internal Network)
 Client Alpha connects via Docker's internal \`mqtt-net\` network, using the broker's container hostname directly. This simulates an on-premises edge device on the same local network as the broker.

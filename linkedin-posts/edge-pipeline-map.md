@@ -15,7 +15,7 @@ First it is exported: written out in a form other tools can open. On the way, pa
 
 Then it is converted. Your model holds numbers as decimals. Small chips want whole numbers, so every one gets rounded. How much accuracy survives depends on the sample data you give it. Most people take the default and never check.
 
-Then it is compiled for one specific chip. That chip cannot do every kind of sum. At the first one it cannot, it stops and hands the rest back to the slow general processor. No error. No warning.
+Then it is compiled for one specific chip. That chip cannot do every kind of sum. At the first one it cannot, it stops and hands the rest back to the slow general processor. It gives no error and no warning.
 
 Then you run it. The device gets hot and slows down. Moving data costs time your laptop never charged for.
 

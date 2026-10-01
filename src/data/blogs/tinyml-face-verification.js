@@ -11,22 +11,22 @@ const post = {
   readTime:  '11 min',
   tags:      ['TinyML', 'TensorFlow Lite', 'PyTorch', 'Arduino', 'LiteRT', 'Edge AI', 'Biometrics'],
   githubUrl: 'https://github.com/Nishan052',
-  excerpt:   'On-device face verification running on an Arduino microcontroller — trained in PyTorch, converted to LiteRT (TFLite), and deployed as C firmware with no cloud dependency.',
+  excerpt:   'On-device face verification running on an Arduino microcontroller, trained in PyTorch, converted to LiteRT (TFLite), and deployed as C firmware with no cloud dependency.',
 
   content: `
 ## Overview
 
-Face verification — confirming that a face matches a stored identity — is computationally expensive by conventional standards. This project pushes the entire inference pipeline onto an **Arduino microcontroller** using **LiteRT** (Google's rebranded TensorFlow Lite runtime for embedded devices), enabling privacy-preserving, offline biometric authentication.
+Face verification, confirming that a face matches a stored identity, is computationally expensive by conventional standards. This project pushes the entire inference pipeline onto an Arduino microcontroller using LiteRT (Google's rebranded TensorFlow Lite runtime for embedded devices), enabling privacy-preserving, offline biometric authentication.
 
 ---
 
 ## Why On-Device Verification?
 
 Traditional face verification pipelines send images to a cloud server. On-device deployment means:
-- **Zero latency from network round-trips**
-- **No biometric data ever leaves the device** — privacy by architecture
-- **Works offline** — critical for access control in remote environments
-- **< 1 mW power** — battery-operated for years
+- Zero latency from network round-trips
+- No biometric data ever leaves the device, so privacy comes from the architecture
+- Works offline, which access control in remote environments needs
+- < 1 mW power, so it can run on a battery for years
 
 ---
 
@@ -56,7 +56,7 @@ flowchart TD
 
 ## Model Design: Siamese Network
 
-Face verification is a **metric learning** problem, not a classification problem. A Siamese network is ideal:
+Face verification is a metric learning problem, not a classification problem. A Siamese network is ideal:
 
 \`\`\`mermaid
 flowchart LR
@@ -69,17 +69,17 @@ flowchart LR
     H --> I{"Above threshold?"}
 \`\`\`
 
-The same weights process both images. The output is a fixed-size **embedding vector** (128 dimensions) representing facial identity in a learned metric space. Verification is a simple distance check.
+The same weights process both images. The output is a fixed-size embedding vector (128 dimensions) representing facial identity in a learned metric space. Verification is a simple distance check.
 
 ---
 
 ## Training Strategy: Triplet Loss
 
-For open-set verification (any person), **triplet loss** trains the embedding space directly:
+For open-set verification (any person), triplet loss trains the embedding space directly:
 
-- **Anchor**: A reference face of person X
-- **Positive**: Another face of person X
-- **Negative**: A face of any other person
+- Anchor: A reference face of person X
+- Positive: Another face of person X
+- Negative: A face of any other person
 
 Loss: \`max(d(A,P) - d(A,N) + margin, 0)\`
 
@@ -109,7 +109,7 @@ PyTorch's dynamic computation graph makes triplet mining and custom loss functio
 LiteRT is Google's 2024 rebranding of TFLite, with improved operator coverage and a cleaner C++ API for microcontrollers. Using LiteRT future-proofs the deployment runtime.
 
 ### Why Cosine Similarity (not Euclidean)?
-Cosine similarity is invariant to embedding magnitude — only direction matters. This makes it more robust to lighting variation.
+Cosine similarity is invariant to embedding magnitude: only direction matters. That makes it less sensitive to lighting variation.
 
 ---
 

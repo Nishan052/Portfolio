@@ -36,9 +36,9 @@ flowchart LR
 
 Two things about that curve matter more than the headline number.
 
-It is **structural, not a defect in one model family**. The same shape appears across models, which means it is a property of how attention distributes over long inputs rather than a bug somebody will patch.
+First, the curve is structural. The same shape appears across model families, which points to how attention distributes over long inputs. It is not a bug somebody will patch.
 
-And it does **not go away with a bigger window**. A larger context window makes the dead zone larger, because the middle grows faster than the edges do.
+Second, a bigger window does not remove it. A larger context window makes the dead zone larger, because the middle grows faster than the edges do.
 
 ## Your reranker is doing half a job
 
@@ -54,7 +54,7 @@ Rank as you already do. Then arrange the ranked set so the strongest passages si
 
 That is a sort, not a model change, and it costs nothing at query time.
 
-Two things pair with it. **Cut the number of passages**, because every extra mediocre passage lengthens the middle and buries the good one deeper. And **measure position, not only recall**. Recall at five tells you the answer was in the prompt. It does not tell you the model ever looked at it, and in my case those two facts had been different for a day.
+Two things pair with it. Cut the number of passages, because every extra mediocre passage lengthens the middle and buries the good one deeper. And measure position as well as recall. Recall at five tells you the answer was in the prompt. It does not tell you the model ever looked at it, and in my case those two facts had been different for a day.
 `,
 
   references: [

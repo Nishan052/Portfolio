@@ -21,7 +21,7 @@ const post = {
 
 Part three ended on a check worth running early: walk a model's operators in order, look each one up in the accelerator's published table, find the first miss. The output decides whether a model is worth converting at all.
 
-The difficulty is not the check. It is *when* you can run it.
+The difficulty is *when* you can run the check.
 
 Reading an Open Neural Network Exchange file the usual way means installing the ONNX library, which pulls in Protocol Buffers and a chain of numerical packages behind it. On a machine that has not been set up for this work, that is the first hour of the afternoon. And the answer you are waiting for is precisely the one that tells you whether the rest of the afternoon is worth spending.
 
@@ -29,7 +29,7 @@ So the check has to run before any of that exists. Which meant reading the file 
 
 ![Answering whether a model will map to the accelerator normally requires installing the toolchain, but the answer decides whether installing the toolchain is worth it.](/diagrams/onnx-ops-without-deps-1.svg)
 
-*The ordering problem. This is not a complaint about disk space. It is that the cheapest useful answer in the whole pipeline is locked behind the most expensive setup step in it, and the answer is what tells you whether to take that step.*
+*The ordering problem: the cheapest useful answer in the whole pipeline is locked behind the most expensive setup step in it, and the answer is what tells you whether to take that step.*
 
 ## The format does not require a schema to walk
 
@@ -49,7 +49,7 @@ It is worth being precise about the limits, because a tool that overstates what 
 
 The reader recovers operator types in graph order. It does not resolve the edges between nodes, read weights, check shapes, or validate that the file is well formed. It cannot tell you that a model is correct, only what operations it names and in what sequence.
 
-That is deliberate rather than unfinished. Everything the part three check needs is in that sequence, and every capability past it costs either a schema or a dependency. Reading tensor contents would mean understanding layouts and data types; validating the graph would mean building the reference implementation's rules a second time, badly.
+The reader stops there on purpose. Everything the part three check needs is in that sequence, and every capability past it costs either a schema or a dependency. Reading tensor contents would mean understanding layouts and data types. Validating the graph would mean building the reference implementation's rules a second time, badly.
 
 So the boundary is drawn where the standard library stops being enough. Past that line the honest move is to install the real library, and the reader's job is to tell you early whether that is worth doing.
 
@@ -57,27 +57,27 @@ So the boundary is drawn where the standard library stops being enough. Past tha
 
 Protocol Buffers write repeated fields in sequence. Reading them in the order they appear in the file gives you the nodes in the order the graph defines them. No sorting, no index, no topological pass over the edges.
 
-That matters more than it sounds, because ordering is the entire content of the part three result. A list of operators with no order tells you how many are unsupported. A list in graph order tells you *where the first one is*, which is the number that actually decides how much of the model runs on the chip. The format has already done the work; the usual tooling is not required to get at it.
+Ordering is the entire content of the part three result. A list of operators with no order tells you how many are unsupported. A list in graph order tells you *where the first one is*, which is the number that actually decides how much of the model runs on the chip. The format has already done the work, and the usual tooling is not required to get at it.
 
 ## Sixty lines, and a test that is the point
 
 The reader is a loop. Pull a header, split it into a field number and a wire type, then either record the value or skip past it by its declared width. Four wire types exist and only one of them, the length-delimited one, carries anything this needs.
 
-Sixty lines of stdlib Python is not an achievement. What makes it usable is the test.
+What makes sixty lines of stdlib Python usable is the test.
 
-The eval loads two real model files, runs the reader over them, and compares its output against what the official ONNX library returns for the same files. Node for node, in order. **100% of nodes match.** If a change to the reader ever breaks that, the test fails rather than the tool quietly returning a slightly wrong list.
+The eval loads two real model files, runs the reader over them, and compares its output against what the official ONNX library returns for the same files. Node for node, in order. 100% of nodes match. If a change to the reader ever breaks that, the test fails, so the tool cannot quietly return a slightly wrong list.
 
 That distinction is the whole reason this is publishable. A parser that crashes is an inconvenience. A parser that is subtly wrong is a liability, because it produces a confident answer about a model you have not actually read, and the answer looks exactly like a correct one.
 
 ![The reader is checked against the official library node for node on real files, because a parser that is subtly wrong is worse than one that crashes.](/diagrams/onnx-ops-without-deps-3.svg)
 
-*Why the test is the artefact. Sixty lines of parsing is not the contribution. An assertion that the sixty lines agree with the reference implementation on every node of real files is, because it converts a plausible tool into one you can act on.*
+*Why the test is the artefact. The contribution is an assertion that sixty lines of parsing agree with the reference implementation on every node of real files. That assertion turns a plausible tool into one you can act on.*
 
 ## What it actually buys
 
 Not disk space. Where the check can run.
 
-It runs on a machine with nothing installed, which is the machine you are usually on when the question first occurs to you. It runs inside a build step that has no business carrying a machine learning stack, so a graph that would strand 93% of itself can fail the build rather than surprise someone later. It runs before the conversion toolchain exists, which is exactly the moment when knowing whether a model will map to the chip is worth the most, and exactly the moment the usual tooling cannot tell you.
+It runs on a machine with nothing installed, which is the machine you are usually on when the question first occurs to you. It runs inside a build step that has no business carrying a machine learning stack, so a graph that would strand 93% of itself can fail the build before it surprises someone later. It runs before the conversion toolchain exists, which is exactly the moment when knowing whether a model will map to the chip is worth the most, and exactly the moment the usual tooling cannot tell you.
 
 The general shape of this is worth taking away even if you never touch ONNX. When the cheap answer is gated behind the expensive setup, it is worth asking what the file format actually requires of you. Often, as here, it is three numbers and a length.
 `,

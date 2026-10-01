@@ -1,11 +1,11 @@
-# LinkedIn Post — Late interaction and reranking: where single-vector RAG falls short
+# LinkedIn Post: Late interaction and reranking: where single-vector RAG falls short
 
 Source: src/data/blogs/late-interaction-retrieval-colbert-reranking-rag.js
 Date drafted: 2026-07-11
 
 ---
 
-A RAG system can retrieve a chunk that looks related to the query and still miss the answer. That is not a model problem. It is a retrieval problem, and it comes from how most vector search works.
+A RAG system can retrieve a chunk that looks related to the query and still miss the answer. The cause is retrieval, and it comes from how most vector search works.
 
 Standard dense retrieval collapses a whole passage into one embedding. A 200-word chunk covers several distinct facts, and averaging them into a single point buries the one fact a specific query needs. Two passages can sit close together in embedding space while only one actually contains the answer.
 

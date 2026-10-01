@@ -14,7 +14,7 @@ const post = {
   content: `
 ## Overview
 
-Single Page Applications (SPAs) load once and then update the DOM in response to URL changes — no full-page reloads. Angular's built-in **Router** module is one of the most fully-featured client-side routing solutions in the JavaScript ecosystem.
+Single Page Applications (SPAs) load once and then update the DOM in response to URL changes, without full-page reloads. Angular's built-in Router module is one of the most fully-featured client-side routing solutions in the JavaScript ecosystem.
 
 ---
 
@@ -34,7 +34,7 @@ sequenceDiagram
     Browser->>User: Updated view
 \`\`\`
 
-Unlike traditional multi-page apps, the server always returns the same \`index.html\`. The browser's **History API** (pushState) handles URL changes locally, and Angular's router maps them to components.
+Unlike traditional multi-page apps, the server always returns the same \`index.html\`. The browser's History API (pushState) handles URL changes locally, and Angular's router maps them to components.
 
 ---
 
@@ -59,7 +59,7 @@ flowchart TD
 
 ### 1. Lazy Loading Feature Modules
 
-Lazy loading defers loading a feature module's JavaScript bundle until the user first navigates to its route. The initial bundle stays small — only code for the first view is loaded. Subsequent modules download on demand, cutting Time-to-Interactive by 40–60% in large apps.
+Lazy loading defers loading a feature module's JavaScript bundle until the user first navigates to its route. The initial bundle stays small: only code for the first view is loaded. Subsequent modules download on demand, cutting Time-to-Interactive by 40–60% in large apps.
 
 ### 2. Route Guards
 
@@ -74,11 +74,11 @@ Guards implement the \`CanActivate\` interface and return \`true | false | UrlTr
 
 ### 3. Child Routes
 
-Child routes nest components inside a parent's \`router-outlet\`. This enables **persistent layouts** (sidebar, header) that survive navigation between child routes — only the outlet content re-renders.
+Child routes nest components inside a parent's \`router-outlet\`. This enables persistent layouts (sidebar, header) that survive navigation between child routes. Only the outlet content re-renders.
 
 ### 4. Route Parameters with RxJS
 
-Using \`paramMap\` (an Observable) instead of \`snapshot.params\` means the component reacts to ID changes even when Angular reuses the same component instance — critical for navigating between \`/products/1\` and \`/products/2\`.
+Using \`paramMap\` (an Observable) instead of \`snapshot.params\` means the component reacts to ID changes even when Angular reuses the same component instance, which is what happens when navigating between \`/products/1\` and \`/products/2\`.
 
 ---
 

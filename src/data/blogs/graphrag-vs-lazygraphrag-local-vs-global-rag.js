@@ -92,7 +92,7 @@ Classic GraphRAG can require heavier index-time work because graph extraction an
 
 LazyGraphRAG keeps the graph-enabled retrieval idea but defers more expensive LLM work to query time and uses budgeted relevance testing.
 
-In practice, this offers a smoother quality-cost control knob than all-or-nothing indexing pipelines.
+In practice, this gives a smoother quality-cost control knob than all-or-nothing indexing pipelines.
 
 \`\`\`mermaid
 flowchart LR
@@ -123,7 +123,7 @@ Use this decision matrix before implementation.
 | Need reusable graph summaries as artifacts | GraphRAG |
 | Need one strategy across mixed local-global workloads | LazyGraphRAG with tuned budget |
 
-This is not a "winner takes all" choice. It is a query-distribution choice.
+The choice depends on your query distribution.
 
 ---
 
@@ -170,7 +170,7 @@ flowchart TD
 
 Do not choose retrieval architecture by trend. Choose it by question distribution.
 
-**Vector RAG is a precision tool for local lookup. Graph-enabled RAG is a coverage tool for global synthesis. LazyGraphRAG is a budgeted bridge across both.**
+Vector RAG is a precision tool for local lookup. Graph-enabled RAG is a coverage tool for global synthesis. LazyGraphRAG is a budgeted bridge across both.
 
 When your answers look inconsistent, the first thing to audit is not the model. Audit whether your retrieval strategy matches the shape of your questions.
 `,

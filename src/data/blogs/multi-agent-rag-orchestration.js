@@ -16,9 +16,9 @@ const post = {
   content: `
 ## From Monolithic to Agentic RAG Architecture
 
-Retrieval Augmented Generation excels within single knowledge domains but struggles in production where requests span customer support, technical troubleshooting, and billing—each requiring different retrieval strategies. Traditional RAG chains these sequentially, creating brittle pipelines that fail when queries cross boundaries.
+Retrieval Augmented Generation excels within single knowledge domains but struggles in production where requests span customer support, technical troubleshooting, and billing, each requiring different retrieval strategies. Traditional RAG chains these sequentially, creating brittle pipelines that fail when queries cross boundaries.
 
-Agentic RAG inverts this approach. Seven integrated layers—input normalization, intelligent routing, parallel retrieval, validation, synthesis, memory persistence, and monitoring—work together as specialized agents. A dispatcher classifies queries and routes them to domain experts. Retrieval specialists fetch context using optimized strategies. Validators check factual consistency. Synthesis agents compose grounded responses. This architectural shift converts monolithic pipelines into decentralized teams where each agent owns distinct responsibilities.
+Agentic RAG inverts this approach. Seven integrated layers work together as specialized agents: input normalization, intelligent routing, parallel retrieval, validation, synthesis, memory persistence, and monitoring. A dispatcher classifies queries and routes them to domain experts. Retrieval specialists fetch context using optimized strategies. Validators check factual consistency. Synthesis agents compose grounded responses. This architectural shift converts monolithic pipelines into decentralized teams where each agent owns distinct responsibilities.
 
 \`\`\`mermaid
 graph TD
@@ -44,7 +44,7 @@ Orchestration patterns determine how agents coordinate. Sequential flows work fo
 
 These improvements are measurable. Routing eliminates processing irrelevant knowledge bases. Domain-specific retrieval strategies boost recall. Validation agents catch hallucinations before users see them, reducing production errors by 60 percent.
 
-Implementation requires careful consideration of knowledge base structure—heterogeneous data needs different preprocessing pipelines. Vector database selection impacts concurrent performance. Test read replicas under parallel loading. Hybrid search combining dense vectors and sparse BM25 forces consistency checks across retrieval methods. Design clear message schemas, implement robust timeouts, and add circuit breakers for resilience.
+Implementation requires careful consideration of knowledge base structure: heterogeneous data needs different preprocessing pipelines. Vector database selection impacts concurrent performance. Test read replicas under parallel loading. Hybrid search combining dense vectors and sparse BM25 forces consistency checks across retrieval methods. Design clear message schemas, set timeouts, and add circuit breakers for resilience.
 
 \`\`\`mermaid
 flowchart LR

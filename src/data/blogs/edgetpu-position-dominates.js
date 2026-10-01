@@ -23,13 +23,13 @@ Part one described the compiler as the step where a model gets silently split. T
 
 Google's Edge tensor processing unit compiles ahead of time. It walks the graph in order, and at the first operator it cannot execute it stops. Everything up to that point becomes one compiled section that runs on the chip. Everything after it runs on the ordinary processor.
 
-It does not resume. It does not collect the supported operators further along and give you those too. There is **one** contiguous accelerated section per model, and the documentation says so in a single line on the supported operations page.
+It does not resume. It does not collect the supported operators further along and give you those too. There is one contiguous accelerated section per model, and the documentation says so in a single line on the supported operations page.
 
 That line is the most consequential sentence in the whole toolchain, and it inverts how a slow model gets debugged.
 
 ![A checklist counts unsupported operators, while the compiler walks the graph in order and stops at the first one it cannot execute, giving one contiguous accelerated section per model.](/diagrams/edgetpu-position-dominates-1.svg)
 
-*Why counting answers a question the compiler never asks. A support table invites you to tick operators off, but the compiler is not scoring your model against a list. It is looking for the first place it has to stop.*
+*Why counting answers a question the compiler never asks. A support table invites you to tick operators off, but the compiler looks for the first place it has to stop.*
 
 ## Why one section and not several
 
@@ -39,7 +39,7 @@ The accelerator does not execute a graph the way a processor executes a program.
 
 That round trip is not free, and on the tensors a vision model carries between layers it is expensive enough to erase what the acceleration bought. A compiler that split a graph into five sections could easily produce something slower than the processor alone.
 
-So the single partition is not a limitation the vendor has not got round to fixing. It is the design being honest about the cost of crossing the boundary, and it is why the position of one operator can decide the fate of a whole network.
+So the single partition is the design accounting for the cost of crossing the boundary, and it is why the position of one operator can decide the fate of a whole network.
 
 ## Counting unsupported operators is the wrong instinct
 
@@ -51,9 +51,9 @@ Put the other way round: a model with seven unsupported operators clustered at t
 
 Take an object detection backbone in the YOLO family, which stands for You Only Look Once. It uses a LeakyReLU activation after every convolution. The chip implements a close relative, PReLU, but not LeakyReLU, and in this graph the first LeakyReLU sits at index 1 of a fifteen-operator sequence.
 
-One operator. Fourteen operators behind it, including every convolution in the network, which is the expensive part and the entire reason for fitting an accelerator. **93% of the graph runs on the ordinary processor.**
+One operator. Fourteen operators behind it, including every convolution in the network, which is the expensive part and the entire reason for fitting an accelerator. 93% of the graph runs on the ordinary processor.
 
-Now move the same operator to the end of the same graph and change nothing else. The accelerated section now covers everything before it, and **7% is stranded.** Same operator, same count, same model, an order of magnitude difference in what the chip actually does.
+Now move the same operator to the end of the same graph and change nothing else. The accelerated section now covers everything before it, and 7% is stranded. Same operator, same count, same model, an order of magnitude difference in what the chip actually does.
 
 ![The same LeakyReLU at index 1 of a fifteen-operator backbone strands 93 percent of the graph on the CPU, while the same operator at the end strands 7 percent.](/diagrams/edgetpu-position-dominates-2.svg)
 
@@ -63,23 +63,23 @@ Now move the same operator to the end of the same graph and change nothing else.
 
 Once the rule is visible, some splits stop being accidents.
 
-Detection networks usually end with non-maximum suppression, the step that merges overlapping boxes. It has no accelerator equivalent anywhere, on any vendor's part, and it never will, because it is control flow rather than arithmetic. If it sits at the end of the exported graph it becomes the split point and takes nothing with it, because everything before it has already been accelerated.
+Detection networks usually end with non-maximum suppression, the step that merges overlapping boxes. It has no accelerator equivalent anywhere, on any vendor's part, and it never will, because it is control flow, and an accelerator does arithmetic. If it sits at the end of the exported graph it becomes the split point and takes nothing with it, because everything before it has already been accelerated.
 
-That is not a problem to be solved. It is the arrangement you want. Export the backbone on its own, let it map completely, and run the box merging in ordinary application code where it belongs. The alternative is not avoiding the split, because the split is going to happen. The alternative is discovering it by accident with the convolutions stranded behind it.
+That is the arrangement you want. Export the backbone on its own, let it map completely, and run the box merging in ordinary application code where it belongs. The split is going to happen either way. The only choice is whether you place it there or discover it by accident, with the convolutions stranded behind it.
 
-The same reasoning applies to anything unusual in a model: a custom activation, a reshape the converter does not fold, a normalisation the exporter left intact. None of them has to be removed. They have to be **late**.
+The same reasoning applies to anything unusual in a model: a custom activation, a reshape the converter does not fold, a normalisation the exporter left intact. None of them has to be removed. They have to come late in the graph.
 
 ![Moving the unsupported operator to the end of the exported graph turns the split from an accident into a design decision, and three practical moves follow from it.](/diagrams/edgetpu-position-dominates-3.svg)
 
 *What to do about it. The unsupported operator does not have to be removed, only moved behind everything expensive. All three of these are decisions made at export time, which is before any of the cost has been paid.*
 
-## A support table is not a substitute for walking the graph
+## Walk the support table in graph order
 
-Vendors publish which operators they support, and those tables are necessary. They are also almost always read the wrong way: as a checklist to tick off rather than as a sequence to walk.
+Vendors publish which operators they support, and those tables are necessary. They are also almost always read the wrong way, as a checklist to tick off. The compiler walks them as a sequence.
 
 So the check has to walk the sequence. \`npu-op-compat\` reads an Open Neural Network Exchange file directly, maps each operator onto the accelerator's published table, finds the first miss, and reports what fraction of the graph is stranded behind it. It runs with no modelling library installed, because the answer is worth having before a conversion toolchain exists rather than after, and part four is about how that is possible at all.
 
-The number it prints is the one worth knowing, and it is not how many operators failed. It is where the first one is.
+The number it prints is the position of the first unsupported operator, which is the one worth knowing.
 `,
 
   references: [

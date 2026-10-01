@@ -33,11 +33,11 @@ Every RAG request passes through a sequence of operations that infrastructure mo
 
 The five spans to instrument:
 
-- **Query embedding**: embedding model name, vector dimensions, latency
-- **Vector retrieval**: top-k chunk IDs, cosine similarity scores, index queried
-- **Context assembly**: token count, truncation flag, chunk sources
-- **LLM generation**: model, temperature, prompt tokens, completion tokens, time-to-first-token
-- **Response delivery**: total end-to-end latency, HTTP status
+- Query embedding: embedding model name, vector dimensions, latency
+- Vector retrieval: top-k chunk IDs, cosine similarity scores, index queried
+- Context assembly: token count, truncation flag, chunk sources
+- LLM generation: model, temperature, prompt tokens, completion tokens, time-to-first-token
+- Response delivery: total end-to-end latency, HTTP status
 
 Correlating these spans lets you answer questions that infrastructure dashboards cannot: which retrieval calls produce context the LLM ends up ignoring, and what P99 context assembly time looks like for queries longer than 200 tokens.
 
@@ -70,10 +70,10 @@ End-to-end latency is a trailing indicator. By the time P99 end-to-end latency c
 
 Track four latency histograms:
 
-- **Embedding latency**: typically 20–60ms for hosted models
-- **Retrieval latency**: 50–200ms for well-tuned indexes. Anything above 500ms signals saturation or fragmentation.
-- **Context assembly time**: usually negligible, but token truncation logic can hide O(n) operations that degrade under long documents
-- **LLM time-to-first-token**: the dominant contributor to perceived response speed, tightly correlated with prompt token count
+- Embedding latency: typically 20–60ms for hosted models
+- Retrieval latency: 50–200ms for well-tuned indexes. Anything above 500ms signals saturation or fragmentation.
+- Context assembly time: usually negligible, but token truncation logic can hide O(n) operations that degrade under long documents
+- LLM time-to-first-token: the dominant contributor to perceived response speed, tightly correlated with prompt token count
 
 \`\`\`mermaid
 flowchart TD
@@ -102,12 +102,12 @@ Context token counts deserve a dedicated dashboard panel. LLM latency and cost b
 
 ## Layer Three: Automated Hallucination Detection
 
-Hallucination detection is the hardest layer to implement but the highest-value one. A correct RAG answer must be grounded in the retrieved context. When an answer contradicts or ignores retrieved chunks, either the retrieval layer failed to surface relevant information or the LLM dismissed context it was given. Both are detectable.
+Hallucination detection is the hardest layer to implement but the highest-value one. A correct RAG answer must be grounded in the retrieved context. When an answer contradicts or ignores retrieved chunks, either the retrieval layer failed to surface relevant information or the LLM dismissed context it was given. You can detect both.
 
 Two metrics measure grounding quality:
 
-- **Faithfulness**: checks whether every factual claim in the generated answer is supported by at least one retrieved chunk
-- **Answer relevance**: checks whether the answer addresses the original question rather than drifting toward a related but distinct topic
+- Faithfulness: checks whether every factual claim in the generated answer is supported by at least one retrieved chunk
+- Answer relevance: checks whether the answer addresses the original question, or drifts toward a related but distinct topic
 
 A separate LLM-as-judge call computes both by reading the original query, the retrieved context, and the generated answer simultaneously.
 
@@ -129,17 +129,17 @@ flowchart LR
 
 Run judges asynchronously on a 5–10% sample of production traffic. Synchronous scoring adds 200–600ms per request and provides no advantage for trend-based alerting. You are tracking patterns across thousands of requests, not catching each individual failure. Store every quality score alongside the full trace for its sampled request so you can replay any flagged response with its complete retrieval context during debugging.
 
-Alert on weekly rolling averages rather than per-request values. A faithfulness score of 0.55 on a single response is noise. The user may have asked an ambiguous question that no knowledge base could fully address. A weekly average faithfulness dropping from 0.82 to 0.68 over two consecutive weeks is a real signal. Something changed in the knowledge base, the embedding model, or the retrieval configuration. The trace history will show exactly where.
+Alert on weekly rolling averages. A faithfulness score of 0.55 on a single response is noise. The user may have asked an ambiguous question that no knowledge base could fully address. A weekly average faithfulness dropping from 0.82 to 0.68 over two consecutive weeks is a real signal. Something changed in the knowledge base, the embedding model, or the retrieval configuration. The trace history will show exactly where.
 
 ## What to Instrument First
 
 Prioritize instrumentation in this order:
 
-1. **Retrieval similarity scores on every request.** The vector database already computes cosine similarity when returning chunks, so capturing it adds no inference overhead. Low weekly-average similarity scores are the earliest detectable signal of knowledge base staleness, embedding model mismatch, or query distribution shift. This takes under an hour to instrument.
+1. Retrieval similarity scores on every request. The vector database already computes cosine similarity when returning chunks, so capturing it adds no inference overhead. Low weekly-average similarity scores are the earliest detectable signal of knowledge base staleness, embedding model mismatch, or query distribution shift. This takes under an hour to instrument.
 
-2. **P95 and P99 stage-level latency.** Instrument embedding and retrieval first because they account for the majority of latency variability and are easiest to isolate independently. Add LLM time-to-first-token once context token tracking is in place. For a team already on OpenTelemetry, this layer takes roughly one engineering day.
+2. P95 and P99 stage-level latency. Instrument embedding and retrieval first because they account for the majority of latency variability and are easiest to isolate independently. Add LLM time-to-first-token once context token tracking is in place. For a team already on OpenTelemetry, this layer takes roughly one engineering day.
 
-3. **LLM-as-judge scoring pipeline.** This carries the highest implementation cost but closes the quality loop that the first two layers leave open. By the time you reach it, the tracing and latency data will have already surfaced retrieval patterns that sharpen faithfulness threshold calibration and cut false positive alert rates from the start.
+3. LLM-as-judge scoring pipeline. This carries the highest implementation cost but closes the quality loop that the first two layers leave open. By the time you reach it, the tracing and latency data will have already surfaced retrieval patterns that sharpen faithfulness threshold calibration and cut false positive alert rates from the start.
 
 Production RAG quality problems surface in traces long before users file complaints. Treat the reasoning chain as first-class observable infrastructure, not a black-box endpoint measured only by HTTP response codes.
   `,

@@ -19,15 +19,15 @@ Many teams treat clustering metrics as abstract mathematics. That is the wrong v
 
 The core problem is simple. Clustering can look good on paper while still harming the end result. A high silhouette score means separated clusters, but it does not guarantee that the clusters contain the documents the model needs to answer a query. A low Davies-Bouldin index means compact groups, but a compact cluster can still group unrelated documents if the embedding space is noisy.
 
-So the real question is not "which metric is best?" The real question is "which metric matches retrieval behavior for my RAG system?"
+So the useful question is "which metric matches retrieval behavior for my RAG system?"
 
 ## Internal metrics and what they tell you
 
 Internal metrics measure the structure of clusters without using query labels.
 
-- **Silhouette score** measures how similar each point is to its own cluster versus other clusters.
-- **Davies-Bouldin index** measures cluster compactness and separation.
-- **Calinski-Harabasz score** compares between-cluster variance with within-cluster variance.
+- Silhouette score measures how similar each point is to its own cluster versus other clusters.
+- Davies-Bouldin index measures cluster compactness and separation.
+- Calinski-Harabasz score compares between-cluster variance with within-cluster variance.
 
 These metrics are useful for choosing algorithm parameters. They are not sufficient to judge retrieval quality.
 
@@ -52,10 +52,10 @@ flowchart TD
 
 External metrics use queries or retrieval ground truth to measure cluster usefulness.
 
-- **Recall@k** measures whether the index returns relevant chunks among the top results.
-- **Query coverage** measures how many queries return at least one good chunk.
-- **Precision@k** measures the fraction of returned chunks that are relevant.
-- **Cluster density** and **access pattern** measure how often clusters are visited.
+- Recall@k measures whether the index returns relevant chunks among the top results.
+- Query coverage measures how many queries return at least one good chunk.
+- Precision@k measures the fraction of returned chunks that are relevant.
+- Cluster density and access pattern measure how often clusters are visited.
 
 These metrics are the closest proxy for RAG quality because they connect cluster grouping to actual retrieval outcomes.
 
@@ -114,7 +114,7 @@ flowchart TD
 
 The best metric depends on dataset size and retrieval goals.
 
-Small corpus with high-quality text:
+Small corpus with well-written text:
 
 - Internal metrics are strong signals.
 - You can afford more clusters and finer partitioning.
@@ -201,7 +201,7 @@ A single evaluation loop is worth more than a dozen isolated clustering experime
 
 ## Final takeaway
 
-Cluster quality evaluation for RAG is not about finding the highest possible silhouette score. It is about choosing metrics that reflect the retrieval outcome you need.
+Cluster quality evaluation for RAG means choosing metrics that reflect the retrieval outcome you need.
 
 Internal metrics help you avoid broken cluster structure. External retrieval metrics tell you whether the clusters actually help the model answer questions. In a mature RAG system, external metrics should be the final judge.
 

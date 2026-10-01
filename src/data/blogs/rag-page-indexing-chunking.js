@@ -25,7 +25,7 @@ But it misses: "Defective products can be returned within 90 days without questi
 
 The difference matters. Your LLM answers with the general policy, not the specific case. The user gets an incorrect answer grounded in retrieved text. This is worse than hallucination: it's confident wrong information.
 
-The root cause is not your retrieval algorithm. It's how you **chunked** the document in the first place.
+The root cause is not your retrieval algorithm. It's how you chunked the document in the first place.
 
 ## Three Approaches to Chunking
 
@@ -54,7 +54,7 @@ graph TD
     style RETRIEVE fill:#10b981,color:#fff
 \`\`\`
 
-**The problem:**
+The problem:
 
 A 10 page policy document might have:
 * Pages 1 to 2: General return policy (5 paragraphs)
@@ -68,9 +68,9 @@ When you search for "defective electronics", you might retrieve:
 * One paragraph about the return form
 * One paragraph from FAQ
 
-But the full page on "Exceptions" (which contains the actual 90 day policy for defects) might not be in the top 10 because **individual paragraphs were ranked against a paragraph level embedding**, and no single paragraph in that section matched your query perfectly.
+But the full page on "Exceptions" (which contains the actual 90 day policy for defects) might not be in the top 10 because individual paragraphs were ranked against a paragraph level embedding, and no single paragraph in that section matched your query perfectly.
 
-The context is scattered across paragraphs. You lose it.
+The context is scattered across paragraphs, and you lose it.
 
 ### Approach 2: Token Level Chunking (Too Fine)
 
@@ -101,7 +101,7 @@ graph TD
     style PROBLEM fill:#ef4444,color:#fff
 \`\`\`
 
-**The problem:**
+The problem:
 
 A 512 token chunk might be:
 - The middle of one sentence
@@ -111,11 +111,11 @@ A 512 token chunk might be:
 
 You've created fragments, not meaningful units. A 512 token chunk about "electronics" from the middle of a longer explanation loses the introduction and conclusion that give it meaning.
 
-Plus: **storage explosion**. 30,000 vectors instead of 10,000. Every vector costs storage and increases search latency.
+Storage also grows to 30,000 vectors instead of 10,000. Every vector costs storage and increases search latency.
 
 ### Approach 3: Page Level Chunking (The Sweet Spot)
 
-Split by **logical page boundaries**. Each chunk represents one complete page or section.
+Split by logical page boundaries. Each chunk represents one complete page or section.
 
 \`\`\`mermaid
 graph TD
@@ -138,18 +138,18 @@ graph TD
     style RETRIEVE fill:#10b981,color:#fff
 \`\`\`
 
-**Why this works:**
+Why this works:
 
-Each chunk is a **complete semantic unit**. Page 6 is entirely about "Exceptions and Special Cases". When a user asks about defective product returns:
+Each chunk is a complete semantic unit. Page 6 is entirely about "Exceptions and Special Cases". When a user asks about defective product returns:
 - The exception page ranks highly (contains full context)
 - The timeline page ranks (contains duration info)
 - You get both pieces together
 
-You don't get scattered fragments. You get pages. Pages have context.
+Each chunk is a whole page, and a page keeps its context.
 
-**Storage advantage:** 100 vectors instead of 10,000 or 30,000. Faster search. Lower cost.
+Storage advantage: 100 vectors instead of 10,000 or 30,000, which means faster search and lower cost.
 
-**Quality advantage:** Each vector represents a meaningful unit, not a random fragment.
+Quality advantage: each vector is a meaningful unit.
 
 
 ## How Page Level Indexing Actually Works
@@ -258,21 +258,21 @@ The LLM now knows:
 
 | Factor | Paragraph-Level | Token-Level | Page-Level |
 |--------|-----------------|-------------|-----------|
-| **Chunk count** | 10,000 | 30,000+ | 100-500 |
-| **Context preservation** |  Poor |  Very Poor |  Excellent |
-| **Search latency** | 150ms | 400ms | 20ms |
-| **Vector storage cost** | High | VERY HIGH | Low  |
-| **Relevance ranking** | Medium | Poor | Excellent  |
-| **Works with PDFs** | Sometimes | Sometimes | Yes  |
-| **Cites page numbers** | Difficult | Impossible | Easy  |
-| **Handles tables/images** | No | No | Yes  |
-| **Implementation complexity** | Low | Low | Medium |
+| Chunk count | 10,000 | 30,000+ | 100-500 |
+| Context preservation |  Poor |  Very Poor |  Excellent |
+| Search latency | 150ms | 400ms | 20ms |
+| Vector storage cost | High | VERY HIGH | Low  |
+| Relevance ranking | Medium | Poor | Excellent  |
+| Works with PDFs | Sometimes | Sometimes | Yes  |
+| Cites page numbers | Difficult | Impossible | Easy  |
+| Handles tables/images | No | No | Yes  |
+| Implementation complexity | Low | Low | Medium |
 
-**When to use each:**
+When to use each:
 
-- **Paragraph-level**: Only if documents are very small (< 20 pages) OR documents are already pre-summarized
-- **Token-level**: Not recommended. Ever. (The only reason to use it is if you don't understand your documents)
-- **Page-level**: Default choice for production RAG. Works for 95% of real-world documents
+- Paragraph-level: Only if documents are very small (< 20 pages) OR documents are already pre-summarized
+- Token-level: never recommended. (The only reason to use it is if you don't understand your documents)
+- Page-level: Default choice for production RAG. Works for 95% of real-world documents
 
 ---
 
@@ -447,11 +447,11 @@ for page in pdf.pages:
 
 Images can't be embedded as text. Two solutions:
 
-**Option A: Use vision models** (expensive, most accurate)
+Option A: Use vision models (expensive, most accurate)
 
 Process: PDF image → GPT 4V → text description → embed with page → LLM answers with full context
 
-**Option B: Provide figure captions** (cheaper, acceptable quality)
+Option B: Provide figure captions (cheaper, acceptable quality)
 
 ## Measuring Chunking Success
 
@@ -459,18 +459,18 @@ You can't improve what you don't measure. Here's how to evaluate your chunking s
 
 ### Metric 1: Chunk Relevance (MRR@K)
 
-Mean Reciprocal Rank — where does the relevant chunk rank?
+Mean Reciprocal Rank: where does the relevant chunk rank?
 
-**Example query:** "What's the defective product return timeline?"
+Example query: "What's the defective product return timeline?"
 
-**Results ranking:**
+Results ranking:
 1.  General return policy (irrelevant)
 2.  Return shipping info (irrelevant)
-3.  Exceptions page (RELEVANT — rank 3)
+3.  Exceptions page (RELEVANT, rank 3)
 
-**MRR score:** 1/3 = 0.333
+MRR score: 1/3 = 0.333
 
-**Target:** > 0.8 (relevant chunk in top 2)
+Target: > 0.8 (relevant chunk in top 2)
 
 ### Metric 2: Coverage (% of test queries with relevant chunks)
 
@@ -478,9 +478,9 @@ Run your 100 test queries. How many retrieve at least one relevant chunk?
 
 - Test size: 100 queries
 - Queries with relevant results: 92
-- **Coverage: 92%**
+- Coverage: 92%
 
-**Quality targets:**
+Quality targets:
 - Bad: < 70%
 - Good: > 85%
 - Excellent: > 95%
@@ -492,7 +492,7 @@ Calculate whether your chunks are optimally sized:
 - Total document tokens: 500K
 - Total vector index: 150 vectors
 - Storage: 150 × 1536 dimensions = manageable
-- **Tokens per chunk:** 500K ÷ 150 = **3,333 tokens/chunk**
+- Tokens per chunk: 500K ÷ 150 = 3,333 tokens/chunk
 
 This is healthy: large enough for context preservation, small enough for relevance ranking.
 
@@ -523,13 +523,13 @@ graph TD
 
 ## Key Takeaways
 
-[YES] **Page level chunking** preserves context and hits the performance sweet spot
-[YES] **Add overlap** at boundaries to prevent losing information
-[YES] **Tag metadata** so LLM can cite sources
-[YES] **Test on real queries** using MRR and coverage metrics
-[YES] **Adjust for edge cases** (very long pages, tables, images)
-[NO] **Don't use paragraph level** for documents greater than 20 pages
-[NO] **Don't use token level** at all (storage explosion and poor relevance)
+[YES] Page level chunking preserves context and hits the performance sweet spot
+[YES] Add overlap at boundaries to prevent losing information
+[YES] Tag metadata so LLM can cite sources
+[YES] Test on real queries using MRR and coverage metrics
+[YES] Adjust for edge cases (very long pages, tables, images)
+[NO] Don't use paragraph level for documents greater than 20 pages
+[NO] Don't use token level at all (storage explosion and poor relevance)
 
 Your RAG system is only as good as what it retrieves. Master chunking, and everything else gets better.`,
 

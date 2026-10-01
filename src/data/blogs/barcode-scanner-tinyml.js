@@ -16,16 +16,16 @@ const post = {
   content: `
 ## Overview
 
-**TinyML** is the practice of deploying machine learning models on microcontrollers — devices with kilobytes of RAM, no operating system, and sub-milliwatt power budgets. This project tackles **barcode detection**: determining whether a barcode is present in a camera frame and predicting its bounding box — all within MCU constraints.
+TinyML is the practice of deploying machine learning models on microcontrollers: devices with kilobytes of RAM, no operating system, and sub-milliwatt power budgets. This project tackles barcode detection: determining whether a barcode is present in a camera frame and predicting its bounding box, all within MCU constraints.
 
 ---
 
 ## What Problem Does It Solve?
 
 Industrial barcode scanning traditionally relies on dedicated hardware or powerful processors. Embedding this directly on a $2 microcontroller enables:
-- **Battery-powered, offline scanning** — no cloud dependency
-- **Sub-millisecond latency** — inference at the sensor edge
-- **Privacy by design** — images never leave the device
+- Battery-powered, offline scanning with no cloud dependency
+- Sub-millisecond latency, with inference at the sensor edge
+- Privacy by design: images never leave the device
 
 ---
 
@@ -46,7 +46,7 @@ flowchart TD
 
 ## Model Architecture
 
-The model has **two output heads** — a multi-task design that trains both tasks simultaneously:
+The model has two output heads, a multi-task design that trains both tasks simultaneously:
 
 \`\`\`mermaid
 flowchart LR
@@ -59,7 +59,7 @@ flowchart LR
     F --> H["BBox Head\n4 coords x y w h"]
 \`\`\`
 
-**Design choice — shared backbone**: Both tasks share the same convolutional feature extractor. This is cheaper than two separate models and the tasks are positively correlated.
+The design choice is a shared backbone. Both tasks share the same convolutional feature extractor. This is cheaper than two separate models and the tasks are positively correlated.
 
 ---
 
@@ -67,15 +67,15 @@ flowchart LR
 
 ### 1. Int8 Quantisation over Float32
 Full-precision (float32) models require 4 bytes per weight. Int8 quantisation:
-- **4× memory reduction** — critical for MCUs with 256 KB RAM
-- **2–4× inference speed-up** on integer ALUs
+- 4× memory reduction, which matters on MCUs with 256 KB RAM
+- 2–4× inference speed-up on integer ALUs
 - Accuracy loss typically < 1% for detection tasks
 
 ### 2. Masked Bounding Box Loss
-When a barcode is absent, the bounding box output is meaningless. A **custom masked loss function** zeros out the bounding box loss contribution when the ground truth label is "no barcode".
+When a barcode is absent, the bounding box output is meaningless. A custom masked loss function zeros out the bounding box loss contribution when the ground truth label is "no barcode".
 
 ### 3. MCU Simulator Before Hardware
-\`mcuSimulator.py\` runs the quantised \`.tflite\` model using the TFLite interpreter on a PC — simulating exactly what the MCU runtime will execute. This lets you catch accuracy regressions *before* flashing firmware.
+\`mcuSimulator.py\` runs the quantised \`.tflite\` model using the TFLite interpreter on a PC, simulating exactly what the MCU runtime will execute. This lets you catch accuracy regressions *before* flashing firmware.
 
 ---
 

@@ -10,7 +10,7 @@ const post = {
   part:      2,
   readTime:  '16 min',
   tags:      ['RAG', 'Production', 'Deployment', 'Testing', 'Monitoring', 'Observability', 'FastAPI', 'Serverless'],
-  excerpt:   'Your RAG prototype works on your laptop. But shipping it to production — deploying, validating, and monitoring — is where most projects fail. Here are the problems and solutions nobody talks about.',
+  excerpt:   'Your RAG prototype works on your laptop. But shipping it to production (deploying, validating and monitoring it) is where most projects fail. Here are the problems and solutions nobody talks about.',
 
   content: `
 ## The Production Gap
@@ -21,12 +21,12 @@ Then you deploy it.
 
 One week later, a real user gets a hallucination. Another user complains about latency spikes. Your LLM API bill is 300% higher than projected. And you have no visibility into any of it.
 
-This is the **production gap** — the chasm between a working prototype and a system real people depend on.
+This is the production gap, between a working prototype and a system real people depend on.
 
 Closing it requires answers to three questions:
-- **How do I deploy this without servers?** (Serverless + containerization)
-- **How do I know it's actually working?** (Testing + validation)
-- **How do I see what broke before users know?** (Monitoring + observability)
+- How do I deploy this without servers? (Serverless + containerization)
+- How do I know it's actually working? (Testing + validation)
+- How do I see what broke before users know? (Monitoring + observability)
 
 ---
 
@@ -36,9 +36,9 @@ Closing it requires answers to three questions:
 
 Imagine two ways to run your RAG system:
 
-**Traditional Server:** Rent a computer in a data center 24/7. It's always ready. You pay $100/month whether it gets 10 requests or 10,000.
+Traditional Server: Rent a computer in a data center 24/7, so it is always ready, and pay $100/month whether it gets 10 requests or 10,000.
 
-**Serverless:** You only pay when someone actually uses it. But the first time someone asks a question, the system needs to "boot up" — loading all the code and dependencies. This takes a few seconds.
+Serverless: You only pay when someone actually uses it. But the first time someone asks a question, the system needs to "boot up" by loading all the code and dependencies. This takes a few seconds.
 
 \`\`\`mermaid
 flowchart LR
@@ -60,9 +60,9 @@ flowchart LR
     style serverless fill:#10b981,color:#fff
 \`\`\`
 
-For a portfolio or hobby project, **serverless costs $0/month**. Servers cost money even when nobody visits. So we choose serverless.
+For a portfolio or hobby project, serverless costs $0/month. Servers cost money even when nobody visits. So we choose serverless.
 
-But that 2-3 second startup delay happens one in five times. When a user gets unlucky and triggers that delay, they see a slow response. This is the **"cold start" problem**.
+But that 2-3 second startup delay happens one in five times. When a user gets unlucky and triggers that delay, they see a slow response. This is the "cold start" problem.
 
 ### Understanding the Startup Sequence
 
@@ -87,7 +87,7 @@ flowchart TD
     style QUICK fill:#10b981,color:#fff
 \`\`\`
 
-**The tradeoff:** Serverless is cheap but slow sometimes. Traditional servers are fast but expensive always.
+The tradeoff: Serverless is cheap but slow sometimes. Traditional servers are fast but expensive always.
 
 ### Solution 1: Package Everything Into a Container
 
@@ -97,7 +97,7 @@ Think of your RAG system like a shipping container. Instead of:
 - Hoping it has the right libraries in the right versions
 - Hoping the vector database client works
 
-You ship **everything** together: your code, Python, all libraries, all configurations. Like a complete meal kit vs. listing ingredients.
+You ship everything together: your code, Python, all libraries, all configurations. Like a complete meal kit vs. listing ingredients.
 
 The container is a sealed package. When it boots, everything is already there. No downloading, no installing, no hoping.
 
@@ -126,7 +126,7 @@ Your RAG system has expensive things to load:
 - The LLM client (Groq, OpenAI, Claude)
 - Sometimes even the embedding model itself
 
-Instead of loading these fresh every time, load them **once** and reuse them.
+Instead of loading these fresh every time, load them once and reuse them.
 
 Think of it like turning on an oven: the first time takes a minute, but if you leave it on and make 50 dishes, each dish cooks quickly.
 
@@ -160,7 +160,7 @@ graph LR
     style ANS4 fill:#10b981,color:#fff
 \`\`\`
 
-### Solution 3: Cost Tracking — Why It Matters
+### Solution 3: Cost Tracking
 
 Every call to an LLM costs money. As of early 2026, GPT-4 costs around $0.03 per 1,000 input tokens. Claude costs slightly more. Groq costs less but still adds up.
 
@@ -170,7 +170,7 @@ Your RAG system makes multiple LLM calls per user question:
 
 If 1,000 people ask 10 questions each, that's 20,000 LLM calls. At roughly $0.02–0.04 per query depending on the LLM, that's $400–800. But you have no idea it's happening.
 
-**Solution:** Track every API call. Count tokens. Understand where money goes.
+Solution: track every API call and count its tokens, so you can see where the money goes.
 
 \`\`\`mermaid
 graph LR
@@ -199,7 +199,7 @@ When you test a traditional app, you can be precise:
 - Input: 5 + 3
 - Expected output: 8
 - Actual output: 8
-- Result: ✓ Pass
+- Result: Pass
 
 But with RAG and LLMs, there's no single "correct" answer:
 - Input: "Who are you?"
@@ -207,10 +207,10 @@ But with RAG and LLMs, there's no single "correct" answer:
 - Actual output: A reasonable answer grounded in documents
 - Result: Is it "good"?
 
-You can't write a test that checks "is this answer correct?" because "correct" is fuzzy. Instead, you check **two different things:**
+You can't write a test that checks "is this answer correct?" because "correct" is fuzzy. Instead, you check two different things:
 
-1. **Did retrieval find the right chunks?** (measurable)
-2. **Did the LLM avoid hallucinating?** (harder, but possible)
+1. Did retrieval find the right chunks? (measurable)
+2. Did the LLM avoid hallucinating? (harder, but possible)
 
 ### Test 1: Did Retrieval Find the Right Answer Source?
 
@@ -231,26 +231,26 @@ flowchart TD
     style DECIDE fill:#ef4444,color:#fff
 \`\`\`
 
-**Example test:**
+Example test:
 - Question: "What projects has Nishan built?"
 - We should find chunks about: stock prediction, barcode detection, face verification, RAG system
-- If we retrieve 10 chunks and 8 of them are relevant: **Precision = 80%** ✓
+- If we retrieve 10 chunks and 8 of them are relevant: Precision = 80% (pass)
 
-**Why this matters:**
-If retrieval fails, the LLM has garbage as input. Garbage in, garbage out. Test retrieval first.
+Why this matters:
+If retrieval fails, the LLM gets garbage as input and produces garbage, so test retrieval first.
 
 ---
 
 ### Test 2: Is the LLM Making Stuff Up?
 
-This is the **hallucination problem** from Week 1. The LLM reads your document and confidently invents details not in it.
+This is the hallucination problem from Week 1. The LLM reads your document and confidently invents details not in it.
 
-The problem is: you can't automatically know if an answer is right. But you **can** detect when it's definitely **wrong** — when it contradicts the source material.
+The problem is: you can't automatically know if an answer is right. But you can detect when it's definitely wrong: when it contradicts the source material.
 
 Think of it like a fact-checker:
 - Document says: "I built this system in 2024"
 - LLM says: "I built this system in 2026"
-- Fact-checker flags: "Document contradicts answer" ✗
+- Fact-checker flags: "Document contradicts answer" (fail)
 
 \`\`\`mermaid
 graph LR
@@ -267,11 +267,11 @@ graph LR
     style NEUTRAL fill:#f59e0b,color:#000
 \`\`\`
 
-If more than 5% of answers are in the "contradicted" bucket, something is wrong. Don't deploy.
+If more than 5% of answers are in the "contradicted" bucket, something is wrong, and you should not deploy.
 
 ### Test 3: Answer Quality Compared to a Reference
 
-For common questions where you know a **good answer**, measure if the LLM's answer is **similar** to it.
+For common questions where you know a good answer, measure if the LLM's answer is similar to it.
 
 \`\`\`mermaid
 graph LR
@@ -293,7 +293,7 @@ graph LR
 
 ### Pre-Deployment Safety Net
 
-All three tests together become a **quality gate:**
+All three tests together become a quality gate:
 
 \`\`\`mermaid
 graph TD
@@ -340,7 +340,7 @@ But something is slowly breaking:
 - API costs are skyrocketing (expensive paths activated)
 - Users are seeing slow responses (something got slower)
 
-**You have no idea any of this is happening.**
+You have no idea any of this is happening.
 
 This is the silent failure problem. The system doesn't crash. It just slowly gets worse while users suffer.
 
@@ -389,12 +389,12 @@ What should your dashboard show?
 
 | Metric | What it means | Red flag |
 |--------|---------------|----------|
-| **Response time (p95)** | How long until the user sees their answer? | > 2.5 seconds |
-| **Cache hit rate** | Are we avoiding expensive LLM calls? | < 70% |
-| **Retrieval accuracy** | Are we finding relevant chunks? | < 80% |
-| **Tokens per query** | How much are we spending per request? | > $0.01 per query |
-| **Hallucination rate** | Are answers contradicted by documents? | > 5% |
-| **LLM refusal rate** | How often does the LLM say "I don't know"? | > 15% |
+| Response time (p95) | How long until the user sees their answer? | > 2.5 seconds |
+| Cache hit rate | Are we avoiding expensive LLM calls? | < 70% |
+| Retrieval accuracy | Are we finding relevant chunks? | < 80% |
+| Tokens per query | How much are we spending per request? | > $0.01 per query |
+| Hallucination rate | Are answers contradicted by documents? | > 5% |
+| LLM refusal rate | How often does the LLM say "I don't know"? | > 15% |
 
 \`\`\`mermaid
 graph LR
@@ -411,7 +411,7 @@ graph LR
 
 ### Detecting When Things Break
 
-You can't stare at dashboards 24/7. So set up **alerts** — when a metric gets bad, you get notified immediately.
+You can't stare at dashboards 24/7. So set up alerts that notify you as soon as a metric gets bad.
 
 \`\`\`mermaid
 graph TD
@@ -434,7 +434,7 @@ graph TD
 
 ### Understanding Drift
 
-Sometimes metrics don't suddenly break — they slowly decay. This is called **drift**.
+Sometimes metrics decay slowly instead of breaking all at once. This is called drift.
 
 Example:
 - Month 1: Retrieval precision = 92% (good)
@@ -455,13 +455,13 @@ graph LR
     style M3 fill:#f59e0b,color:#000
 \`\`\`
 
-Each month the drop is tiny (4%), but cumulatively it's breaking. That's drift.
+Each month the drop is tiny (4%), but it adds up until the system breaks. That slow decline is drift.
 
-The solution: **track trends**. If a metric has been declining for 2 weeks, alert even if it hasn't hit the hard threshold yet.
+The solution: track trends. If a metric has been declining for 2 weeks, alert even if it hasn't hit the hard threshold yet.
 
 ### When to Retrain (Automatically)
 
-As metrics degrade, the system becomes outdated. You need to **retrain** — update embeddings, reindex documents, or refresh the model.
+As metrics degrade, the system becomes outdated. You need to retrain: update embeddings, reindex documents, or refresh the model.
 
 \`\`\`mermaid
 graph TD
@@ -547,12 +547,12 @@ You can't maximize all three. Examples:
 | Use larger LLM | Better answers | Slower generation | 2x cost |
 | Retrieve top 20 instead of 10 | More context | Slower | More tokens |
 
-Every optimization is a tradeoff. **Guardrails** prevent optimizing for one goal at the expense of another.
+Every optimization is a tradeoff. Guardrails prevent optimizing for one goal at the expense of another.
 
 Define acceptable bounds before you optimize:
-- **Latency:** p95 response < 2.5 seconds (hard limit)
-- **Cost:** < $0.01 per query (don't spend $1 to save 1% hallucinations)
-- **Quality:** < 5% hallucination rate (acceptable floor)
+- Latency: p95 response < 2.5 seconds (hard limit)
+- Cost: < $0.01 per query (don't spend $1 to save 1% hallucinations)
+- Quality: < 5% hallucination rate (acceptable floor)
 
 Before shipping any optimization:
 \`\`\`
@@ -592,25 +592,25 @@ graph LR
 \`\`\`
 
 Your RAG system is now:
-- **Live** (deployed without servers)
-- **Trustworthy** (validated before going live)
-- **Observable** (you can see when it breaks)
-- **Resilient** (automatic retraining when needed)
+- Live (deployed without servers)
+- Trustworthy (validated before going live)
+- Observable (you can see when it breaks)
+- Resilient (automatic retraining when needed)
 
-But there's still one unsolved problem: **How do you *know* you're making the right optimization choices?**
+But there's still one unsolved problem: how do you know you're making the right optimization choices?
 
 You can't optimize by guessing. You can't trust your intuition about which prompt works better, or whether reranking helps, or if query expansion is worth the cost.
 
-You need a systematic way to **test changes against each other and know which is actually better**. That's where we go next week.`,
+You need a systematic way to test changes against each other and know which is actually better. That's where we go next week.`,
 
   references: [
-    { text: 'AWS Lambda — Container image support', url: 'https://docs.aws.amazon.com/lambda/latest/dg/images-create.html' },
-    { text: 'FastAPI — Streaming responses', url: 'https://fastapi.tiangolo.com/advanced/streaming/' },
-    { text: 'Groq — API documentation', url: 'https://console.groq.com/docs/speech-text' },
-    { text: 'ROUGE metric — ACL 2019', url: 'https://aclanthology.org/N04-1014/' },
-    { text: 'Hallucination in Neural Machine Translation — Raunak et al., 2021', url: 'https://aclanthology.org/2021.acl-long.326/' },
-    { text: 'Entailment as an auxiliary task for semantic similarity — Chen et al., 2023', url: 'https://arxiv.org/abs/2206.10996' },
-    { text: 'Monitoring ML systems — Google Cloud Best Practices', url: 'https://cloud.google.com/architecture/devops-patterns/monitoring-ml-systems' },
+    { text: 'AWS Lambda: Container image support', url: 'https://docs.aws.amazon.com/lambda/latest/dg/images-create.html' },
+    { text: 'FastAPI: Streaming responses', url: 'https://fastapi.tiangolo.com/advanced/streaming/' },
+    { text: 'Groq: API documentation', url: 'https://console.groq.com/docs/speech-text' },
+    { text: 'ROUGE metric: ACL 2019', url: 'https://aclanthology.org/N04-1014/' },
+    { text: 'Hallucination in Neural Machine Translation: Raunak et al., 2021', url: 'https://aclanthology.org/2021.acl-long.326/' },
+    { text: 'Entailment as an auxiliary task for semantic similarity: Chen et al., 2023', url: 'https://arxiv.org/abs/2206.10996' },
+    { text: 'Monitoring ML systems: Google Cloud Best Practices', url: 'https://cloud.google.com/architecture/devops-patterns/monitoring-ml-systems' },
   ],
 };
 

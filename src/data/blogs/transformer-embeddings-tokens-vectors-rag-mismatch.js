@@ -10,12 +10,12 @@ const post = {
   part: 10,
   readTime: '12 min',
   tags: ['Embeddings', 'RAG', 'VectorSearch', 'Transformers', 'Production', 'LLMs'],
-  excerpt: 'RAG returns 200 OK. No errors logged. Wrong answers. Issue: ingestion used model A, queries used model B. Different vector spaces.',
+  excerpt: 'RAG returns 200 OK and wrong answers when ingestion used one embedding model and queries another, because each model has its own vector space.',
 
   content: `
 ## The Silent Failure
 
-Your RAG system deployed three weeks ago. Infrastructure looks perfect: no errors, normal latencies, steady throughput. Users start reporting that answers are disconnected from questions. Support tickets pile up. You check logs. Everything is green.
+Your RAG system deployed three weeks ago. Infrastructure looks perfect: no errors, normal latencies, steady throughput. Users start reporting that answers are disconnected from questions. Support tickets pile up, and the logs are all green.
 
 This is embedding model mismatch. Your ingestion pipeline embedded documents with one model. Your query handler swapped to a different model. The system keeps running because both models work fine independently. Vector database queries complete. Cosine similarity still computes. But documents and queries live in incompatible semantic spaces. Retrieved chunks have nothing to do with the user's question.
 
@@ -23,17 +23,17 @@ Understanding why this happens means understanding three things: what tokenizati
 
 ## From Text to Numbers
 
-Raw text cannot be fed to machine learning. Text must become numbers. **Embedding models** convert text into dense arrays called **vectors**, where semantically similar text produces vectors close together in high-dimensional space.
+Raw text cannot be fed to machine learning. Text must become numbers. Embedding models convert text into dense arrays called vectors, where semantically similar text produces vectors close together in high-dimensional space.
 
 When you ask a search engine "How do I reset my password?" and a document says "Forgotten password reset steps", both produce vectors with high cosine similarity. Cosine similarity is the dot product of normalized vectors, yielding scores between -1 and 1. Scores above 0.7 signal semantic similarity.
 
-This works because modern embedding models train on **contrastive learning**. Millions of sentence pairs are fed to the model. Similar pairs are pulled toward each other in vector space. Dissimilar pairs pushed apart. After training, the model encodes meaning as proximity.
+This works because modern embedding models train on contrastive learning. Millions of sentence pairs are fed to the model. Similar pairs are pulled toward each other in vector space. Dissimilar pairs pushed apart. After training, the model encodes meaning as proximity.
 
-But here is the catch: each model creates its own space. Model A trained on one corpus using one approach produces a space where similarity means one thing. Model B trained differently produces a space where the same numbers mean something else. Swap models and you swap the entire meaning of similarity.
+Each model, though, creates its own space. Model A trained on one corpus using one approach produces a space where similarity means one thing. Model B trained differently produces a space where the same numbers mean something else. Swap models and you swap the entire meaning of similarity.
 
 ## Tokenization: Breaking Text Into Pieces
 
-The first step is **tokenization**. Text is not fed to transformers as raw characters. It breaks into tokens. The word "dog" is a single token. The word "authentication" might split into auth plus ##mation. A 100-word document becomes roughly 130 tokens, depending on vocabulary and language.
+The first step is tokenization. Text is not fed to transformers as raw characters. It breaks into tokens. The word "dog" is a single token. The word "authentication" might split into auth plus ##mation. A 100-word document becomes roughly 130 tokens, depending on vocabulary and language.
 
 Tokenization matters because it determines what the model sees. Different tokenizers split text differently. Some handle subwords with ##mation syntax. Others use byte-pair encoding. The vocabulary size matters too. A 30,000-token vocabulary handles common words efficiently but struggles with rare words. A 50,000-token vocabulary captures more nuance but increases computation.
 
@@ -41,15 +41,15 @@ Tokenization matters because it determines what the model sees. Different tokeni
 
 Once text is tokenized, a transformer follows a five-step pipeline.
 
-**Step one: token embedding lookup.** Each token maps to a learned vector. Token 42 always maps to the same 384-dimensional vector. Token 1500 maps a different vector. These are learned during training and stored in a lookup table. Different models have different tables.
+Step one is token embedding lookup. Each token maps to a learned vector. Token 42 always maps to the same 384-dimensional vector. Token 1500 maps a different vector. These are learned during training and stored in a lookup table. Different models have different tables.
 
-**Step two: positional encoding.** Transformers have no built-in sequence order. Positional information is added to each token embedding, capturing both absolute position and relative distance.
+Step two is positional encoding. Transformers have no built-in sequence order. Positional information is added to each token embedding, capturing both absolute position and relative distance.
 
-**Step three: transformer layers.** The transformer applies layers of self-attention. Each token attends to every other token. Attention learns: which tokens are relevant? Different architectures use different layer counts. BERT uses 12. RoBERTa uses 24. Each layer refines the vector to capture deeper semantics.
+Step three is the transformer layers. The transformer applies layers of self-attention. Each token attends to every other token. Attention learns which tokens are relevant. Different architectures use different layer counts: BERT uses 12 and RoBERTa uses 24. Each layer refines the vector to capture deeper semantics.
 
-**Step four: representation.** After attention, each token has been contextualized by the full document context.
+Step four is representation. After attention, each token has been contextualized by the full document context.
 
-**Step five: pooling.** The transformer produces one vector per token. You need one per document. Mean pooling averages all token vectors. This single vector is your **embedding**: a coordinate in learned semantic space.
+Step five is pooling. The transformer produces one vector per token. You need one per document. Mean pooling averages all token vectors. This single vector is your embedding: a coordinate in learned semantic space.
 
 Different models pool differently. Different models use different layer counts. Different models train on different data. Same document, different models, different vectors.
 
@@ -74,7 +74,7 @@ Model A trained on contrasting similar and dissimilar sentence pairs might have 
 
 Model A uses 384 dimensions. Model B uses 1536 dimensions. Same text, vastly different vector spaces. Dimension count alone breaks compatibility. But it goes deeper. The value in dimension 47 of Model A means something completely different than dimension 47 of Model B. Learned projections from attention heads produce different features in different models.
 
-Worse, these differences are **silent**. Both models work fine independently. Cosine similarity still computes. The system returns results. Infrastructure metrics look normal. Users just get wrong answers.
+Worse, these differences are silent. Both models work fine independently. Cosine similarity still computes. The system returns results. Infrastructure metrics look normal. Users just get wrong answers.
 
 \`\`\`mermaid
 flowchart LR
