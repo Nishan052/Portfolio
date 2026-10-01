@@ -104,6 +104,13 @@ export const PROJECTS = [
 
 export const POSTS = [
   {
+    "slug": "jev-laya-typed-decision-models",
+    "title": "Decision models like Jev and Laya: why agents started asking for decisions, not text",
+    "date": "2026-10-06",
+    "series": null,
+    "part": null
+  },
+  {
     "slug": "onnx-ops-without-deps",
     "title": "Reading a model file with nothing installed at all",
     "date": "2026-09-29",
