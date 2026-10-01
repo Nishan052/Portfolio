@@ -34,7 +34,7 @@ Each blog post exports an object with:
   readTime: "X min",            // Estimated read time (format exactly)
   tags: ["Tag1", "Tag2", ...],  // Topics for filtering (3–7 tags)
   excerpt: "One-line summary",  // Preview text (80–150 characters)
-  content: "markdown string",   // Full post content (400–500 words)
+  content: "markdown string",   // Full post content (1000–1100 words)
   references: [...]             // Harvard-style citations (3–6)
   githubUrl: "optional URL"     // Optional GitHub repository link
 }
@@ -115,15 +115,16 @@ Each blog post exports an object with:
 
 #### readTime (string)
 - **Format**: Exactly `"X min"` (single space, lowercase "min")
-- **Estimation**: ~200 words per minute
-- **Range**: Typically `"5 min"` to `"15 min"` (rarely exceeds 99)
+- **Estimation**: ~200 words per minute, accounting for diagrams and code
+- **Minimum**: `"12 min"` — hard minimum for all posts
+- **Range**: Typically `"12 min"` to `"20 min"`
 - **Examples**:
-  - ✅ `"5 min"`
   - ✅ `"12 min"`
-  - ✅ `"9 min"`
+  - ✅ `"15 min"`
+  - ✅ `"18 min"`
+  - ❌ `"5 min"` (below minimum)
   - ❌ `"5-min read"`
-  - ❌ `"5 mins"`
-  - ❌ `"~5 min"`
+  - ❌ `"~12 min"`
 
 #### tags (array of strings)
 - **Count**: Minimum 3, optimal 5–7, maximum 7 tags
@@ -166,9 +167,9 @@ Each blog post exports an object with:
 ## Content Guidelines (Markdown)
 
 ### Length
-- **Target**: 400–450 words (fits one A4 page when printed)
-- **Absolute maximum**: 500 words (hard limit)
-- **Minimum**: 300 words (rare, only for very focused posts)
+- **Target**: 1000–1100 words
+- **Absolute minimum**: 1000 words (hard minimum)
+- **Absolute maximum**: 1200 words
 - **Counting**: Includes headers, diagram labels, table text; excludes code blocks
 - **Verification**: `wc -w content.md` to check
 
@@ -189,21 +190,23 @@ Each blog post exports an object with:
 - Code words in backticks: `model.fit()`, `.tflite`, `pushState`
 
 **Lists**
-- Unordered lists (`-`): Use maximum once per post, for short non-sequential items
-  - Example: "On-device deployment means: — zero latency, — privacy, — offline"
-  - Each item 1–2 sentences
-- Ordered lists (`1.`, `2.`): Use for step-by-step guidance
+- Unordered lists (`-`): Use freely when listing 3 or more non-sequential items (features, properties, options)
+  - Preferred over dense prose run-on lists
+  - Each item 1–2 sentences maximum
+- Ordered lists (`1.`, `2.`): Use for step-by-step guidance or priority ordering
   - Example: "Pipeline steps: 1. Load data, 2. Create model, 3. Train"
 - No nested lists (exceeds scope)
 - Consistent punctuation (all items end with period or none)
 
 **Punctuation & Dashes**
-- Em-dashes (`—`) for clause breaks, NOT hyphens
-  - ❌ "This is false - but this is true"
-  - ✅ "This is false — but this is true"
+- **NO em-dashes (`—`) anywhere in prose — banned entirely**
+  - ❌ "This is false — but this is true" (em-dash, not allowed)
+  - ✅ "This is false. This is true." (split into two sentences)
+  - ✅ "This is false, but this is true." (use a comma)
 - Hyphens only for compound words: `client-side`, `multi-task`, `end-to-end`
+- En-dashes only for numeric ranges: `20–60ms`, `P95–P99`
 - NO exclamation marks in technical prose (zero exclamations)
-- NO semicolons; use periods or em-dashes instead
+- NO semicolons; use periods instead
 - Single space after periods (never double space)
 
 **Code & Technical References**
@@ -227,13 +230,52 @@ Each blog post exports an object with:
 | Connection | Persistent | Request/response | Persistent |
 ```
 
-### Diagrams (Mermaid) — Detailed Rules
+### Diagrams — Panels
+
+New posts use **panels**: an SVG authored from a JSON spec in the edge-agents
+repository (`content/panels/<id>-<n>.json`, built by
+`design/panels/render_panel.py`), rendered into `public/diagrams/` at publish
+time and inlined by `Panel.jsx`.
+
+Written in markdown as an image, so a post stays plain markdown:
+
+```
+![One sentence describing the figure for a reader who cannot see it](/diagrams/my-post-1.svg)
+
+*The visible caption, in italics, directly beneath.*
+```
+
+- **3 to 4 panels per post**, each with an italic caption below it
+- The panel's own text does **not** count toward the word budget: the prose has
+  to reach 1000 words on its own
+- No colour is written into a spec. `Panel.css` supplies the palette for both
+  themes, which is why panels are inlined rather than loaded as an `<img>`
+- Consecutive panels must not use the same blocks in the same order
+- Full rules: `design/DIAGRAM_BOOK.md` in edge-agents
+
+Mermaid remains valid for the earlier posts that use it, and the rules below
+still govern those.
+
+### Diagrams (Mermaid, earlier posts) — Detailed Rules
+
+**Animation, Icons and Styling (mermaid 11.3+)**
+- **Animated edges**: name an edge and animate it: `A e1@--> B` then `e1@{ animate: true }`
+  - Mermaid emits its own keyframes. No custom CSS needed.
+  - **Maximum 2 animated edges per diagram.** Animate the path the reader follows, not every path.
+- **Icons**: `A@{ icon: "lucide:cpu", form: "square", label: "Accelerator" }`
+  - The Lucide pack is registered in `MermaidDiagram.jsx`. Same icon set the videos use.
+  - Icons carry meaning. If you cannot name the kind of thing a node is, use no icon.
+- **Class styling**: four classes only, matching the site palette
+  - `step` #0f172a/#334155, `good` #0d2b33/#00e5ff, `bad` #2b1033/#a855f7, `muted` #0d1117/#1f2937
+  - **At most one `bad` node per diagram.** Two failures in one picture and the reader cannot tell which one the section is about.
+  - No red or green: they carry meaning colourblind readers cannot see.
+- **Every diagram should have something wrong in it.** A diagram where everything is fine has no subject.
 
 **Format & Placement**
 - Wrap in fenced code blocks: ` ```mermaid ... ``` `
 - **Include a text caption below each diagram** explaining its purpose
-- Maximum 2 diagrams per post (enhance, don't decorate)
-- Diagrams should break up text sections
+- **Minimum 3 diagrams per post** (use as many as the content needs — every major concept or pipeline should have a diagram)
+- Diagrams should break up text sections and aid conceptual understanding
 
 **NO Emojis or Icons**
 - Plain text labels only: `"Load Data"`, `"Model Training"`, `"Deploy"`
@@ -245,8 +287,31 @@ Each blog post exports an object with:
 - `flowchart TD` — top-down processes, pipelines
 - `flowchart LR` — left-right data flow, relationships
 - `sequenceDiagram` — interactions, timing, message flow
-- `stateDiagram-v2` — state machines, status transitions
-- **NOT allowed**: Pie charts, bar charts, scatter plots (use text tables instead)
+- **NOT allowed**: `stateDiagram-v2` (Mermaid v11 silently renders empty SVG for merge-node patterns), pie charts, bar charts, scatter plots (use text tables instead)
+
+**Node Label Length Rule — all shapes**
+- Maximum 22 characters per line in any node label, regardless of shape
+- Applies to: `[rect]`, `(rounded)`, `((circle))`, `{diamond}`, `{{hexagon}}`, `([stadium])`, `[[subroutine]]`, `[(cylinder)]`, `>flag]`
+- If a label needs more text, split at a natural word boundary with `<br/>`: `A[First Line<br/>Second Line]`
+- Mermaid bakes exact pixel widths into SVG `clipPath` elements for every shape; overflow is hard-clipped regardless of shape type
+- `wrappingWidth: 150` is set globally in MermaidDiagram.jsx as a fallback, but manual `<br/>` gives precise control
+- **Audit command** (run from `/Portfolio/`):
+  ```js
+  // covers all shapes — see label-audit section in blogrequirement.md
+  node -e "
+  const fs=require('fs'),path=require('path'),dir=path.resolve('./src/data/blogs');
+  const pats=[/\(\(([^()]+)\)\)/g,/\(\[([^\]]+)\]\)/g,/\[\(([^)]+)\)\]/g,/\[\[([^\]]+)\]\]/g,/\{\{([^{}]+)\}\}/g,/>([^\]]+)\]/g,/\[([^\]]+)\]/g,/\(([^()]+)\)/g,/\{([^{}]+)\}/g];
+  let issues=[];
+  for(const f of fs.readdirSync(dir).filter(f=>f.endsWith('.js')&&f!=='index.js')){
+    const c=fs.readFileSync(path.join(dir,f),'utf8');
+    for(const blk of [...c.matchAll(/\`\`\`mermaid\n([\s\S]*?)\`\`\`/g)].map(m=>m[1])){
+      const seen=new Set();
+      for(const p of pats) for(const m of blk.matchAll(p)){if(seen.has(m[1]))continue;seen.add(m[1]);for(const l of m[1].split(/<br\s*\/?>/i))if(l.trim().length>22)issues.push(f+': '+l.trim());}
+    }
+  }
+  console.log(issues.length?issues.join('\n'):'All labels OK.');
+  "
+  ```
 
 **Example: Correct Diagram**
 ```
@@ -418,14 +483,14 @@ Harris, C.R. et al. (2020) "Array Programming with NumPy". Nature, 585, pp. 357�
 Before submitting a post:
 
 1. **Problem Test**: State the core problem in one sentence — is it specific and real?
-2. **Concrete Test**: Does the solution include specific examples or diagrams from your work?
+2. **Concrete Test**: Does the solution include specific examples and diagrams from your work?
 3. **Reference Test**: Can you cite a published source for each major technical claim?
 4. **Audience Test**: Would a senior engineer in your field find this immediately useful?
 5. **Brevity Test**: Remove any sentence that doesn't advance the argument
 6. **Tone Test**: Read aloud — does it sound human, direct, authoritative (not robotic)?
 7. **Emoji Test**: NO emojis anywhere (title, content, diagrams)?
 8. **Field Test**: Verify all field lengths (title < 85, slug < 60, excerpt 80–150, etc.)
-9. **Word Count Test**: Use `wc -w` to verify 400–500 words
+9. **Word Count Test**: Use `wc -w` to verify 1000–1200 words
 10. **Link Test**: Test all references and GitHub URLs; no 404s
 11. **Humanizer Test**: Run the `humanizer` skill from `edge-agents` last, after every other check, and fix each sign of AI writing it reports without changing a fact:
     ```bash
@@ -464,7 +529,7 @@ Before submitting a post:
 - ❌ Slug with numbers/special chars — USE lowercase + hyphens only
 - ❌ Excerpt > 150 chars — TRIM
 - ❌ readTime not "X min" format — FIX format
-- ❌ > 2 diagrams — REDUCE
+- ❌ > 4 diagrams — REDUCE
 
 ---
 

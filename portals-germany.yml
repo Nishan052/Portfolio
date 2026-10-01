@@ -1,0 +1,704 @@
+# Germany Portal Scanner Configuration
+# Customised for: Nishan Chandrashekar Poojary — Berlin, Germany
+# Target roles: Software Development · Frontend Development · AI/ML · Data Science
+# Geography: Germany only (Berlin · Munich · Hamburg · Cologne · Frankfurt · Heidelberg · Freiburg · Düsseldorf)
+#
+# Strategy (3 levels):
+#   1. Playwright → careers_url of each company (real-time, reliable)
+#   2. Greenhouse API → structured JSON (fast, Greenhouse-only)
+#   3. WebSearch with site: filters (broad discovery, may be stale)
+#
+# IMPORTANT: Each company in tracked_companies MUST have careers_url.
+#
+# HOW TO CUSTOMIZE:
+#   1. Copy this file to portals-germany.yml in the project root
+#   2. Edit title_filter.positive with YOUR target role keywords
+#   3. Add/remove companies in tracked_companies
+#   4. Adjust search_queries for your preferred job boards
+#   5. Set enabled: false on companies you don't care about
+
+# -- Title filter --
+# The scanner uses these keywords to decide if a title is relevant.
+# At least 1 positive must match AND 0 negatives must match (case-insensitive).
+
+title_filter:
+  positive:
+    # -- Entry-level, Internship, Werkstudent, Thesis --
+    - "Intern"
+    - "Internship"
+    - "Praktikant"
+    - "Praktikantin"
+    - "Praktikum"
+    - "Werkstudent"
+    - "Werkstudentin"
+    - "Working Student"
+    - "Junior"
+    - "Junior Developer"
+    - "Junior Engineer"
+    - "Trainee"
+    - "Thesis"
+    - "Bachelor Thesis"
+    - "Master Thesis"
+    - "Bachelorarbeit"
+    - "Masterarbeit"
+    - "Abschlussarbeit"
+    - "Student"
+    - "Graduate"
+    - "Entry Level"
+    - "Entry-Level"
+    # -- Software Engineering --
+    - "Software Engineer"
+    - "Software Developer"
+    - "Softwareentwickler"
+    - "Softwareingenieur"
+    - "Entwickler"
+    - "Developer"
+    # -- Frontend --
+    - "Frontend"
+    - "Front-End"
+    - "Front End"
+    - "UI Engineer"
+    - "React"
+    - "Angular"
+    - "Vue"
+    - "TypeScript"
+    # -- Full Stack --
+    - "Full Stack"
+    - "Fullstack"
+    # -- Backend (relevant to software dev) --
+    - "Backend"
+    - "Back-End"
+    - "Platform Engineer"
+    # -- Python / Data Engineering --
+    - "Python"
+    - "Data Engineer"
+    - "Analytics Engineer"
+    - "ETL"
+    # -- Data Science --
+    - "Data Scientist"
+    - "Data Science"
+    - "Data Analyst"
+    # -- AI / ML --
+    - "AI"
+    - "ML"
+    - "Machine Learning"
+    - "Deep Learning"
+    - "LLM"
+    - "NLP"
+    - "Computer Vision"
+    - "MLOps"
+    - "GenAI"
+    - "Generative AI"
+    - "Applied AI"
+    # -- German AI/ML keywords (DACH market) --
+    - "KI"
+    - "Künstliche Intelligenz"
+    - "KI Engineer"
+    - "KI Entwickler"
+    - "Maschinelles Lernen"
+  negative:
+    # Exclude non-technical only
+    - "Ausbildung"
+    - "Apprentice"
+    # Exclude non-target functions
+    - "Sales"
+    - "Account Executive"
+    - "Account Manager"
+    - "Business Development"
+    - "Marketing"
+    - "Copywriter"
+    - "Finance"
+    - "Accounting"
+    - "HR "
+    - "Recruiter"
+    - "Talent Acquisition"
+    - "Legal"
+    - "Counsel"
+    - "Office Manager"
+    - "Operations Manager"
+    - "Customer Success"
+    - "Customer Support"
+    # Exclude irrelevant tech stacks
+    - "iOS"
+    - "Android"
+    - "Embedded"
+    - "Firmware"
+    - "FPGA"
+    - "COBOL"
+    - "SAP "
+    - "Mainframe"
+    - "PHP"
+    - "Ruby"
+    - "Blockchain"
+    - "Web3"
+    - "Crypto"
+  seniority_boost:
+    # Entry-level boosts (also relevant)
+    - "Junior"
+    - "Werkstudent"
+    - "Working Student"
+    - "Intern"
+    - "Thesis"
+    - "Masterarbeit"
+    - "Bachelorarbeit"
+
+# -- Search queries --
+# Each query triggers a WebSearch. Use site: to filter by portal.
+# The scanner extracts title, URL, and company from results.
+
+search_queries:
+  # -- Werkstudent / Internship / Thesis / Junior --
+  - name: StepStone — Werkstudent AI/Data/Frontend Germany
+    query: 'site:stepstone.de "Werkstudent" OR "Working Student" "AI" OR "Machine Learning" OR "Data" OR "Frontend" OR "Software" Germany'
+    enabled: true
+
+  - name: StepStone — Junior Software/AI/Data Germany
+    query: 'site:stepstone.de "Junior" "Software Engineer" OR "AI Engineer" OR "Data Scientist" OR "Frontend" OR "ML Engineer" Germany'
+    enabled: true
+
+  - name: StepStone — Praktikum AI/Data/Software Germany
+    query: 'site:stepstone.de "Praktikum" OR "Praktikant" "AI" OR "Software" OR "Data" OR "Machine Learning" OR "Frontend" Germany'
+    enabled: true
+
+  - name: StepStone — Masterarbeit / Bachelor Thesis Germany
+    query: 'site:stepstone.de "Masterarbeit" OR "Bachelorarbeit" OR "Abschlussarbeit" OR "Master Thesis" OR "Bachelor Thesis" "AI" OR "Software" OR "Data" OR "Machine Learning" Germany'
+    enabled: true
+
+  - name: Indeed.de — Werkstudent AI/Data/Frontend Germany
+    query: 'site:de.indeed.com "Werkstudent" OR "Working Student" "AI" OR "Machine Learning" OR "Data" OR "Frontend" OR "Software" Germany'
+    enabled: true
+
+  - name: Indeed.de — Junior AI/Data/Software Germany
+    query: 'site:de.indeed.com "Junior" "Software Engineer" OR "AI" OR "Data Scientist" OR "ML" OR "Frontend" Germany'
+    enabled: true
+
+  - name: Indeed.de — Thesis / Praktikum Germany
+    query: 'site:de.indeed.com "Masterarbeit" OR "Bachelorarbeit" OR "Praktikum" "AI" OR "Software" OR "Data" OR "Machine Learning" Germany'
+    enabled: true
+
+  - name: XING — Werkstudent / Junior Tech Germany
+    query: 'site:xing.com/jobs "Werkstudent" OR "Junior" "AI" OR "Machine Learning" OR "Data" OR "Software Engineer" OR "Frontend" Germany'
+    enabled: true
+
+  - name: Greenhouse — Werkstudent / Junior Germany
+    query: 'site:job-boards.greenhouse.io "Werkstudent" OR "Working Student" OR "Junior" "AI" OR "Data" OR "Software" OR "Frontend" Germany'
+    enabled: true
+
+  - name: Wellfound — Junior / Intern AI Germany Startups
+    query: 'site:wellfound.com "Junior" OR "Intern" OR "Internship" "AI" OR "Machine Learning" OR "Data Scientist" OR "Software Engineer" Germany OR Berlin OR Munich'
+    enabled: true
+
+  - name: Berlinstartupjobs — Werkstudent / Intern Tech
+    query: 'site:berlinstartupjobs.com "Werkstudent" OR "Working Student" OR "Intern" OR "Junior" "Software" OR "AI" OR "Data" OR "Frontend"'
+    enabled: true
+
+  # -- StepStone (Germany's largest job board) --
+  - name: StepStone — AI/ML Engineer Germany
+    query: 'site:stepstone.de "AI Engineer" OR "Machine Learning Engineer" OR "ML Engineer" OR "Data Scientist" Berlin OR Munich OR Hamburg OR Cologne Senior'
+    enabled: true
+
+  - name: StepStone — Frontend/Software Developer Germany
+    query: 'site:stepstone.de "Frontend Developer" OR "Frontend Engineer" OR "Software Engineer" OR "Full Stack" Berlin OR Munich OR Hamburg OR remote'
+    enabled: true
+
+  - name: StepStone — Data Science Germany
+    query: 'site:stepstone.de "Data Scientist" OR "Data Engineer" OR "Analytics Engineer" Berlin OR Munich OR Hamburg OR remote Senior'
+    enabled: true
+
+  # -- Indeed Germany --
+  - name: Indeed.de — AI/ML Roles Germany
+    query: 'site:de.indeed.com "AI Engineer" OR "ML Engineer" OR "Machine Learning" OR "LLM" Germany Senior'
+    enabled: true
+
+  - name: Indeed.de — Frontend/Software Germany
+    query: 'site:de.indeed.com "Frontend Engineer" OR "Software Engineer" OR "Full Stack Developer" Berlin OR Munich remote Senior'
+    enabled: true
+
+  - name: Indeed.de — Data Science Germany
+    query: 'site:de.indeed.com "Data Scientist" OR "Data Engineer" OR "Analytics Engineer" Berlin OR Munich OR Hamburg'
+    enabled: true
+
+  # -- XING (DACH's leading professional network) --
+  - name: XING Jobs — Senior AI/Data Berlin
+    query: 'site:xing.com/jobs "AI" OR "Machine Learning" OR "Data Scientist" Berlin Senior OR Lead remote'
+    enabled: true
+
+  - name: XING Jobs — Senior Frontend/Software Berlin
+    query: 'site:xing.com/jobs "Frontend" OR "Software Engineer" OR "Full Stack" Berlin Senior'
+    enabled: true
+
+  # -- Honeypot (Berlin-based tech talent platform, EU-focused) --
+  - name: Honeypot — AI/ML/Frontend Germany
+    query: 'site:honeypot.io "AI Engineer" OR "Machine Learning" OR "Data Scientist" OR "Frontend" Germany OR Berlin OR Munich'
+    enabled: true
+
+  # -- Berlin Startup Jobs --
+  - name: Berlinstartupjobs — All Tech Roles
+    query: 'site:berlinstartupjobs.com "Software Engineer" OR "Frontend" OR "AI" OR "Data Scientist" OR "Machine Learning" OR "Full Stack"'
+    enabled: true
+
+  # -- Munich Startups --
+  - name: MunichStartups — AI/Tech Roles
+    query: 'site:munichstartups.de "AI" OR "Software Engineer" OR "Data Scientist" OR "Frontend" OR "Machine Learning"'
+    enabled: true
+
+  # -- Wellfound / AngelList Startups Germany --
+  - name: Wellfound — AI/ML Startups Germany
+    query: 'site:wellfound.com "AI Engineer" OR "Machine Learning" OR "Data Scientist" Germany OR Berlin OR Munich remote'
+    enabled: true
+
+  - name: Wellfound — Frontend/Software Germany Startups
+    query: 'site:wellfound.com "Frontend Engineer" OR "Software Engineer" OR "Full Stack" Germany OR Berlin OR Munich remote Senior'
+    enabled: true
+
+  # -- Greenhouse boards (Germany-headquartered companies) --
+  - name: Greenhouse — German AI/ML Roles
+    query: 'site:job-boards.greenhouse.io "Machine Learning" OR "AI Engineer" OR "Data Scientist" OR "NLP" Berlin OR Munich OR Germany'
+    enabled: true
+
+  - name: Greenhouse — German Frontend/Software Roles
+    query: 'site:job-boards.greenhouse.io "Frontend Engineer" OR "Software Engineer" OR "Full Stack" Berlin OR Munich OR Germany'
+    enabled: true
+
+  # -- Ashby boards (German startups) --
+  - name: Ashby — German AI Startups
+    query: 'site:jobs.ashbyhq.com "AI Engineer" OR "Machine Learning" OR "LLM" OR "NLP" Berlin OR Munich OR Germany'
+    enabled: true
+
+  - name: Ashby — German Frontend/Software
+    query: 'site:jobs.ashbyhq.com "Frontend" OR "Software Engineer" OR "Full Stack" Berlin OR Munich OR Germany remote'
+    enabled: true
+
+  # -- YC / Work at a Startup — German companies --
+  - name: YC Jobs — AI/ML Germany
+    query: 'site:workatastartup.com "AI" OR "Machine Learning" OR "Data Scientist" Germany OR Berlin OR Munich remote'
+    enabled: true
+
+  # -- HN Who's Hiring — Germany/Remote AI --
+  - name: HN Who's Hiring — Germany Remote AI/Software
+    query: 'site:news.ycombinator.com "AI Engineer" OR "Machine Learning" OR "Data Scientist" OR "Frontend" Germany OR Berlin OR Munich remote'
+    enabled: true
+
+  # -- EU Remote Jobs with German base --
+  - name: Remotive — AI/Data Germany
+    query: 'site:remotive.com "AI Engineer" OR "Data Scientist" OR "Machine Learning" OR "Frontend" Germany OR Berlin OR DACH'
+    enabled: true
+
+  # -- WeWorkRemotely — German companies remote-first --
+  - name: WeWorkRemotely — Software/AI German companies
+    query: 'site:weworkremotely.com "AI Engineer" OR "Software Engineer" OR "Data Scientist" OR "Frontend" Germany OR Berlin remote'
+    enabled: true
+
+# -- Tracked companies --
+# Companies headquartered or with major engineering hubs in Germany.
+# scan_method: playwright (default), websearch, greenhouse_api
+# For Greenhouse companies, add api: field for faster structured JSON access.
+
+tracked_companies:
+
+  # -- AI Labs & LLM Providers --
+
+  - name: Aleph Alpha
+    careers_url: https://jobs.ashbyhq.com/AlephAlpha
+    notes: "Heidelberg DE. Sovereign European LLM provider. AI Engineer, ML Researcher, Python Dev, Software Engineer roles."
+    enabled: true
+
+  - name: DeepL
+    careers_url: https://jobs.ashbyhq.com/DeepL
+    notes: "Cologne DE. Translation & language AI leader. 60+ roles: NLP/ML Engineer, Software Engineer, Data Scientist, Frontend."
+    enabled: true
+
+  - name: Black Forest Labs
+    careers_url: https://job-boards.greenhouse.io/blackforestlabs
+    api: https://boards-api.greenhouse.io/v1/boards/blackforestlabs/jobs
+    notes: "Freiburg DE / SF. FLUX image generation models (ex-Stable Diffusion team). ML Research, ML Engineering, Software Engineer."
+    enabled: true
+
+  - name: Helsing
+    careers_url: https://job-boards.greenhouse.io/helsing
+    api: https://boards-api.greenhouse.io/v1/boards/helsing/jobs
+    notes: "Munich / Berlin / London / Paris. Defence AI unicorn. 100+ roles: ML Engineer, Software Engineer, Data Scientist."
+    enabled: true
+
+  - name: Deepset
+    careers_url: https://deepset.jobs.personio.de
+    scan_method: websearch
+    scan_query: 'site:deepset.jobs.personio.de OR "deepset.ai/careers" "Software Engineer" OR "ML Engineer" OR "AI" OR "NLP" OR "Data"'
+    notes: "Berlin DE. Makers of Haystack — the leading open-source RAG/NLP framework. ML Engineer, AI Platform, Python, Full Stack roles. Highly relevant to RAG expertise."
+    enabled: true
+
+  - name: Merantix
+    careers_url: https://merantix.com/careers
+    scan_method: websearch
+    scan_query: 'site:merantix.com/careers OR "merantix" "engineer" OR "data scientist" OR "ML" OR "frontend"'
+    notes: "Berlin. AI venture studio building and spinning off AI companies. ML, Data Science, Software Engineering, Frontend."
+    enabled: true
+
+  - name: Hawk AI
+    careers_url: https://hawk.ai/careers
+    scan_method: websearch
+    scan_query: '"hawk.ai" careers "engineer" OR "data" OR "ML" OR "machine learning"'
+    notes: "Munich. AI-powered AML and fraud detection for banks. ML Engineer, Data Engineer, Software Engineer."
+    enabled: true
+
+  - name: ada Health
+    careers_url: https://ada.com/careers
+    scan_method: websearch
+    scan_query: 'site:ada.com/careers "engineer" OR "data scientist" OR "ML" OR "AI" OR "software"'
+    notes: "Berlin. AI symptom checker and health platform. ML, Platform Engineering, Data Science, Software Engineering."
+    enabled: true
+
+  - name: QuantCo
+    careers_url: https://www.quantco.com/careers
+    scan_method: websearch
+    scan_query: '"quantco" careers "data scientist" OR "software engineer" OR "ML engineer" OR "machine learning"'
+    notes: "Munich / Berlin. Quantitative data science for insurance and finance. Python-heavy ML, Data Science, Software Engineering."
+    enabled: true
+
+  - name: MOSTLY AI
+    careers_url: https://mostly.ai/careers
+    scan_method: websearch
+    scan_query: '"mostly.ai" OR "MOSTLY AI" careers "engineer" OR "data" OR "AI" OR "ML"'
+    notes: "Munich / Vienna. Synthetic data generation AI platform. ML Engineer, Data Engineer, Frontend, Software Engineer."
+    enabled: true
+
+  - name: Isar Aerospace (AI/Software)
+    careers_url: https://www.isaraerospace.com/careers
+    scan_method: websearch
+    scan_query: '"isar aerospace" careers "software engineer" OR "data" OR "AI" OR "ML" OR "simulation"'
+    notes: "Munich. Space tech startup. Software Engineer, Simulation & AI roles. EU launch provider."
+    enabled: true
+
+  # -- Conversational AI & NLP --
+
+  - name: Parloa
+    careers_url: https://job-boards.eu.greenhouse.io/parloa
+    api: https://boards-api.greenhouse.io/v1/boards/parloa/jobs
+    notes: "Berlin. Enterprise Voice AI platform. Software Engineer, AI/ML, Frontend, Data Science."
+    enabled: true
+
+  - name: Cognigy
+    careers_url: https://careers.cognigy.com
+    scan_method: websearch
+    scan_query: 'site:careers.cognigy.com "engineer" OR "developer" OR "AI" OR "data" OR "ML"'
+    notes: "Düsseldorf DE / Remote EU. Enterprise conversational AI platform for contact centres. Software, ML, Frontend, Data."
+    enabled: true
+
+  # -- LLMOps, Developer Tools & SaaS --
+
+  - name: Langfuse
+    careers_url: https://langfuse.com/careers
+    scan_method: websearch
+    scan_query: '"langfuse" careers "engineer" OR "developer" OR "full stack" OR "AI" OR "data"'
+    notes: "Berlin. Open-source LLM observability and evaluation platform. Small high-impact team. Full Stack, Software Engineer, AI roles."
+    enabled: true
+
+  - name: Contentful
+    careers_url: https://job-boards.greenhouse.io/contentful
+    api: https://boards-api.greenhouse.io/v1/boards/contentful/jobs
+    notes: "Berlin / London / Denver. Headless CMS with AI content workflows. Backend Software Engineer, Fullstack Software Engineer — Berlin roles confirmed."
+    enabled: true
+
+  - name: n8n
+    careers_url: https://jobs.ashbyhq.com/n8n
+    notes: "Berlin / Remote EU. Workflow automation platform. Software Engineer, Frontend, AI Integration roles."
+    enabled: true
+
+  - name: Celonis
+    careers_url: https://job-boards.greenhouse.io/celonis
+    api: https://boards-api.greenhouse.io/v1/boards/celonis/jobs
+    notes: "Munich / NYC. Process intelligence + AI (Applied AI Engineer, Field CTO). Data Scientist, Software Engineer, ML Platform, Frontend roles."
+    enabled: true
+
+  - name: TeamViewer
+    careers_url: https://www.teamviewer.com/de/karriere/
+    scan_method: websearch
+    scan_query: 'site:teamviewer.com/careers OR site:teamviewer.com/de/karriere "Software Engineer" OR "AI" OR "Data" OR "Frontend" OR "Machine Learning"'
+    notes: "Göppingen DE. Remote connectivity and AR platform. 200+ engineers. Software, AI, Platform, Frontend roles."
+    enabled: true
+
+  - name: Adjust
+    careers_url: https://www.adjust.com/company/careers/
+    scan_method: websearch
+    scan_query: '"adjust.com" careers "software engineer" OR "data engineer" OR "ML" OR "frontend" OR "data scientist"'
+    notes: "Berlin. Mobile analytics and attribution platform. Software Engineer, Data Engineer, ML, Frontend roles."
+    enabled: true
+
+  - name: Personio
+    careers_url: https://www.personio.com/about-personio/careers/
+    scan_method: websearch
+    scan_query: 'site:personio.com/careers "software engineer" OR "data scientist" OR "ML" OR "AI" OR "frontend" OR "data engineer"'
+    notes: "Munich / Berlin / London. HR SaaS unicorn. Software Engineer, AI/ML, Data Scientist, Frontend Engineer."
+    enabled: true
+
+  - name: Commercetools
+    careers_url: https://commercetools.com/careers
+    scan_method: websearch
+    scan_query: '"commercetools" careers "software engineer" OR "frontend" OR "data" OR "ML" OR "AI"'
+    notes: "Munich / Berlin. Composable commerce SaaS (MACH architecture). Software Engineer, Frontend, Data, ML roles."
+    enabled: true
+
+  # -- Fintech --
+
+  - name: N26
+    careers_url: https://n26.com/en-eu/careers
+    scan_method: websearch
+    scan_query: 'site:n26.com/en-eu/careers "software engineer" OR "data scientist" OR "ML" OR "AI" OR "frontend" OR "data engineer"'
+    notes: "Berlin. Mobile bank unicorn. Software Engineer, ML, Data Scientist, Frontend — ~50 open roles."
+    enabled: true
+
+  - name: Trade Republic
+    careers_url: https://job-boards.greenhouse.io/traderepublicbank
+    api: https://boards-api.greenhouse.io/v1/boards/traderepublicbank/jobs
+    notes: "Berlin / London / Paris. Neobroker. Platform Engineering, Data Science, Frontend, ML roles."
+    enabled: true
+
+  - name: SumUp
+    careers_url: https://sumup.com/careers/positions
+    scan_method: websearch
+    scan_query: 'site:sumup.com/careers "software engineer" OR "data engineer" OR "ML" OR "frontend" OR "data scientist"'
+    notes: "Berlin / London. Payments fintech. Software Engineer, Data Engineer, ML, Frontend roles."
+    enabled: true
+
+  - name: Solaris
+    careers_url: https://www.solarisgroup.com/en/careers/
+    scan_method: websearch
+    scan_query: '"solarisbank" OR "solaris" Berlin careers "software engineer" OR "data" OR "AI" OR "frontend" site:solarisgroup.com OR site:job-boards.greenhouse.io'
+    notes: "Berlin. Banking-as-a-Service (BaaS) platform powering 50+ fintech brands. Software Engineer, Data Engineer, ML, Platform roles."
+    enabled: true
+
+  - name: Mambu
+    careers_url: https://www.mambu.com/careers
+    scan_method: websearch
+    scan_query: '"mambu" careers "software engineer" OR "data" OR "AI" OR "platform engineer" OR "ML"'
+    notes: "Berlin / Amsterdam. Cloud banking SaaS. Software Engineer, Data Engineer, Platform, ML roles."
+    enabled: true
+
+  - name: Scalable Capital
+    careers_url: https://de.scalable.capital/en/career/
+    scan_method: websearch
+    scan_query: '"scalable capital" careers "software engineer" OR "data scientist" OR "ML" OR "frontend" site:scalable.capital OR site:job-boards.greenhouse.io'
+    notes: "Munich. Digital investment platform (robo-advisor). Software Engineer, Data Science, ML, Frontend roles."
+    enabled: true
+
+  - name: Wefox
+    careers_url: https://www.wefox.com/en/careers
+    scan_method: websearch
+    scan_query: '"wefox" careers "software engineer" OR "data" OR "AI" OR "ML" OR "frontend"'
+    notes: "Berlin / Zurich. InsurTech unicorn. Software Engineer, Data Science, ML, Frontend."
+    enabled: true
+
+  - name: Clark
+    careers_url: https://www.clark.de/en/careers
+    scan_method: websearch
+    scan_query: '"clark.de" OR "clark insurance" Frankfurt careers "software engineer" OR "data" OR "AI" OR "frontend"'
+    notes: "Frankfurt DE. AI-driven insurance broker. Software Engineer, Data Science, ML, Frontend roles."
+    enabled: true
+
+  - name: Billie
+    careers_url: https://www.billie.io/careers
+    scan_method: websearch
+    scan_query: '"billie.io" OR "billie payments" Berlin careers "software engineer" OR "data" OR "ML" OR "AI"'
+    notes: "Berlin. B2B Buy-Now-Pay-Later fintech. Software Engineer, Data Scientist, ML Engineer."
+    enabled: true
+
+  # -- E-commerce & Marketplaces --
+
+  - name: Zalando
+    careers_url: https://jobs.zalando.com/en/
+    scan_method: websearch
+    scan_query: 'site:jobs.zalando.com "Software Engineer" OR "Frontend" OR "Data Scientist" OR "Machine Learning" OR "AI" OR "Data Engineer"'
+    notes: "Berlin. Europe's leading fashion platform. Huge tech org: Applied AI, ML Platform, Data Science, Frontend, Software Engineering."
+    enabled: true
+
+  - name: AUTO1 Group
+    careers_url: https://www.auto1-group.com/en/careers/
+    scan_method: websearch
+    scan_query: '"auto1" OR "auto1-group" Berlin careers "software engineer" OR "data scientist" OR "ML" OR "frontend" OR "AI"'
+    notes: "Berlin. Europe's largest used car marketplace. Software Engineer, Data Science, ML Platform, Frontend roles."
+    enabled: true
+
+  - name: About You
+    careers_url: https://corporate.aboutyou.de/en/career
+    scan_method: websearch
+    scan_query: '"about you" Hamburg careers "software engineer" OR "data scientist" OR "ML" OR "frontend" OR "AI"'
+    notes: "Hamburg. Fashion e-commerce unicorn. Software Engineer, ML, Data Science, Frontend."
+    enabled: true
+
+  - name: idealo
+    careers_url: https://www.idealo.de/jobs
+    scan_method: websearch
+    scan_query: 'site:idealo.de/jobs "software engineer" OR "data" OR "ML" OR "AI" OR "frontend"'
+    notes: "Berlin. Europe's leading price comparison portal (Axel Springer). Software Engineer, Data Science, ML, Frontend."
+    enabled: true
+
+  - name: Delivery Hero
+    careers_url: https://careers.deliveryhero.com
+    scan_method: websearch
+    scan_query: 'site:careers.deliveryhero.com "software engineer" OR "data scientist" OR "ML" OR "AI" OR "frontend" OR "data engineer"'
+    notes: "Berlin. Global food delivery network. Large tech org: AI/ML, Data Platform, Software, Frontend."
+    enabled: true
+
+  - name: Scout24
+    careers_url: https://www.scout24.com/en/career
+    scan_method: websearch
+    scan_query: '"scout24" OR "immoscout24" OR "autoscout24" Munich careers "software engineer" OR "data" OR "ML" OR "AI" OR "frontend"'
+    notes: "Munich. Digital classifieds group (ImmoScout24, AutoScout24). Software Engineer, Data Science, ML, Frontend."
+    enabled: true
+
+  # -- Travel & Logistics --
+
+  - name: GetYourGuide
+    careers_url: https://getyourguide.careers/
+    scan_method: websearch
+    scan_query: 'site:getyourguide.careers "Software Engineer" OR "Data Scientist" OR "ML" OR "Machine Learning" OR "Frontend" OR "Data Engineer"'
+    notes: "Berlin. Experiences marketplace. Software Engineer, Data Scientist, ML Platform, Frontend roles."
+    enabled: true
+
+  - name: HelloFresh
+    careers_url: https://careers.hellofresh.com/global/en
+    scan_method: websearch
+    scan_query: 'site:careers.hellofresh.com "software engineer" OR "data scientist" OR "ML" OR "machine learning" OR "frontend" OR "data engineer"'
+    notes: "Berlin. Meal kit unicorn. Large data/ML org. Data Scientist, ML Engineer, Software, Frontend."
+    enabled: true
+
+  - name: FlixMobility
+    careers_url: https://global.flixbus.com/company/jobs
+    scan_method: websearch
+    scan_query: '"flixmobility" OR "flixbus" Munich careers "software engineer" OR "data scientist" OR "ML" OR "AI" OR "frontend" site:job-boards.greenhouse.io OR site:flixmobility.com'
+    notes: "Munich. FlixBus / FlixTrain unicorn. Software Engineer, Data Science, ML, Frontend roles."
+    enabled: true
+
+  - name: Omio
+    careers_url: https://www.omio.com/jobs
+    scan_method: websearch
+    scan_query: '"omio" Berlin careers "software engineer" OR "data scientist" OR "ML" OR "AI" OR "frontend"'
+    notes: "Berlin. Multi-modal travel search. Software Engineer, Data Science, ML, Frontend."
+    enabled: true
+
+  - name: Forto
+    careers_url: https://jobs.lever.co/forto
+    notes: "Berlin. Digital freight forwarder. Software Engineer, Data Engineer, ML, Platform roles."
+    enabled: true
+
+  # -- EdTech & Media --
+
+  - name: Babbel
+    careers_url: https://jobs.babbel.com
+    scan_method: websearch
+    scan_query: 'site:jobs.babbel.com OR "babbel" Berlin careers "software engineer" OR "data" OR "ML" OR "AI" OR "NLP" OR "frontend"'
+    notes: "Berlin. Language learning platform (NLP-heavy). Software Engineer, ML/NLP, Data Science, Frontend."
+    enabled: true
+
+  - name: Pitch
+    careers_url: https://pitch.com/jobs
+    scan_method: websearch
+    scan_query: 'site:pitch.com/jobs "software engineer" OR "frontend" OR "data" OR "AI" OR "ML"'
+    notes: "Berlin. Collaborative presentation platform. Software Engineer, Frontend (React/TypeScript), AI/ML integration roles."
+    enabled: true
+
+  - name: Ecosia
+    careers_url: https://www.ecosia.org/careers
+    scan_method: websearch
+    scan_query: '"ecosia" Berlin careers "software engineer" OR "data" OR "ML" OR "AI" OR "frontend"'
+    notes: "Berlin. Privacy-focused, mission-driven search engine. Software Engineer, Data, ML roles. YC-style culture."
+    enabled: true
+
+  - name: Sofatutor
+    careers_url: https://www.sofatutor.com/jobs
+    scan_method: websearch
+    scan_query: '"sofatutor" Berlin careers "software engineer" OR "data" OR "ML" OR "frontend" OR "full stack"'
+    notes: "Berlin. Leading German EdTech platform. Full Stack, Software Engineer, Data, AI roles."
+    enabled: true
+
+  - name: Statista
+    careers_url: https://www.statista.com/page/careers
+    scan_method: websearch
+    scan_query: '"statista" Hamburg careers "software engineer" OR "data engineer" OR "frontend" OR "data analyst"'
+    notes: "Hamburg. Leading statistics and market research data portal. Software Engineer, Data Engineer, Frontend."
+    enabled: true
+
+  # -- Healthcare Tech --
+
+  - name: Brainlab
+    careers_url: https://www.brainlab.com/career/
+    scan_method: websearch
+    scan_query: 'site:brainlab.com/career "software engineer" OR "AI" OR "data" OR "ML" OR "machine learning" OR "frontend" OR "computer vision"'
+    notes: "Munich. Medical technology + AI for surgery and radiotherapy. Software Engineer, ML/Computer Vision, Data roles."
+    enabled: true
+
+  - name: Vara
+    careers_url: https://vara.com/careers
+    scan_method: websearch
+    scan_query: '"vara" Berlin careers "software engineer" OR "data" OR "ML" OR "AI" OR "machine learning"'
+    notes: "Berlin. AI-powered breast cancer early detection (KI-gestützte Radiologie). ML Engineer, Software Engineer, Data Engineer."
+    enabled: true
+
+  - name: Amboss
+    careers_url: https://www.amboss.com/us/amboss-careers
+    scan_method: websearch
+    scan_query: '"amboss" Berlin careers "software engineer" OR "data" OR "ML" OR "AI" OR "NLP" OR "frontend"'
+    notes: "Berlin. AI-powered medical knowledge platform for physicians. Software Engineer, ML/NLP, Data, Frontend."
+    enabled: true
+
+  # -- Industrial Tech & IoT --
+
+  - name: KONUX
+    careers_url: https://www.konux.com/careers
+    scan_method: websearch
+    scan_query: '"konux" Munich careers "software engineer" OR "data scientist" OR "ML" OR "AI" OR "machine learning"'
+    notes: "Munich. AI + IIoT for railway predictive maintenance. ML Engineer, Data Scientist, Software Engineer, IoT."
+    enabled: true
+
+  - name: DATATRONiQ
+    careers_url: https://datatroniq.com/careers
+    scan_method: websearch
+    scan_query: 'site:berlinstartupjobs.com/companies/datatroniq OR "datatroniq" careers "software engineer" OR "data scientist" OR "ML" OR "AI" OR "frontend"'
+    notes: "Berlin. Industrial IoT + Edge AI platform for manufacturing. Senior Data Scientist, Full Stack, ML/AI, Cloud roles — currently actively hiring."
+    enabled: true
+
+  - name: Seqana
+    careers_url: https://seqana.com/careers
+    scan_method: websearch
+    scan_query: '"seqana" Berlin careers "software engineer" OR "ML" OR "AI" OR "data" OR "machine learning"'
+    notes: "Berlin. Remote sensing and AI for soil carbon MRV (climate tech). Software Engineer (ML Systems), Data Engineer roles."
+    enabled: true
+
+  # -- Climate Tech & Sustainability --
+
+  - name: Climatiq
+    careers_url: https://climatiq.io/jobs
+    scan_method: websearch
+    scan_query: 'site:berlinstartupjobs.com/companies/climatiq OR "climatiq" careers "software engineer" OR "frontend" OR "full stack" OR "data"'
+    notes: "Berlin. Carbon intelligence platform — sustainability AI/data. Senior Fullstack Engineer (Next.js/TypeScript), Data roles."
+    enabled: true
+
+  - name: Greenomy
+    careers_url: https://www.greenomy.io/careers
+    scan_method: websearch
+    scan_query: '"greenomy" careers "software engineer" OR "data" OR "AI" OR "ML" OR "frontend"'
+    notes: "Brussels / Berlin. EU taxonomy and ESG reporting platform. Software Engineer, Data, AI roles."
+    enabled: true
+
+  # -- Tech Consulting & Professional Services (AI/Data focus) --
+
+  - name: Inovex
+    careers_url: https://www.inovex.de/de/karriere/
+    scan_method: websearch
+    scan_query: 'site:inovex.de/karriere "software engineer" OR "data scientist" OR "ML engineer" OR "AI" OR "frontend" OR "data engineer"'
+    notes: "Karlsruhe DE (remote-friendly). Data science & engineering consultancy. Python, ML, Data Engineering, Cloud, Full Stack roles."
+    enabled: true
+
+  - name: codecentric
+    careers_url: https://www.codecentric.de/karriere
+    scan_method: websearch
+    scan_query: 'site:codecentric.de/karriere "software engineer" OR "developer" OR "AI" OR "data" OR "ML" OR "full stack"'
+    notes: "Düsseldorf / multiple DE cities. Software engineering & AI consultancy. Full Stack, Software Engineer, AI/ML, Data roles."
+    enabled: true
+
+  - name: Thoughtworks Germany
+    careers_url: https://www.thoughtworks.com/de-de/careers/jobs
+    scan_method: websearch
+    scan_query: 'site:thoughtworks.com/de-de/careers "software developer" OR "data engineer" OR "AI" OR "ML" OR "frontend" Germany'
+    notes: "Munich / Berlin / Hamburg. Global tech consultancy, strong German presence. Software Developer, Data Engineer, AI/ML, Frontend."
+    enabled: true
