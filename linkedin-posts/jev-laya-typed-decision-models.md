@@ -12,7 +12,7 @@ Which tool next. Is this ticket urgent. Did that step work.
 
 Each of those goes to a model built to write. It answers one word at a time. It can name a tool that does not exist. And it does not say how sure it is.
 
-Jev and Laya are built for the deciding. You send some text, a question, and the list of allowed answers. One pass later you get one of your answers and a probability. No text at all.
+Decision models like Jev and Laya are built for the deciding. You send some text, a question, and the list of allowed answers. One pass later you get one of your answers and a probability. No text at all.
 
 So it cannot invent an option. And your code can act on the number: go above 0.9, ask a person below.
 

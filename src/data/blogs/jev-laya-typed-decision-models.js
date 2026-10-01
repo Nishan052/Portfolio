@@ -3,17 +3,17 @@
 const post = {
   id:        26,
   slug:      'jev-laya-typed-decision-models',
-  title:     'Jev and Laya: why AI agents started asking for decisions, not text',
+  title:     'Decision models like Jev and Laya: why agents started asking for decisions, not text',
   category:  'news',
   iconKey:   'Bot',
   color:     '#a855f7',
   date:      '2026-10-06',
   readTime:  '12 min',
   tags:      ['AIAgents', 'DecisionModels', 'Jev', 'Laya', 'LLMOps', 'Calibration'],
-  excerpt:   'Your agent asks its model which tool to run next. Jev and Laya answer that kind of question in one pass, with a probability instead of text.',
+  excerpt:   'Your agent asks its model which tool to run next. Decision models like Jev and Laya answer that in one pass, with a probability instead of text.',
 
   content: `
-![Jev and Laya: why AI agents started asking for decisions, not text](/videos/jev-laya-typed-decision-models.mp4)
+![Decision models like Jev and Laya: why agents started asking for decisions, not text](/videos/jev-laya-typed-decision-models.mp4)
 
 A support ticket arrives at your agent. Before anyone writes a reply, the agent asks its model four questions. Is this urgent? Which team owns it? Which tool should run first? Did that tool succeed? Each question has a short, known list of answers, and each one goes to a large language model (LLM) that answers by writing. It takes a few seconds, and sometimes it answers with a tool name you never defined. Two new models released in September 2026 exist because of exactly that mismatch.
 
@@ -53,7 +53,7 @@ The patches followed. Structured output modes forced the reply into a fixed form
 
 *How the decision step moved across six years. Each stage kept one property and lost another, and the typed model is the first to keep both flexibility and speed.*
 
-## Jev and Laya return one of your options and a probability
+## Decision models like Jev and Laya return one of your options and a probability
 
 TypeSafe AI released **Jev** on 15 September 2026 as a hosted model. TypeSafe calls it a System One model, after Daniel Kahneman's term for fast, intuitive judgement. Three days later Convai released **Laya** under the Apache 2.0 licence, with its weights published openly.
 
