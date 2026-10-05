@@ -7,7 +7,7 @@ const post = {
   category:  'research',
   iconKey:   'Cpu',
   color:     '#f59e0b',
-  date:      '2026-10-04',
+  date:      '2026-10-05',
   readTime:  '12 min',
   tags:      ['RAG', 'Reranking', 'Laya', 'CrossEncoders', 'DecisionModels', 'Benchmarks'],
   excerpt:   'I let Laya, a decision model quoted at 33 ms, reorder my blog chatbot\'s search results. It took 2.7 seconds a question and ranked worse.',

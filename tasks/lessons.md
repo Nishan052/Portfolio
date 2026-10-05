@@ -180,3 +180,9 @@ swipe logic treats it uniformly.
 - **A remount is not a page load.** Anything that replays an intro (entrance tweens, reveal, loader) needs an
   `instant` path for remounts, or every resize looks like the content vanished and re-appeared.
 - **Ignore 0x0 resizes.** Browsers report an empty viewport transiently while switching sizes.
+
+## Cross-repo handoffs (2026-10-04)
+
+- **"This repository" in a handoff prompt may not mean the open folder.** The Laya benchmark was in
+  `~/Documents/edge-agents/projects/`, not Portfolio. When a named folder is missing, search sibling
+  repos under `~/Documents` (and their `projects/`) before assuming it was never pushed.

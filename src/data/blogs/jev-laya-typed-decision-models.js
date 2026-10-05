@@ -7,7 +7,7 @@ const post = {
   category:  'news',
   iconKey:   'Bot',
   color:     '#a855f7',
-  date:      '2026-10-06',
+  date:      '2026-10-02',
   readTime:  '12 min',
   tags:      ['AIAgents', 'DecisionModels', 'Jev', 'Laya', 'LLMOps', 'Calibration'],
   excerpt:   'Your agent asks its model which tool to run next. Decision models like Jev and Laya answer that in one pass, with a probability instead of text.',
