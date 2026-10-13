@@ -3,95 +3,83 @@
 const post = {
   id:        26,
   slug:      'jev-laya-typed-decision-models',
-  title:     'Decision models like Jev and Laya: why agents started asking for decisions, not text',
+  title:     'Decision models like Jev and Laya, and why agents started asking them for decisions',
   category:  'news',
   iconKey:   'Bot',
   color:     '#a855f7',
-  date:      '2026-10-02',
+  date:      '2026-10-06',
   readTime:  '12 min',
   tags:      ['AIAgents', 'DecisionModels', 'Jev', 'Laya', 'LLMOps', 'Calibration'],
-  excerpt:   'Your agent asks its model which tool to run next. Decision models like Jev and Laya answer that in one pass, with a probability instead of text.',
+  excerpt:   'When your agent asks its model which tool to run next, Jev and Laya answer in one pass with a probability and never write text.',
 
   content: `
-![Decision models like Jev and Laya: why agents started asking for decisions, not text](/videos/jev-laya-typed-decision-models.mp4)
+![Decision models like Jev and Laya, and why agents started asking them for decisions](/videos/jev-laya-typed-decision-models.mp4)
 
-A support ticket arrives at your agent. Before anyone writes a reply, the agent asks its model four questions: is the ticket urgent, which team owns it, which tool should run first, and did that tool succeed? Each question has a short, known list of answers, and each one goes to a large language model (LLM) that answers by writing. It takes a few seconds, and sometimes it answers with a tool name you never defined. Two new models released in September 2026 exist because of exactly that mismatch.
+Let's say a support ticket arrives at your agent. Before anyone replies, the agent asks its model four questions: is the ticket urgent, which team owns it, which tool should run first, and did that tool succeed. Each has a short, known list of answers but goes to a large language model (LLM) that writes its reply, so it takes a few seconds and sometimes names a tool you never defined. Two new models released in September 2026 exist because of exactly that mismatch.
 
 ## Most calls an agent makes are decisions with a known answer set
 
-Count what each model call in an agent is for, and very few of them produce text that a person reads. Most route, classify, score or check. The answer is one item from a list the developer wrote in advance.
+Most model calls in an agent never produce text a person reads, since they route, classify, score or check something. The answer is one item from a list the developer wrote in advance.
 
-Belcak and colleagues at NVIDIA made this point in 2025: most work inside an agent is narrow, repetitive and has a fixed output format. Their answer was smaller language models. The models covered here drop the text altogether.
+Belcak and colleagues at NVIDIA made the same point in 2025, that most work inside an agent is narrow, repetitive and has a fixed output format. Their answer was smaller language models, and these two models drop the text altogether.
 
 ## Writing one token at a time costs a decision four things
 
-The cost comes from how a language model writes any answer. It writes one token at a time, where a token is a word or a piece of a word, and each token waits for the one before it. Four costs follow when the answer is really a choice.
+A language model writes every answer one token at a time, where a token is a word or a piece of one, and each token waits for the one before it. When the answer is really a choice, that costs four things.
 
-The first is time. A one-word answer still pays for generation, and often for reasoning written out in front of it.
+The first is time, since even a one-word answer pays for generation, and often for reasoning written out in front of it. The second is the menu, because a model asked which tool to call can name one that doesn't exist, and every caller then has to guard against it. The third is parsing, since the answer arrives as a string that code has to read, check and sometimes reject.
 
-The second is the menu. Generation allows any token, so a model asked which tool to call can name one that does not exist. Every downstream caller has to guard against that.
-
-The third is parsing. The answer arrives as a string that code must read, check and sometimes reject.
-
-The fourth is confidence. A model that writes "urgent" gives no usable sign of how sure it is. OpenAI reported in its GPT-4 technical report that post-training made the model's confidence less well calibrated than the base model's. Calibrated means a stated 80% is right about 80% of the time.
+The fourth is confidence, because a model that writes "urgent" gives no usable sign of how sure it is. OpenAI reported in its GPT-4 technical report that post-training made the model's confidence less well calibrated than the base model's, where calibrated means a stated 80% is right about 80% of the time. It's like asking a friend to pick from three restaurants and getting a paragraph back that sometimes names a fourth.
 
 ![An agent's ticket triage question sent to a text generator: four costs follow from writing one token at a time, ending in an answer with no usable confidence.](/diagrams/jev-laya-typed-decision-models-1.svg)
 
-*Why a writing model fits a decision badly. The cost comes from token-by-token generation, so it appears on every call, however simple the question.*
+*Why a writing model is a bad fit for a decision. The cost comes from writing token by token, so it shows up on every call, however simple the question.*
 
 ## Classifiers, prompts and structured output each fixed one problem
 
-The workarounds came first, and each fixed one problem while keeping another.
+Before 2020, teams trained a fine-tuned encoder as a separate classifier for each decision, which was fast and gave a probability, but every new question needed labeled data and a training run.
 
-Before 2020, teams trained a separate classifier for each decision. A fine-tuned encoder was fast and returned a probability, but every new question needed labelled data and a training run.
-
-Prompted language models removed that cost. One model could answer any question written in plain words, so the classifiers were retired. Speed and calibration went with them.
-
-Structured output modes then forced the reply into a fixed format, which fixed parsing and nothing else. Reading the probability of each label from the model's output scores brought back a confidence figure, but only where the provider exposed those scores, and the full generation cost remained.
+Prompted language models then removed that cost, since one model could answer any plain-language question, so the classifiers were retired and speed and calibration went with them. Structured output modes later forced the reply into a fixed format, which fixed parsing and nothing else. Reading each label's probability from the output scores brought confidence back, but only where providers exposed those scores, and generation still cost the same.
 
 ![A strip from fine-tuned classifiers, through prompted language models, structured output modes and label probabilities, to typed decision models.](/diagrams/jev-laya-typed-decision-models-2.svg)
 
-*How the decision step moved across six years. Each stage kept one property and lost another, and the typed model is the first to keep both flexibility and speed.*
+*How the decision step moved over six years. Each stage kept one property and lost another, and the typed model is the first to keep both flexibility and speed.*
 
-## Decision models like Jev and Laya return one of your options and a probability
+## Jev and Laya return one of your options with a probability
 
-TypeSafe AI released **Jev** on 15 September 2026 as a hosted model. TypeSafe calls it a System One model, after Daniel Kahneman's term for fast, intuitive judgement. Three days later Convai released **Laya** under the Apache 2.0 licence, with its weights published openly.
+TypeSafe AI released **Jev** on September 15, 2026 as a hosted model, and calls it a System One model after Daniel Kahneman's term for fast, intuitive judgment. Three days later Convai released **Laya** under the Apache 2.0 license, with open weights.
 
-Both accept the same input. You send some state as text, such as a ticket, an email or a tool result, and a typed question whose possible answers you define before the call.
+Both take some state as text, like a ticket, an email or a tool result, and a typed question whose possible answers you define before the call. There are three question types: Choice picks one option from a list, Score rates the state against a rubric, and Noul gives the probability that a statement is true. An invented tool name can't happen, so your code can act above 0.9 and escalate to a person below it.
 
-There are three question types. Choice picks one option from a list. Score rates the state against a rubric. Noul returns the probability that a statement is true. An invented tool name cannot occur, and code can act above 0.9 and escalate below it.
-
-Laya shows the mechanism in the open. It is a 421 million parameter encoder built on ModernBERT. It reads the whole state once and scores every option at the same time, in about 33 milliseconds per question on an NVIDIA T4, by Convai's own measurement. Jev's architecture is not disclosed, and TypeSafe quotes 70 to 500 milliseconds per call.
+Laya shows how this works in the open, since it's a 421 million parameter encoder built on ModernBERT that reads the state once and scores every option together. Convai's own measurement is about 33 milliseconds per question on an NVIDIA T4, while Jev's architecture isn't disclosed and TypeSafe quotes 70 to 500 milliseconds per call.
 
 ![A ticket and a typed question go into one pass, which returns one allowed option and its probability, and code either acts or escalates on a threshold.](/diagrams/jev-laya-typed-decision-models-3.svg)
 
-*What a typed decision model does with the same ticket. The answer is always one of the options supplied, and the probability decides what the code does next.*
+*What a typed decision model does with the same ticket. The answer is always one of your options, and the probability decides what the code does next.*
 
 ## The gain is speed and cost, and accuracy is not ahead
 
-On TypeSafe's own four-workflow evaluation, Jev scored 67.8% against 67.9% for a frontier language model. It did so in 0.4 seconds per case instead of 10.1, and at $0.0004 per case instead of $0.0304. Those are the vendor's figures, on the vendor's benchmark.
+On TypeSafe's own four-workflow evaluation, Jev scored 67.8% against 67.9% for a frontier language model, in 0.4 seconds per case instead of 10.1 and at $0.0004 instead of $0.0304. Those are the vendor's figures on the vendor's benchmark, so I'd treat them as a claim to check.
 
-Independent work so far supports the speed and not an accuracy edge. Tang and Zheng reviewed 28 studies posted in the nine days after launch. The typed output showed no accuracy advantage over reading label probabilities from an ordinary model, and gaps remained on harder tasks.
+Independent work so far backs the speed but not an accuracy edge. Tang and Zheng reviewed 28 studies posted in the nine days after launch and found no accuracy advantage over reading label probabilities from an ordinary model, and gaps remained on harder tasks.
 
-Laya out of the box is weaker still. Its own model card reports 0.362 zero-shot, meaning with no task training, on TypeSafe's typed-decision benchmark, below the 0.461 scored by always picking the most common answer. A checkpoint fine-tuned on that benchmark's training data reached 0.766, which makes Laya a fast base for training rather than a ready-made judge.
+Laya out of the box is weaker still, since its model card reports 0.362 zero-shot, meaning with no task training, on TypeSafe's typed-decision benchmark. That's below the 0.461 you get by always picking the most common answer, and a checkpoint fine-tuned on that benchmark's training data reached 0.766. So for me Laya is a fast base to train on and not a ready-made judge. My own test on my blog pointed the same way, where a small cross-encoder reranked better and faster and Laya only did well as a once-per-question yes or no check.
 
 ## A typed answer can still be the wrong option
 
-"Cannot hallucinate" describes the format, not the judgement. Nothing stops the model from picking the wrong item on your list.
+A typed model can't hallucinate an option that isn't there, but nothing stops it from picking the wrong item on your list.
 
-Check Point Research tested this with prompt injection, where text hidden inside the input tells the model what to decide. Every attack configuration they tried broke Jev at least once, and the strongest broke it in 25 of 27 runs. Typed input did not make the model harder to steer, and neither did an instruction to distrust the document.
+Check Point Research tested this with prompt injection, where text hidden in the input tells the model what to decide. Every attack setup they tried broke Jev at least once, and the strongest broke it in 25 of 27 runs. Typed input didn't make the model harder to steer, and neither did telling it to distrust the document.
 
 ![A typed output guarantees the answer is on the list but not that it is the right item, and an injected document steered Jev in 25 of 27 runs.](/diagrams/jev-laya-typed-decision-models-4.svg)
 
-*What the type guarantees, what it does not, and the measured cost of the gap. Treat a typed decision on untrusted input as untrusted output.*
+*What the type guarantees, what it doesn't, and the measured cost of that gap. I'd treat a typed decision on untrusted input as untrusted output.*
 
 ## Use a typed decision model where the answers are known in advance
 
-Use a typed decision model where three things hold at once. The answers are known in advance, the same decision runs thousands of times a day, and your code can act on a confidence figure. Routing, triage, tool selection and pass or fail checks all qualify.
+I'd use one where three things hold at once: the answers are known in advance, the same decision runs thousands of times a day, and your code can act on a confidence figure. Routing, triage, tool selection and pass or fail checks all fit, and I'd keep the language model for writing, extraction and anything open-ended.
 
-Keep the language model for writing, extraction and anything open-ended.
-
-Then test before you switch. Label a few hundred real decisions from your own logs and run both models over them. Compare accuracy, time per call, and whether a stated 90% was right nine times in ten. The vendor benchmark measures someone else's traffic.
+Before switching, label a few hundred real decisions from your own logs and run both models over them. Then compare accuracy, time per call, and whether a stated 90% was right nine times in ten, because the vendor benchmark measures someone else's traffic.
 `,
 
   references: [

@@ -7,31 +7,29 @@ const post = {
   category:  'research',
   iconKey:   'Cpu',
   color:     '#f59e0b',
-  date:      '2026-10-05',
+  date:      '2026-10-04',
   readTime:  '12 min',
   tags:      ['RAG', 'Reranking', 'Laya', 'CrossEncoders', 'DecisionModels', 'Benchmarks'],
-  excerpt:   'I let Laya, a decision model quoted at 33 ms, reorder my blog chatbot\'s search results. It took 2.7 seconds a question and ranked worse.',
+  excerpt:   'I tried Laya, a decision model quoted at 33 ms, as the reranker for my blog\'s chatbot, and it took 2.7 seconds a question and ranked worse.',
 
   content: `
 ![Why a 33 ms decision model took 2.7 seconds to rerank my blog](/videos/laya-decision-model-as-a-reranker.mp4)
 
-My portfolio's chatbot answers from 563 chunks of my blog posts. Search finds 20 candidates per question, and a reranker reorders them so the language model reads the best one first. Every write-up about Laya quotes one decision in 33 milliseconds, so I expected it to fit easily. Instead it took 2.7 seconds per question on my laptop's processor, and ranked worse than the search order it was reordering.
+The chatbot on my portfolio answers from 563 chunks of my blog posts. Search finds 20 candidates for each question, and a reranker reorders them so the language model reads the best one first. Every write-up about Laya quotes one decision in 33 milliseconds, so I expected it to drop into that slot easily. Instead it took 2.7 seconds per question on my laptop, and it ranked worse than the search order it was supposed to improve.
 
-## The 33 milliseconds measures one short input on a data-centre GPU
+## The 33 milliseconds measures one short input on a data center GPU
 
-Convai's model card times one question about a support ticket, a sentence or two long, at 39.5 milliseconds on an NVIDIA Tesla T4 data-centre graphics card. The multilingual checkpoint takes 32.8. The comparison is TypeSafe's Jev, a hosted model quoted at 236 to 276 milliseconds including a network round trip.
+The 33 milliseconds turned out to be a very specific test. Convai's model card times one question about a short support ticket at 39.5 milliseconds on an NVIDIA Tesla T4 data center graphics card, and the multilingual checkpoint takes 32.8. It's compared with TypeSafe's Jev, a hosted model quoted at 236 to 276 milliseconds including a network round trip.
 
-Every write-up I read repeats that comparison, and none sets Laya against a reranker or times it on a laptop. The model card's own processor figure is 193 to 464 milliseconds per request, and a one-question call on my laptop took 178. The figure holds, but it answers a different question from the one a reranker asks.
+None of the write-ups sets Laya against a reranker or times it on a laptop. The model card's own processor figure is 193 to 464 milliseconds, and a one-question call on my laptop took 178, so the number holds up and just answers a different question.
 
-## Reranking runs the model once per passage, and each pass is large
+## Reranking runs the model once per passage, and each pass is big
 
-A reranker runs its model once for every candidate passage, so 20 passages cost 20 passes. The usual reranker in retrieval augmented generation (RAG), where a language model answers from retrieved text, is a **cross-encoder**. It reads the question and one passage together and returns a relevance score. Nogueira and Cho showed in 2019 that this second pass beats keyword order by a wide margin.
+A reranker runs its model once for every candidate passage, so 20 passages means 20 passes per question. The usual reranker in retrieval augmented generation (RAG), where a language model answers from text that search found for it, is a **cross-encoder**. It reads the question and one passage together and gives back a relevance score, and Nogueira and Cho showed in 2019 that this beats plain keyword order by a wide margin.
 
-Laya reranks the same way, with one yes or no question per passage: does this passage contain the answer? What differs is the size of each pass. Laya is a ModernBERT-large encoder with 421 million parameters. MiniLM, the cross-encoder I compared it with, has 22.7 million.
+Laya reranks the same way, with one yes or no question per passage, so the real difference is how big each pass is. Laya is a ModernBERT-large encoder with 421 million parameters, and MiniLM, the cross-encoder I compared it with, has 22.7 million. A transformer spends about two floating point operations (FLOPs) per parameter on every word-piece it reads. Laya also reads more of them per passage, a median of 107 against 75.5, because its question carries its answer options.
 
-A transformer spends about two floating point operations (FLOPs) per parameter on every word-piece it reads. Laya also reads more word-pieces per passage, a median of 107 against 75.5, because its question carries its answer options.
-
-PyTorch's counter settles it. For one question and 20 passages, MiniLM performs 71.4 billion FLOPs and Laya 2,697 billion, 37.8 times as many. Laya took 2,744 milliseconds against 116, so its time is 23.7 times longer, because large matrix multiplications use the processor more efficiently. No runtime setting closes a gap that size.
+So I let PyTorch count the work. For one question and its 20 passages, MiniLM does 71.4 billion FLOPs and Laya does 2,697 billion, which is 37.8 times as many. Laya took 2,744 milliseconds against 116, only 23.7 times longer because big matrix multiplications use the processor better, but no runtime setting is going to close a gap that size.
 
 ![Two cards compare the work per question: MiniLM reads 20 passages with 22.7 million parameters, Laya reads the same 20 with 421 million and does 37.8 times the arithmetic.](/diagrams/laya-decision-model-as-a-reranker-1.svg)
 
@@ -39,13 +37,11 @@ PyTorch's counter settles it. For one question and 20 passages, MiniLM performs 
 
 ## Trained for decisions, Laya ranked worse than plain search
 
-Of 49 questions with a known answer chunk, keyword search put the right chunk first for 26, MiniLM for 34, and Laya for 17.
+Out of 49 questions where I knew which chunk had the answer, keyword search alone put the right chunk first for 26, MiniLM for 34, and Laya for only 17.
 
-The cause is training. MiniLM learned from MS MARCO, search queries whose answering passage sits beside others retrieved for it, so it learned to separate near-duplicates. Laya learned, through reinforcement learning, to give honest probabilities for typed decisions such as routing a ticket. Asked whether a passage contains the answer, it behaves like a topic match. It said yes to a median of 5 of the 20 passages, 2 of them from other posts. MiniLM said yes to 2, none from other posts.
+When I looked into why, it came down to training. MiniLM learned from MS MARCO, real search queries where the answering passage sits next to others retrieved for it, so it learned to tell near-duplicates apart. Laya learned to give honest probabilities for typed decisions like routing a ticket, so when I asked whether a passage contains the answer, it behaved more like a topic match. It said yes to a median of 5 of the 20 passages, 2 of them from other posts, while MiniLM said yes to 2 and none from other posts. Laya's own benchmarks point the same way, with 0.625 on balanced yes or no relevance cases from MS MARCO, where a coin toss scores 0.5.
 
-Laya's own benchmarks agree. On balanced yes or no relevance cases drawn from MS MARCO, where a coin toss scores 0.5, the English checkpoint scores 0.625, with that data in its training mix.
-
-A fine-tune helped: training Laya for 280 seconds on 51 of my own questions, none from the test set, lifted it to 27 of 49, level with keyword search and short of MiniLM.
+Fine-tuning helped a lot. I trained Laya for 280 seconds on 51 of my own questions, none from the test set, and it went up to 27 of 49, level with keyword search but still short of MiniLM.
 
 ![A strip of four results for the same 49 questions: keyword search 26, MiniLM 34, Laya 17, and Laya after a short fine-tune 27.](/diagrams/laya-decision-model-as-a-reranker-2.svg)
 
@@ -53,40 +49,37 @@ A fine-tune helped: training Laya for 280 seconds on 51 of my own questions, non
 
 ## Fewer candidates beat every other way to speed Laya up
 
-Reranking only search's top 5 made Laya 4.5 times faster and lifted it from 17 to 26. All figures are two-pass means on one Apple M3 laptop with 16 GB of memory, power saving off.
+The thing that helped most was simply giving Laya fewer passages, because reranking only the top 5 made it 4.5 times faster and lifted it from 17 to 26. All of these are two-pass means on one Apple M3 laptop with 16 GB of memory and power saving off.
 
 | Laya setup, 20 passages unless noted | Processor | Apple GPU | Right chunk first |
 |---|---|---|---|
 | As tested | 2,744 ms | 1,866 ms | 17 of 49 |
-| Top 10 only | 1,258 ms | 865 ms | 21 of 49 |
 | Top 5 only | 605 ms | 470 ms | 26 of 49 |
 | Smaller multilingual checkpoint | 1,074 ms | 860 ms | 17 of 49 |
 | Open Neural Network Exchange (ONNX) Runtime, 8-bit | 4,348 ms | not run | 11 of 49 |
 | MiniLM, for scale | 116 ms | 50 ms | 34 of 49 |
 
-The Apple GPU sped Laya up 1.47 times and MiniLM 2.33 times, so the gap widened. The ONNX runtime, Laya's documented processor option, ran slower here: 4.1 times slower at full precision, and 1.7 times slower at 8 bits while losing 6 of Laya's 17 hits. PyTorch on a Mac uses the M3's matrix units through Apple's Accelerate library, and that runtime's processor path does not. Laya's compiled mode would not build with this Mac's compiler tools.
+The Apple GPU sped Laya up 1.47 times but MiniLM 2.33 times, so the gap widened. The ONNX runtime, Laya's documented option for processors, was 4.1 times slower at full precision and 1.7 times slower at 8 bits, where it also lost 6 of Laya's 17 hits. The likely reason is that PyTorch on a Mac uses the M3's matrix units through Apple's Accelerate library and that runtime doesn't, and Laya's compiled mode wouldn't build with my Mac's compiler tools.
 
-Fewer candidates leave fewer on-topic chunks from other posts to outrank the right one. The fine-tuned model reached 31 at top 5. Laya's own library recommends the same shape, a cheap shortlist before one decision pass. I chose 5 by looking at these same 49 questions, so test it on your own data. A data-centre GPU, which the 33 milliseconds assumes, would be faster again. I did not measure one.
+Fewer candidates also helped accuracy, because fewer on-topic chunks from other posts are there to outrank the right one, and the fine-tuned model reached 31 at top 5. Laya's own library recommends the same shape, a cheap shortlist and then one decision pass. I picked 5 by looking at these same 49 questions, though, so test the cut-off on your own data.
 
-![A strip from 20 candidates to 10 to 5: Laya's time falls from 2,744 to 605 milliseconds and its first-place hits rise from 17 to 26.](/diagrams/laya-decision-model-as-a-reranker-3.svg)
+![Four speed-ups for Laya on the M3 processor compared with 20 passages: ONNX Runtime at 8 bits ran 1.7 times slower, the Apple GPU 1.47 times faster, the multilingual checkpoint 2.56 times faster, and reranking only the top 5 4.5 times faster with more right answers.](/diagrams/laya-decision-model-as-a-reranker-3.svg)
 
-*MiniLM barely moved across the same cut-offs, with 34, 35 and 34 right. Only Laya gained from seeing fewer passages.*
+*At the top 5, 10 and 20, MiniLM got 34, 35 and 34 right, so only Laya gained from fewer passages.*
 
-## Ask Laya about the question once, not about every passage
+## Laya earns its place when it runs once per question
 
-Laya earned its place in a job needing one call per question: deciding whether the top three passages can answer it at all. With no training it turned away 13 of the 15 off-topic questions in my set, and wrongly turned away 6 of the 49 answerable ones. After the fine-tune it turned away 14 of 15 and lost 4. Each call took about 218 milliseconds on the processor.
+Where Laya did earn its place was a job that needs one call per question, deciding whether the top three passages can answer it at all. With no training it turned away 13 of the 15 off-topic questions in my set and wrongly turned away 6 of the 49 answerable ones. After the fine-tune it turned away 14 of 15 and lost only 4, at about 218 milliseconds a call.
 
-A cross-encoder that already reranks does this job for free with its top score, and MiniLM's separated the two groups almost perfectly. Routing, the job Convai describes Laya for, needs training first: with none, it sent 27 of my 49 on-topic questions to "none of the above".
-
-Questions in one call are batched, not shared: five cost exactly five times the arithmetic of one, and took 678 milliseconds against 178.
+There are two catches, though. A cross-encoder that's already reranking does this for free with its top score, which separated the two groups almost perfectly. And routing, the job Convai describes Laya for, needs training first, because with none it sent 27 of my 49 on-topic questions to "none of the above".
 
 ![One user question splits two ways: asked once per question, Laya catches off-topic questions in about 218 milliseconds, asked once per passage it takes 2.7 seconds and ranks worse.](/diagrams/laya-decision-model-as-a-reranker-4.svg)
 
 *Where the decision model fits in a retrieval pipeline. The same model is useful or costly depending on how many times each request runs it.*
 
-## Multiply a quoted speed by the passes per request
+## Count the passes before you trust a quoted speed
 
-Before trusting a quoted speed, count how often your pipeline runs the model per request, and how long each input is. Then rank with a cross-encoder on fewer candidates than you think you need. Keep the decision model for questions about the user's message, asked once, fine-tuned on your examples and timed on your hardware.
+For me the lesson is to count how many times your pipeline runs a model per request before you trust a quoted speed. For a reranker that's every candidate, so rank with a cross-encoder on fewer candidates than you think you need, and keep the decision model for questions about the user's message, asked once and fine-tuned on your own examples.
 `,
 
   references: [

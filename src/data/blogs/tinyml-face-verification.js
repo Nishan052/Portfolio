@@ -11,35 +11,36 @@ const post = {
   readTime:  '11 min',
   tags:      ['TinyML', 'TensorFlow Lite', 'PyTorch', 'Arduino', 'LiteRT', 'Edge AI', 'Biometrics'],
   githubUrl: 'https://github.com/Nishan052',
-  excerpt:   'On-device face verification running on an Arduino microcontroller, trained in PyTorch, converted to LiteRT (TFLite), and deployed as C firmware with no cloud dependency.',
+  excerpt:   'Two of us trained a face verification model in PyTorch and shrank it with LiteRT so it runs on an Arduino, with no cloud involved.',
 
   content: `
-## Overview
+## What we built
 
-Face verification, confirming that a face matches a stored identity, is computationally expensive by conventional standards. This project pushes the entire inference pipeline onto an Arduino microcontroller using LiteRT (Google's rebranded TensorFlow Lite runtime for embedded devices), enabling privacy-preserving, offline biometric authentication.
-
----
-
-## Why On-Device Verification?
-
-Traditional face verification pipelines send images to a cloud server. On-device deployment means:
-- Zero latency from network round-trips
-- No biometric data ever leaves the device, so privacy comes from the architecture
-- Works offline, which access control in remote environments needs
-- < 1 mW power, so it can run on a battery for years
+Face verification confirms that a face matches a stored identity, which normally takes a lot of compute. For my master's, the two of us ran the whole inference pipeline on an Arduino microcontroller with LiteRT, Google's rebranded TensorFlow Lite runtime for embedded devices, so it works offline and privately.
 
 ---
 
-## System Architecture
+## Why verify on the device
+
+Traditional pipelines send face images to a cloud server, and running on the device instead gives you:
+- Zero latency from network round trips
+- Privacy by architecture, since no biometric data ever leaves the device
+- Offline use for access control in remote places
+- < 1 mW of power, so a battery lasts for years
+
+---
+
+## System architecture
 
 \`\`\`mermaid
 flowchart TD
     subgraph Training on PC
-        A[Face Dataset\nAnchors Positives Negatives] --> B[PyTorch Siamese Network]
+        A[Face Dataset
+Anchors Positives Negatives] --> B[PyTorch Siamese Network]
         B --> C[Triplet Loss Training]
         C --> D[Export ONNX]
         D --> E[Convert to TFLite LiteRT]
-        E --> F[int8 Post-training Quantisation]
+        E --> F[int8 Post-training Quantization]
     end
     subgraph Deployment on Arduino
         F --> G[C Header File model data.h]
@@ -54,38 +55,41 @@ flowchart TD
 
 ---
 
-## Model Design: Siamese Network
+## Model design: a Siamese network
 
-Face verification is a metric learning problem, not a classification problem. A Siamese network is ideal:
+Face verification is a metric learning problem, so instead of a classifier we used a Siamese network:
 
 \`\`\`mermaid
 flowchart LR
-    A["Face A Anchor"] --> E["Shared CNN\nEmbedding Network"]
+    A["Face A Anchor"] --> E["Shared CNN
+Embedding Network"]
     B["Face B Test"] --> E
-    E --> F["Embedding A\n128-dim"]
-    E --> G["Embedding B\n128-dim"]
+    E --> F["Embedding A
+128-dim"]
+    E --> G["Embedding B
+128-dim"]
     F --> H["Cosine Similarity"]
     G --> H
     H --> I{"Above threshold?"}
 \`\`\`
 
-The same weights process both images. The output is a fixed-size embedding vector (128 dimensions) representing facial identity in a learned metric space. Verification is a simple distance check.
+The same weights turn both images into 128-dimension embedding vectors that represent identity in a learned metric space, so verification is a simple distance check.
 
 ---
 
-## Training Strategy: Triplet Loss
+## Training with triplet loss
 
-For open-set verification (any person), triplet loss trains the embedding space directly:
+For open-set verification of any person, triplet loss trains the embedding space directly:
 
-- Anchor: A reference face of person X
-- Positive: Another face of person X
-- Negative: A face of any other person
+- Anchor: a reference face of person X
+- Positive: another face of person X
+- Negative: a face of any other person
 
-Loss: \`max(d(A,P) - d(A,N) + margin, 0)\`
+The loss is \`max(d(A,P) - d(A,N) + margin, 0)\`, which pushes the negative a margin further away than the positive.
 
 ---
 
-## PyTorch to LiteRT Conversion
+## PyTorch to LiteRT conversion
 
 \`\`\`mermaid
 flowchart LR
@@ -94,26 +98,28 @@ flowchart LR
     C --> D[tf2onnx]
     D --> E[TensorFlow SavedModel]
     E --> F[TFLite Converter]
-    F --> G[LiteRT int8 quantised]
+    F --> G[LiteRT int8 quantized]
     G --> H[xxd converts to model data.h C byte array]
 \`\`\`
 
 ---
 
-## Design Decisions
+## Design decisions
 
-### Why PyTorch for Training?
-PyTorch's dynamic computation graph makes triplet mining and custom loss functions far easier to implement than Keras. The training loop is fully explicit and debuggable.
+We were a team of two and wrote every decision down, and these are the main ones.
 
-### Why LiteRT (not bare TFLite)?
-LiteRT is Google's 2024 rebranding of TFLite, with improved operator coverage and a cleaner C++ API for microcontrollers. Using LiteRT future-proofs the deployment runtime.
+### PyTorch for training
+PyTorch's dynamic computation graph makes triplet mining and custom losses much easier than in Keras, and the training loop stays explicit and debuggable.
 
-### Why Cosine Similarity (not Euclidean)?
-Cosine similarity is invariant to embedding magnitude: only direction matters. That makes it less sensitive to lighting variation.
+### LiteRT instead of bare TFLite
+LiteRT is Google's 2024 rebranding of TFLite, with better operator coverage and a cleaner C++ API for microcontrollers, so the runtime stays current.
+
+### Cosine similarity instead of Euclidean
+Cosine similarity ignores magnitude and only looks at direction, which makes it less sensitive to lighting.
 
 ---
 
-## How to Recreate
+## How to recreate it
 
 \`\`\`bash
 python train.py --epochs 50 --margin 0.3 --embedding-dim 128

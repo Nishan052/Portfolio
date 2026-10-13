@@ -6,21 +6,19 @@ Evidence: Tang & Zheng, arXiv:2609.32160; Check Point Research, Sep 2026; TypeSa
 Date: 2026-10-06
 
 ---
-Most questions an AI agent asks its model have a short list of answers.
+Most questions an AI agent asks its model have a short list of answers, like which tool runs next, whether a ticket is urgent, or whether the last step worked.
 
-Which tool runs next? Is this ticket urgent? Did that step work?
+Each of those still goes to a model built to write, so it answers one word at a time. It can name a tool that doesn't exist, and it doesn't tell you how sure it is.
 
-Each of those goes to a model built to write. It answers one word at a time. It can name a tool that does not exist. And it does not say how sure it is.
+Decision models like Jev and Laya are built for the deciding part. You send some text, a question and the list of allowed answers, and one pass later you get one of your answers back with a probability.
 
-Decision models like Jev and Laya are built for the deciding. You send some text, a question, and the list of allowed answers. One pass later you get one of your answers and a probability. No text at all.
+So it can't invent an option, and your code can act on the number, going ahead above 0.9 and asking a person below it.
 
-So it cannot invent an option. And your code can act on the number: go above 0.9, ask a person below.
+On TypeSafe's own test, Jev matched a large model at 0.4 seconds a case instead of 10.1. Those are the vendor's numbers, though, and there are two catches.
 
-On TypeSafe's own test, Jev matched a large model at 0.4 seconds a case instead of 10.1.
+A review of 28 early studies by Tang and Zheng (arXiv:2609.32160) found no gain in accuracy yet, and Check Point steered Jev with prompt injection in 25 of 27 runs. So the answer is always on your list, and it can still be the wrong one.
 
-There are two catches. A review of 28 early studies, Tang and Zheng (arXiv:2609.32160), found no gain in accuracy yet. And Check Point steered Jev with prompt injection in 25 of 27 runs.
-
-The answer is always on your list. It can still be the wrong one.
+That fits what I saw when I tested Laya on my own blog, where it only did well as one yes or no check per question.
 
 Full breakdown: https://nishanpoojary.com/blogs/jev-laya-typed-decision-models
 

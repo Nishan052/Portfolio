@@ -10,48 +10,48 @@ const post = {
   part: 10,
   readTime: '12 min',
   tags: ['Embeddings', 'RAG', 'VectorSearch', 'Transformers', 'Production', 'LLMs'],
-  excerpt: 'RAG returns 200 OK and wrong answers when ingestion used one embedding model and queries another, because each model has its own vector space.',
+  excerpt: 'If documents and queries are embedded with different models, RAG still returns 200 OK and wrong answers, since each model has its own vector space.',
 
   content: `
 ## The Silent Failure
 
-Your RAG system deployed three weeks ago. Infrastructure looks perfect: no errors, normal latencies, steady throughput. Users start reporting that answers are disconnected from questions. Support tickets pile up, and the logs are all green.
+Let's say your RAG system went live three weeks ago and the infrastructure looks perfect, with no errors, normal latencies and steady throughput. Then users report that the answers are disconnected from their questions, and support tickets pile up while the logs stay green.
 
-This is embedding model mismatch. Your ingestion pipeline embedded documents with one model. Your query handler swapped to a different model. The system keeps running because both models work fine independently. Vector database queries complete. Cosine similarity still computes. But documents and queries live in incompatible semantic spaces. Retrieved chunks have nothing to do with the user's question.
+What happened is embedding model mismatch, where your ingestion pipeline embedded the documents with one model and the query handler later switched to a different one. The system keeps running because both models work fine on their own, so the queries complete and cosine similarity still computes. The documents and queries now live in incompatible semantic spaces, though, so the retrieved chunks have nothing to do with the user's question.
 
-Understanding why this happens means understanding three things: what tokenization does, how transformers create vectors, and why different models create different spaces.
+To understand why, you need three things, which are what tokenization does, how transformers create vectors and why different models create different spaces. Which embedding model to use was one of the things I had to research for my portfolio chatbot, so this is how I'd explain it.
 
 ## From Text to Numbers
 
-Raw text cannot be fed to machine learning. Text must become numbers. Embedding models convert text into dense arrays called vectors, where semantically similar text produces vectors close together in high-dimensional space.
+Machine learning can't work on raw text, so it has to become numbers first, and embedding models turn text into dense arrays called vectors, where similar text produces vectors close together in high-dimensional space.
 
-When you ask a search engine "How do I reset my password?" and a document says "Forgotten password reset steps", both produce vectors with high cosine similarity. Cosine similarity is the dot product of normalized vectors, yielding scores between -1 and 1. Scores above 0.7 signal semantic similarity.
+Let's say you ask a search engine "How do I reset my password?" and a document says "Forgotten password reset steps". Both produce vectors with high cosine similarity, which is the dot product of normalized vectors and gives a score between -1 and 1, and scores above 0.7 signal semantic similarity.
 
-This works because modern embedding models train on contrastive learning. Millions of sentence pairs are fed to the model. Similar pairs are pulled toward each other in vector space. Dissimilar pairs pushed apart. After training, the model encodes meaning as proximity.
+This works because modern embedding models are trained with contrastive learning on millions of sentence pairs, where similar pairs get pulled together in vector space and dissimilar ones pushed apart, so the model encodes meaning as closeness.
 
-Each model, though, creates its own space. Model A trained on one corpus using one approach produces a space where similarity means one thing. Model B trained differently produces a space where the same numbers mean something else. Swap models and you swap the entire meaning of similarity.
+Each model creates its own space, though, so Model A, trained on one corpus with one approach, gives similarity one meaning, and Model B, trained differently, gives the same numbers another. If you swap models, you swap the whole meaning of similarity.
 
 ## Tokenization: Breaking Text Into Pieces
 
-The first step is tokenization. Text is not fed to transformers as raw characters. It breaks into tokens. The word "dog" is a single token. The word "authentication" might split into auth plus ##mation. A 100-word document becomes roughly 130 tokens, depending on vocabulary and language.
+The first step is tokenization, since transformers don't read raw characters. The word "dog" is a single token, "authentication" might split into auth plus ##mation, and a 100-word document becomes roughly 130 tokens, depending on vocabulary and language.
 
-Tokenization matters because it determines what the model sees. Different tokenizers split text differently. Some handle subwords with ##mation syntax. Others use byte-pair encoding. The vocabulary size matters too. A 30,000-token vocabulary handles common words efficiently but struggles with rare words. A 50,000-token vocabulary captures more nuance but increases computation.
+Tokenization matters because it decides what the model sees, and different tokenizers split text differently, some with the ##mation subword syntax and others with byte-pair encoding. The vocabulary size matters too, since a 30,000-token vocabulary handles common words efficiently and struggles with rare ones, while a 50,000-token vocabulary captures more nuance and needs more computation.
 
 ## Building Vectors Step by Step
 
-Once text is tokenized, a transformer follows a five-step pipeline.
+After tokenization, a transformer follows a pipeline of five steps.
 
-Step one is token embedding lookup. Each token maps to a learned vector. Token 42 always maps to the same 384-dimensional vector. Token 1500 maps a different vector. These are learned during training and stored in a lookup table. Different models have different tables.
+Step one is the token embedding lookup, where each token maps to a learned vector, so token 42 always maps to the same 384-dimensional vector and token 1500 maps to a different one. These vectors are learned during training and stored in a lookup table, and different models have different tables.
 
-Step two is positional encoding. Transformers have no built-in sequence order. Positional information is added to each token embedding, capturing both absolute position and relative distance.
+Step two is positional encoding, since transformers have no built-in sequence order, so position information is added to each token embedding to capture both absolute position and relative distance.
 
-Step three is the transformer layers. The transformer applies layers of self-attention. Each token attends to every other token. Attention learns which tokens are relevant. Different architectures use different layer counts: BERT uses 12 and RoBERTa uses 24. Each layer refines the vector to capture deeper semantics.
+Step three is the transformer layers of self-attention, where each token attends to every other token and the attention learns which ones are relevant. BERT uses 12 layers and RoBERTa uses 24, and each layer refines the vector to capture deeper meaning.
 
-Step four is representation. After attention, each token has been contextualized by the full document context.
+Step four is the representation, where each token has been contextualized by the full document.
 
-Step five is pooling. The transformer produces one vector per token. You need one per document. Mean pooling averages all token vectors. This single vector is your embedding: a coordinate in learned semantic space.
+Step five is pooling, because the transformer produces one vector per token and you need one per document. Mean pooling averages the token vectors into a single vector, and that vector is your embedding, a coordinate in the learned semantic space.
 
-Different models pool differently. Different models use different layer counts. Different models train on different data. Same document, different models, different vectors.
+So different models pool differently, use different layer counts and train on different data, which means the same document ends up with different vectors.
 
 \`\`\`mermaid
 flowchart TD
@@ -64,17 +64,17 @@ flowchart TD
     G --> H["Final Embedding: one 384-dim vector"]
 \`\`\`
 
-The pipeline above shows what happens inside a transformer. Raw text becomes tokens, tokens become vectors, vectors get contextualized through attention, and a single pooled vector represents the document.
+The pipeline above shows what happens inside a transformer, as raw text becomes tokens, tokens become vectors, attention puts those vectors in context, and one pooled vector represents the document.
 
 ## Why Different Models Create Different Spaces
 
-Here is where the mismatch problem lives. Two embedding models produce two different outputs for the same input text because they were trained differently.
+This is where the mismatch lives, because two differently trained models give different outputs for the same text.
 
-Model A trained on contrasting similar and dissimilar sentence pairs might have learned that "password reset" and "forgotten password" are highly similar, pulling their vectors close. Model B trained on a different corpus might not have seen that particular pair during training, so those sentences end up further apart.
+Let's say Model A was trained on contrasting similar and dissimilar sentence pairs and learned that "password reset" and "forgotten password" are highly similar, so it pulls their vectors close. Model B was trained on a different corpus and might not have seen that pair, so those two sentences end up further apart.
 
-Model A uses 384 dimensions. Model B uses 1536 dimensions. Same text, vastly different vector spaces. Dimension count alone breaks compatibility. But it goes deeper. The value in dimension 47 of Model A means something completely different than dimension 47 of Model B. Learned projections from attention heads produce different features in different models.
+The dimension count alone breaks compatibility, since Model A uses 384 dimensions and Model B uses 1536, so the same text lands in very different vector spaces. It goes deeper than that, because the value in dimension 47 of Model A means something completely different from dimension 47 of Model B, as learned attention projections produce different features in each model.
 
-Worse, these differences are silent. Both models work fine independently. Cosine similarity still computes. The system returns results. Infrastructure metrics look normal. Users just get wrong answers.
+These differences are also silent, since both models work fine on their own, cosine similarity still computes and the system returns results. So the infrastructure metrics look normal while users just get wrong answers.
 
 \`\`\`mermaid
 flowchart LR
@@ -88,15 +88,17 @@ flowchart LR
     H --> I["Results are wrong"]
 \`\`\`
 
-The above flowchart shows the mismatch. Documents embedded in space A, queries computed in space B, cosine similarity scores are meaningless.
+The flowchart above shows the mismatch, with documents in space A and queries in space B, so their cosine similarity scores mean nothing.
 
 ## Detection and Prevention
 
-Detecting mismatch requires measuring drift. At ingestion time, embed a test set with Model A and compute mean cosine similarity between known similar pairs. At query time, embed the same test with Model B. If the distribution shifts, you have a mismatch.
+To detect a mismatch you have to measure drift. At ingestion time, embed a test set with Model A and compute the mean cosine similarity between pairs you know are similar. Then at query time, embed the same test set with Model B, and if the distribution shifts, you have a mismatch. As a concrete threshold, if the baseline mean is 0.65 and Model B produces 0.32, I'd raise an alert.
 
-A concrete threshold: if baseline mean is 0.65 and Model B produces 0.32, alert.
+Preventing it comes down to three checkpoints:
 
-Preventing mismatch requires three checkpoints. First, lock embedding model versions in deployment manifest. Second, enforce the same model at query time through tests that fail if versions mismatch. Third, if you change models in production, plan complete re-embedding. This is a database migration.
+1. Lock the embedding model version in your deployment manifest.
+2. Enforce the same model at query time, with tests that fail if the versions don't match.
+3. If you change models in production, plan a complete re-embedding, because that is a database migration.
 
 \`\`\`mermaid
 flowchart TD
@@ -111,23 +113,23 @@ flowchart TD
     H --> I["Test version match query time"]
 \`\`\`
 
-The above shows the decision tree. Changing embedding models is not a configuration change. It is a database migration.
+The decision tree above shows the choice, and for me the point is that changing the embedding model is a database migration, so I'd plan it like one.
 
-The cost of mismatch is high. You ship broken retrieval wrapped in a 200 OK response. Your LLM cannot help. Garbage in, garbage out. The fix is simple: version your embeddings, test for mismatch, and plan migrations like database changes.
+The cost of a mismatch is high, because you ship broken retrieval wrapped in a 200 OK response and the LLM can't fix garbage going in. The fix itself is simple, so I'd version the embeddings, test for a mismatch and plan model changes like database migrations.
 
 ## References
 
-Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, L., & Polosukhin, I. (2017). Attention is all you need. Advances in Neural Information Processing Systems, 30. https://arxiv.org/abs/1706.03762
+- Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, L., & Polosukhin, I. (2017). Attention is all you need. Advances in Neural Information Processing Systems, 30. https://arxiv.org/abs/1706.03762
 
-Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). Efficient estimation of word representations in vector space. arXiv preprint arXiv:1301.3781. https://arxiv.org/abs/1301.3781
+- Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). Efficient estimation of word representations in vector space. arXiv preprint arXiv:1301.3781. https://arxiv.org/abs/1301.3781
 
-Reimers, N., & Gurevych, I. (2019). Sentence-BERT: Sentence embeddings using Siamese BERT-Networks. Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing, 3973-3983. https://arxiv.org/abs/1908.10084
+- Reimers, N., & Gurevych, I. (2019). Sentence-BERT: Sentence embeddings using Siamese BERT-Networks. Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing, 3973-3983. https://arxiv.org/abs/1908.10084
 
-Pinecone (2024). Understanding Vector Embeddings. https://www.pinecone.io/learn/vector-embeddings/
+- Pinecone (2024). Understanding Vector Embeddings. https://www.pinecone.io/learn/vector-embeddings/
 
-LlamaIndex (2024). Embeddings Documentation. https://docs.llamaindex.ai/en/stable/concepts/embedding_models/
+- LlamaIndex (2024). Embeddings Documentation. https://docs.llamaindex.ai/en/stable/concepts/embedding_models/
 
-Hugging Face (2024). Sentence Transformers: Semantic Textual Similarity. https://www.sbert.net/docs/sentence_transformer/usage/semantic_textual_similarity.html
+- Hugging Face (2024). Sentence Transformers: Semantic Textual Similarity. https://www.sbert.net/docs/sentence_transformer/usage/semantic_textual_similarity.html
   `,
 
   references: [

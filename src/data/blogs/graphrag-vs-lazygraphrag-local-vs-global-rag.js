@@ -10,30 +10,28 @@ const post = {
   part:      3,
   readTime:  '15 min',
   tags:      ['RAG', 'GraphRAG', 'LazyGraphRAG', 'Evaluation', 'Retrieval Strategy', 'Knowledge Graph'],
-  excerpt:   'Vector search is excellent for local fact lookup, but it can miss dataset-level synthesis. This guide shows when GraphRAG or LazyGraphRAG is the better retrieval strategy.',
+  excerpt:   'Vector search is good at looking up local facts, but it can miss answers spread across a dataset, which is where GraphRAG and LazyGraphRAG help.',
 
   content: `
 ## The Retrieval Strategy Mistake
 
-You can tune embeddings, rerankers, and prompts for weeks and still get weak answers to one class of question:
+You can tune embeddings, rerankers and prompts for weeks and still get weak answers to one kind of question, like this one:
 
 "Across all documents, what are the main patterns, tradeoffs, and implications?"
 
-That is a different retrieval problem from:
+That's a different retrieval problem from this one:
 
 "What did document X say about Y?"
 
-Many RAG systems fail because they use one retrieval strategy for both question types.
+A lot of RAG systems fail because they use one retrieval strategy for both.
 
 ---
 
 ## Why Vector Search Feels Great Until It Doesn't
 
-Vector retrieval is a best-first search pattern. It finds chunks most similar to the query. This is ideal when the answer is concentrated in a few passages.
+Vector retrieval is a best-first search that finds the chunks most similar to the query, which is ideal when the answer sits in a few passages. It's weaker for broad synthesis, where the evidence is spread across many documents and no single chunk is a good nearest neighbor.
 
-It is weaker for broad synthesis where evidence is distributed across many documents and no single chunk is a good nearest neighbor.
-
-Think of it like asking a librarian for one shelf that "best matches" your question when the answer is actually spread across ten departments.
+It's like asking a librarian for the one shelf that "best matches" your question, when the answer is spread across ten departments.
 
 \`\`\`mermaid
 flowchart LR
@@ -44,7 +42,7 @@ flowchart LR
     style V fill:#0ea5e9,color:#001018
 \`\`\`
 
-Good for local extraction. Risky for global synthesis.
+So vector search is good for local extraction and risky for global synthesis.
 
 ---
 
@@ -55,15 +53,13 @@ Good for local extraction. Risky for global synthesis.
 | Local | Who, what, when, where | High precision on a small evidence set |
 | Global | Themes, patterns, implications, consensus | Broad coverage across the corpus |
 
-If your evaluation set mixes both query types, one method will look "inconsistent" unless your pipeline can adapt retrieval strategy per query class.
+If your evaluation set mixes both query types, one method will look "inconsistent" unless your pipeline adapts its retrieval to each query class.
 
 ---
 
 ## What GraphRAG Adds
 
-GraphRAG builds a graph-oriented index from text: entities, relationships, and community-level structure. It then supports retrieval and synthesis over that structure.
-
-That gives you an explicit path to answer global questions with broader evidence coverage.
+GraphRAG builds a graph-oriented index from text, with entities, relationships and community-level structure, and then supports retrieval and synthesis over it. That gives you an explicit path to answer global questions with broader evidence coverage.
 
 \`\`\`mermaid
 flowchart TD
@@ -78,21 +74,19 @@ flowchart TD
     style R fill:#14b8a6,color:#001018
 \`\`\`
 
-### Strength
+### Where GraphRAG is strong
 
-GraphRAG is strong when the answer requires breadth over the dataset, not only nearest-neighbor similarity.
+GraphRAG is strong when the answer needs breadth over the dataset, and nearest-neighbor similarity alone isn't enough.
 
-### Cost reality
+### What it costs
 
-Classic GraphRAG can require heavier index-time work because graph extraction and summarization are front-loaded.
+Classic GraphRAG can need heavier index-time work, because graph extraction and summarization happen up front.
 
 ---
 
 ## What LazyGraphRAG Changes
 
-LazyGraphRAG keeps the graph-enabled retrieval idea but defers more expensive LLM work to query time and uses budgeted relevance testing.
-
-In practice, this gives a smoother quality-cost control knob than all-or-nothing indexing pipelines.
+LazyGraphRAG keeps the graph-enabled retrieval idea, but it defers more of the expensive LLM work to query time and uses budgeted relevance testing. In practice that gives you a smoother way to trade quality against cost than all-or-nothing indexing pipelines.
 
 \`\`\`mermaid
 flowchart LR
@@ -107,13 +101,13 @@ flowchart LR
     style T fill:#f59e0b,color:#000
 \`\`\`
 
-The yellow node is the key lever: relevance-test budget controls quality versus cost.
+The yellow node is the main lever, since the relevance-test budget controls quality versus cost.
 
 ---
 
 ## The Practical Decision Framework
 
-Use this decision matrix before implementation.
+I'd check this decision matrix before building anything.
 
 | Constraint in your use case | Better default |
 |---|---|
@@ -123,15 +117,13 @@ Use this decision matrix before implementation.
 | Need reusable graph summaries as artifacts | GraphRAG |
 | Need one strategy across mixed local-global workloads | LazyGraphRAG with tuned budget |
 
-The choice depends on your query distribution.
+So the choice depends on your query distribution, the mix of local and global questions your users ask.
 
 ---
 
 ## Evaluation That Prevents Wrong Conclusions
 
-If you evaluate only local questions, vector systems can look dominant. If you evaluate only global questions, graph systems can look dominant.
-
-Segment your eval set.
+If you evaluate only local questions, vector systems can look dominant, and if you evaluate only global questions, graph systems can look dominant. So I'd split the evaluation set into a local and a global bucket and compare methods within each.
 
 \`\`\`mermaid
 flowchart TD
@@ -166,13 +158,11 @@ flowchart TD
 
 ---
 
-## Durable Mental Model
+## Choose Retrieval by the Shape of Your Questions
 
-Do not choose retrieval architecture by trend. Choose it by question distribution.
+For me the point is to choose retrieval architecture by question distribution and not by trend. Vector RAG is a precision tool for local lookup, graph-enabled RAG is a coverage tool for global synthesis, and LazyGraphRAG is a budgeted bridge across both.
 
-Vector RAG is a precision tool for local lookup. Graph-enabled RAG is a coverage tool for global synthesis. LazyGraphRAG is a budgeted bridge across both.
-
-When your answers look inconsistent, the first thing to audit is not the model. Audit whether your retrieval strategy matches the shape of your questions.
+So when your answers look inconsistent, I'd check whether your retrieval strategy matches the shape of your questions before auditing the model.
 `,
 
   references: [

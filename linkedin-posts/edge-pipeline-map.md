@@ -2,26 +2,24 @@
 
 Claim: none. This is an explainer: it teaches the shape of the deployment pipeline rather than asserting a new result.
 Status: explainer
-Source: coral.ai Edge TPU documentation; ONNX intermediate representation specification; TensorFlow Lite post-training quantisation guide
+Source: coral.ai Edge TPU documentation; ONNX intermediate representation specification; TensorFlow Lite post-training quantization guide
 Date: 2026-09-08
 
 ---
 
-You train an AI model on a big computer. Then you put it on a camera. Five steps sit in between, and four can change it on the way.
+Between training a model on a big computer and running it on a camera there are five steps, and four of them can quietly change it.
 
-The middle ones are the ones nobody writes about.
+First it's exported into a form other tools can open, and parts get merged and renamed on the way. So the part a later tool complains about may not be in your code.
 
-First it is exported: written out in a form other tools can open. On the way, parts get merged and renamed. So the part a later tool complains about may not be in your code.
+Then it's converted, because your model holds numbers as decimals and small chips want whole numbers, so every one gets rounded. How much accuracy survives depends on the sample data you give it, and most people take the default and never check.
 
-Then it is converted. Your model holds numbers as decimals. Small chips want whole numbers, so every one gets rounded. How much accuracy survives depends on the sample data you give it. Most people take the default and never check.
+Then it's compiled for one specific chip, which can't do every kind of sum. At the first one it can't, it stops and hands the rest back to the slow general processor without any error or warning.
 
-Then it is compiled for one specific chip. That chip cannot do every kind of sum. At the first one it cannot, it stops and hands the rest back to the slow general processor. It gives no error and no warning.
+Then you run it, and the device gets hot and slows down, and moving data costs time your laptop never charged for.
 
-Then you run it. The device gets hot and slows down. Moving data costs time your laptop never charged for.
+None of these steps is hard, but each can change your model in silence, so when the accuracy drops the cause is three steps back and nothing wrote it down.
 
-None of this is hard. Each step can change your model in silence. By the time you see the accuracy drop, the cause is three steps back and nothing wrote it down.
-
-I wrote up the whole path, and what each step can do to your model.
+I'm working through this right now for a man overboard prototype on a Raspberry Pi 5, so I wrote up each step and what it can do.
 
 Full breakdown: https://nishanpoojary.com/blogs/edge-pipeline-map
 

@@ -9,16 +9,16 @@ const post = {
   readTime:  '9 min',
   tags:      ['Angular', 'TypeScript', 'RxJS', 'Lazy Loading', 'SPA', 'Router'],
   githubUrl: 'https://github.com/Nishan052/Routing-app',
-  excerpt:   'A hands-on Angular 14 project demonstrating client-side SPA routing patterns: feature module lazy loading, route guards, child routes, and RxJS-powered reactive navigation.',
+  excerpt:   'A small Angular 14 app where I tried out lazy loading, route guards, child routes and route parameters that react through RxJS.',
 
   content: `
-## Overview
+## What a single page app does
 
-Single Page Applications (SPAs) load once and then update the DOM in response to URL changes, without full-page reloads. Angular's built-in Router module is one of the most fully-featured client-side routing solutions in the JavaScript ecosystem.
+A single page application (SPA) loads once and then updates the page as the URL changes, without a full reload. For me Angular's Router is one of the most complete client-side routing options in JavaScript, so I used it for this small app.
 
 ---
 
-## What Is SPA Routing?
+## How SPA routing works
 
 \`\`\`mermaid
 sequenceDiagram
@@ -34,11 +34,11 @@ sequenceDiagram
     Browser->>User: Updated view
 \`\`\`
 
-Unlike traditional multi-page apps, the server always returns the same \`index.html\`. The browser's History API (pushState) handles URL changes locally, and Angular's router maps them to components.
+Unlike a traditional multi-page app, the server always sends back the same \`index.html\`. The browser's History API (pushState) changes the URL locally, and Angular's router maps it to a component.
 
 ---
 
-## Route Configuration
+## Route configuration
 
 \`\`\`mermaid
 flowchart TD
@@ -55,13 +55,13 @@ flowchart TD
 
 ---
 
-## Key Patterns Implemented
+## The four patterns in the app
 
-### 1. Lazy Loading Feature Modules
+### 1. Lazy loading feature modules
 
-Lazy loading defers loading a feature module's JavaScript bundle until the user first navigates to its route. The initial bundle stays small: only code for the first view is loaded. Subsequent modules download on demand, cutting Time-to-Interactive by 40–60% in large apps.
+Lazy loading waits to download a feature module's bundle until the user first opens its route, so the first bundle only holds the code for the first view. The rest download when they're needed, and in large apps that cuts Time-to-Interactive by 40–60%.
 
-### 2. Route Guards
+### 2. Route guards
 
 \`\`\`mermaid
 flowchart LR
@@ -70,19 +70,19 @@ flowchart LR
     B -- not authenticated --> D[Redirect to /login]
 \`\`\`
 
-Guards implement the \`CanActivate\` interface and return \`true | false | UrlTree\`. Using \`UrlTree\` for redirects keeps navigation declarative and testable.
+Guards implement \`CanActivate\` and return \`true | false | UrlTree\`, and I'd use \`UrlTree\` for redirects since it keeps the navigation declarative and testable.
 
-### 3. Child Routes
+### 3. Child routes
 
-Child routes nest components inside a parent's \`router-outlet\`. This enables persistent layouts (sidebar, header) that survive navigation between child routes. Only the outlet content re-renders.
+Child routes nest components inside a parent's \`router-outlet\`, so a layout like the sidebar and header stays put between child routes and only the outlet content renders again.
 
-### 4. Route Parameters with RxJS
+### 4. Route parameters with RxJS
 
-Using \`paramMap\` (an Observable) instead of \`snapshot.params\` means the component reacts to ID changes even when Angular reuses the same component instance, which is what happens when navigating between \`/products/1\` and \`/products/2\`.
+When you go from \`/products/1\` to \`/products/2\`, Angular reuses the same component instance, so the app reads \`paramMap\`, an Observable, instead of \`snapshot.params\` and still reacts to the new ID.
 
 ---
 
-## Angular Routing Lifecycle
+## The Angular routing lifecycle
 
 \`\`\`mermaid
 stateDiagram-v2
@@ -97,20 +97,20 @@ stateDiagram-v2
 
 ---
 
-## Design Decisions
+## Design decisions
 
-### Why Angular Router over React Router?
-Angular Router is opinionated and batteries-included: guards, resolvers, lazy loading, and named outlets are first-class citizens. For a demonstration project, Angular's prescriptive approach is pedagogically cleaner.
+### Angular Router instead of React Router
+Angular Router is opinionated and has guards, resolvers, lazy loading and named outlets built in, so for a demonstration project I feel its fixed way of doing things is cleaner to teach.
 
-### Why TypeScript?
-TypeScript catches route parameter typos at compile time, makes refactoring safer, and Angular's DI system depends on type metadata from decorators.
+### TypeScript
+TypeScript catches route parameter typos at compile time and makes refactoring safer, and Angular's dependency injection depends on the type metadata from decorators.
 
-### Why switchMap for Route Params?
-\`switchMap\` cancels the previous inner Observable when a new param arrives. Without it, rapid navigation between product IDs could result in out-of-order HTTP responses.
+### switchMap for route parameters
+\`switchMap\` cancels the previous inner Observable when a new parameter arrives, so quick clicks between product IDs can't bring back HTTP responses in the wrong order.
 
 ---
 
-## How to Recreate
+## How to recreate it
 
 \`\`\`bash
 npm install -g @angular/cli@14

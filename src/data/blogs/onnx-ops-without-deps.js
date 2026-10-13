@@ -12,74 +12,66 @@ const post = {
   part:      4,
   readTime:  '12 min',
   tags:      ['EdgeAI', 'ONNX', 'Python', 'Tooling', 'Protobuf'],
-  excerpt:   'Listing the operators in a model file needs three protobuf field numbers and the standard library, not a hundred megabytes of machine learning stack.',
+  excerpt:   'I built a reader that lists the operators in a model file from three protobuf field numbers and the standard library, without installing anything.',
 
   content: `
 ![Reading a model file with nothing installed at all](/videos/onnx-ops-without-deps.mp4)
 
-## The answer you need first is the one that costs most to ask
+## The first answer you need costs the most to get
 
-Part three ended on a check worth running early: walk a model's operators in order, look each one up in the accelerator's published table, find the first miss. The output decides whether a model is worth converting at all.
+Part three ended on a check worth running early. You walk the model's operators in order, where an operator is one step or layer in the model, look each one up in the accelerator's published table, and find the first one that's missing. That check decides whether a model is worth converting at all, so the tricky part is *when* you can run it.
 
-The difficulty is *when* you can run the check.
+Reading an Open Neural Network Exchange (ONNX) file the usual way means installing the ONNX library, which pulls in Protocol Buffers and a chain of numerical packages behind it, about a hundred megabytes of machine learning stack. On a machine that hasn't been set up for this work, that's the first hour of the afternoon gone, and the answer you're waiting for tells you whether the rest of the afternoon is worth spending. It's like having to buy the whole toolbox before you can check whether one screw is the right size.
 
-Reading an Open Neural Network Exchange file the usual way means installing the ONNX library, which pulls in Protocol Buffers and a chain of numerical packages behind it. On a machine that has not been set up for this work, that is the first hour of the afternoon. And the answer you are waiting for is precisely the one that tells you whether the rest of the afternoon is worth spending.
-
-So the check has to run before any of that exists. Which meant reading the file format directly.
+So the answer you need first costs the most to get, and the check had to run before any of that exists, which meant reading the file format directly.
 
 ![Answering whether a model will map to the accelerator normally requires installing the toolchain, but the answer decides whether installing the toolchain is worth it.](/diagrams/onnx-ops-without-deps-1.svg)
 
-*The ordering problem: the cheapest useful answer in the whole pipeline is locked behind the most expensive setup step in it, and the answer is what tells you whether to take that step.*
+*The ordering problem. The cheapest useful answer in the whole pipeline sits behind the most expensive setup step in it, and that answer is what tells you whether to take the step.*
 
 ## The format does not require a schema to walk
 
-A model in this format is a Protocol Buffers message. Every value in one is preceded by a small header, a single number that packs together a field number and a wire type, and the wire type tells you how long the value is.
+A model in this format is a Protocol Buffers message, and every value in one comes after a small header, a single number that packs together a field number and a wire type. The wire type tells you how long the value is, and that's the part that makes this doable without a schema.
 
-That second half is what makes this tractable. You do not need to understand a field to skip past it: you need to know how many bytes it occupies, and the wire type tells you that. So a reader can walk the whole file, recognise the three fields it cares about, and step over everything else without knowing what any of it means.
-
-Three field numbers are enough for a list of operators in order.
+You don't need to understand a field to skip past it, only how many bytes it takes up, and the wire type tells you that. So a reader can walk the whole file, recognize the three fields it cares about, and step over everything else without knowing what any of it means. It's like finding chapter seven of a book by its page counts, without reading the six chapters before it, and three field numbers are enough to get the list of operators in order.
 
 ![Field seven of the model holds the graph, field one of the graph repeats once per node, and field four of a node is its operator type as a string.](/diagrams/onnx-ops-without-deps-2.svg)
 
-*The whole path through the file. Field seven of the model is the graph, field one of the graph repeats once per node, and field four of a node is its operator type. Everything else on the way is skipped by its declared length.*
+*The whole path through the file. Field seven of the model is the graph, field one of the graph repeats once per node, and field four of a node is its operator type, and everything else on the way gets skipped by its declared length.*
 
 ## What the reader deliberately does not do
 
-It is worth being precise about the limits, because a tool that overstates what it read is the failure mode this whole approach is exposed to.
+I want to be precise about the limits, because a tool that overstates what it read is exactly the failure this whole approach is exposed to. The reader recovers operator types in graph order and nothing more, so it doesn't resolve the edges between nodes, read weights, check shapes, or validate that the file is well formed. It can't tell you that a model is correct, only which operations it names and in what sequence.
 
-The reader recovers operator types in graph order. It does not resolve the edges between nodes, read weights, check shapes, or validate that the file is well formed. It cannot tell you that a model is correct, only what operations it names and in what sequence.
+It stops there on purpose, because everything the part three check needs is in that sequence, and every capability past it costs either a schema or a dependency. Reading tensor contents would mean understanding layouts and data types, and validating the graph would mean building the reference implementation's rules a second time, and badly.
 
-The reader stops there on purpose. Everything the part three check needs is in that sequence, and every capability past it costs either a schema or a dependency. Reading tensor contents would mean understanding layouts and data types. Validating the graph would mean building the reference implementation's rules a second time, badly.
+So I drew the line where the standard library stops being enough. Past that line the honest move is to install the real library, and the reader's job is to tell you early whether that's worth doing.
 
-So the boundary is drawn where the standard library stops being enough. Past that line the honest move is to install the real library, and the reader's job is to tell you early whether that is worth doing.
+## Repeated fields keep the operators in graph order for free
 
-## The ordering comes for free, and that is the part worth knowing
+Protocol Buffers write repeated fields in sequence, so reading them in the order they appear in the file gives you the nodes in the order the graph defines them. There's no sorting, no index and no topological pass over the edges.
 
-Protocol Buffers write repeated fields in sequence. Reading them in the order they appear in the file gives you the nodes in the order the graph defines them. No sorting, no index, no topological pass over the edges.
+For me the ordering is the whole content of the part three result. A list of operators with no order tells you how many are unsupported. A list in graph order tells you *where the first one is*, and that's the number that actually decides how much of the model runs on the chip. The format has already done that work, and you don't need the usual tooling to get at it.
 
-Ordering is the entire content of the part three result. A list of operators with no order tells you how many are unsupported. A list in graph order tells you *where the first one is*, which is the number that actually decides how much of the model runs on the chip. The format has already done the work, and the usual tooling is not required to get at it.
+## Sixty lines of reader, and the test is what makes it usable
 
-## Sixty lines, and a test that is the point
+The reader itself is just a loop that pulls a header, splits it into a field number and a wire type, and then either records the value or skips past it by its declared width. There are four wire types, and only one of them, the length-delimited one, carries anything this needs.
 
-The reader is a loop. Pull a header, split it into a field number and a wire type, then either record the value or skip past it by its declared width. Four wire types exist and only one of them, the length-delimited one, carries anything this needs.
+What makes sixty lines of standard library Python usable is the test. The eval loads two real model files, runs the reader over them, and compares its output against what the official ONNX library returns for the same files, node for node and in order. It matches on 100% of nodes, and if a change to the reader ever breaks that, the test fails, so the tool can't quietly return a slightly wrong list.
 
-What makes sixty lines of stdlib Python usable is the test.
-
-The eval loads two real model files, runs the reader over them, and compares its output against what the official ONNX library returns for the same files. Node for node, in order. 100% of nodes match. If a change to the reader ever breaks that, the test fails, so the tool cannot quietly return a slightly wrong list.
-
-That distinction is the whole reason this is publishable. A parser that crashes is an inconvenience. A parser that is subtly wrong is a liability, because it produces a confident answer about a model you have not actually read, and the answer looks exactly like a correct one.
+That's the whole reason I was comfortable publishing it. A parser that crashes is an inconvenience, but one that's subtly wrong is a liability. It gives you a confident answer about a model you haven't actually read, and that answer looks exactly like a correct one.
 
 ![The reader is checked against the official library node for node on real files, because a parser that is subtly wrong is worse than one that crashes.](/diagrams/onnx-ops-without-deps-3.svg)
 
-*Why the test is the artefact. The contribution is an assertion that sixty lines of parsing agree with the reference implementation on every node of real files. That assertion turns a plausible tool into one you can act on.*
+*Why the test is the real artifact. What I'm contributing is an assertion that sixty lines of parsing agree with the reference implementation on every node of real files, and that assertion turns a plausible tool into one you can act on.*
 
-## What it actually buys
+## What it buys is where the check can run
 
-Not disk space. Where the check can run.
+The saving that matters to me is where the check can run, and the disk space is a side effect. It runs on a machine with nothing installed, which is usually the machine you're on when the question first comes up. It runs inside a build step that has no business carrying a machine learning stack, so a graph that would strand 93% of itself can fail the build before it surprises someone later.
 
-It runs on a machine with nothing installed, which is the machine you are usually on when the question first occurs to you. It runs inside a build step that has no business carrying a machine learning stack, so a graph that would strand 93% of itself can fail the build before it surprises someone later. It runs before the conversion toolchain exists, which is exactly the moment when knowing whether a model will map to the chip is worth the most, and exactly the moment the usual tooling cannot tell you.
+It also runs before the conversion toolchain exists, which is exactly when knowing whether a model will map to the chip is worth the most, and exactly when the usual tooling can't tell you.
 
-The general shape of this is worth taking away even if you never touch ONNX. When the cheap answer is gated behind the expensive setup, it is worth asking what the file format actually requires of you. Often, as here, it is three numbers and a length.
+The general idea is worth taking away even if you never touch ONNX. When the cheap answer sits behind the expensive setup, I'd ask what the file format actually requires of you, and often, like here, it's three numbers and a length.
 `,
 
   references: [

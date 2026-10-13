@@ -1,7 +1,7 @@
 const post = {
   id: 22,
   slug: 'agentic-rag-complete-systems-guide',
-  title: 'Agentic RAG: Complete Systems Guide from Architecture to Production',
+  title: 'Agentic RAG: from one pipeline to a team of agents in production',
   category: 'research',
   iconKey: 'Workflow',
   color: '#3B82F6',
@@ -10,15 +10,15 @@ const post = {
   part: 5,
   readTime: '6 min',
   tags: ['MultiAgent', 'RAG', 'Architecture', 'Implementation', 'Production', 'QueryRouting', 'SystemDesign'],
-  excerpt: 'Complete guide to building production agentic RAG systems covering orchestration patterns, implementation considerations, architectural flows, and real-world use cases.',
+  excerpt: 'How I\'d split one RAG pipeline into a team of agents that route, retrieve and validate, and when it\'s worth doing.',
   githubUrl: 'https://github.com/microsoft/autogen',
 
   content: `
-## From Monolithic to Agentic RAG Architecture
+## From one pipeline to agentic RAG
 
-Retrieval Augmented Generation excels within single knowledge domains but struggles in production where requests span customer support, technical troubleshooting, and billing, each requiring different retrieval strategies. Traditional RAG chains these sequentially, creating brittle pipelines that fail when queries cross boundaries.
+Retrieval augmented generation works well inside one knowledge domain, but production requests span support, troubleshooting and billing, and each needs its own retrieval strategy. Traditional RAG chains the steps in sequence, so it breaks once a query crosses domains.
 
-Agentic RAG inverts this approach. Seven integrated layers work together as specialized agents: input normalization, intelligent routing, parallel retrieval, validation, synthesis, memory persistence, and monitoring. A dispatcher classifies queries and routes them to domain experts. Retrieval specialists fetch context using optimized strategies. Validators check factual consistency. Synthesis agents compose grounded responses. This architectural shift converts monolithic pipelines into decentralized teams where each agent owns distinct responsibilities.
+Agentic RAG flips this, and it's what I made the AI assistant at Georg Schröder into after rebuilding its backend. It works like this: seven layers act as specialized agents for input normalization, routing, parallel retrieval, validation, synthesis, memory and monitoring. A dispatcher classifies the query and routes it to a domain expert, then retrieval specialists fetch the context, validators check the facts and a synthesis agent writes the grounded answer. So one pipeline becomes a team where every agent owns one job.
 
 \`\`\`mermaid
 graph TD
@@ -38,13 +38,13 @@ graph TD
     style S fill:#3B82F6,color:#fff
 \`\`\`
 
-## Real Performance Improvements and Implementation Patterns
+## Where the gains come from, and how to build it
 
-Orchestration patterns determine how agents coordinate. Sequential flows work for linear tasks. Parallel patterns reduce latency 30-40 percent when multiple retrieval agents query different knowledge bases simultaneously. Hierarchical patterns scale across 50+ domains by organizing agents into sub-teams.
+Sequential orchestration suits linear tasks, parallel patterns cut latency by 30-40 percent when retrieval agents query different knowledge bases at once, and hierarchical patterns scale across 50+ domains by grouping agents into sub-teams.
 
-These improvements are measurable. Routing eliminates processing irrelevant knowledge bases. Domain-specific retrieval strategies boost recall. Validation agents catch hallucinations before users see them, reducing production errors by 60 percent.
+The gains are measurable, since routing skips irrelevant knowledge bases, domain-specific retrieval boosts recall, and validation agents catch hallucinations before users see them, cutting production errors by 60 percent.
 
-Implementation requires careful consideration of knowledge base structure: heterogeneous data needs different preprocessing pipelines. Vector database selection impacts concurrent performance. Test read replicas under parallel loading. Hybrid search combining dense vectors and sparse BM25 forces consistency checks across retrieval methods. Design clear message schemas, set timeouts, and add circuit breakers for resilience.
+For the build I'd start with the knowledge base, since mixed data needs different preprocessing pipelines. The vector database affects concurrent performance, so I'd test read replicas under parallel load, and a hybrid of dense vectors and sparse BM25 needs consistency checks across both. Then I'd design clear message schemas, timeouts and circuit breakers, so one failing agent can't take everything down.
 
 \`\`\`mermaid
 flowchart LR
@@ -64,11 +64,11 @@ flowchart LR
     style V fill:#3B82F6,color:#fff
 \`\`\`
 
-## Production Use Cases and Scaling Decisions
+## Where agentic RAG fits and when to switch
 
-Customer support excels with agentic RAG when spanning product knowledge, billing, and troubleshooting. Legal discovery requires parallel retrieval across statutes, case law, and regulations with strong validation. Healthcare deploys separate agents for clinical guidelines, patient records, and drug interactions.
+Customer support fits well, because one conversation spans product knowledge, billing and troubleshooting. Legal discovery needs parallel retrieval across statutes, case law and regulations with strong validation, and healthcare uses separate agents for clinical guidelines, patient records and drug interactions.
 
-Start with monolithic RAG first. Scale to multi-agent systems when exceeding three knowledge domains, experiencing diverse query types, or requiring production uptime demanding validation. Simple well-defined queries on homogeneous knowledge stay monolithic. Production systems crossing domains gain substantially from specialized agents and parallel validation.
+I'd start with monolithic RAG and move to multiple agents once you pass three knowledge domains, see many types of query, or need validation for production uptime. Simple queries on one consistent knowledge base can stay monolithic, and systems crossing domains gain the most from specialized agents and parallel validation.
   `,
 
   references: [

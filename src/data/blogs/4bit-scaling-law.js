@@ -11,71 +11,69 @@ const post = {
   series:    'Edge AI',
   part:      2,
   readTime:  '12 min',
-  tags:      ['EdgeAI', 'Quantisation', 'Deployment', 'Accelerators', 'LLM'],
-  excerpt:   'A device measures a model in bytes of memory, not in parameters, which turns precision and model size into one decision.',
+  tags:      ['EdgeAI', 'Quantization', 'Deployment', 'Accelerators', 'LLM'],
+  excerpt:   'A device only cares how many bytes your model takes, so the number of weights and the bits per weight actually come out of one budget.',
 
   content: `
 ![A bigger model at four bits beats a smaller one at eight](/videos/4bit-scaling-law.mp4)
 
-## Why this is one decision and not two
+## Why model size and precision are one decision and not two
 
-Part one ended at conversion: the step that rewrites float weights as small integers. This part is about what that rewrite costs, and the answer starts with why you have any choice to make.
+Part one ended at conversion, where quantization rewrites the float weights as small integers. This part looks at what that rewrite costs, starting with why there's a choice to make at all.
 
-First, a distinction the series has to make explicitly, because parts one and two are about different machines. Part one's accelerator is a fixed-function chip: it executes 8-bit integers and nothing else, so precision there is not a choice you get to make. This part is about a general processor with enough memory to hold a language model, where weights can be stored at whatever width you like and unpacked as they are read. There the width is a decision, and this is what the decision costs.
+Parts one and two are really about different hardware, so I have to separate them first. Part one's accelerator is a fixed-function chip that runs 8-bit integers and nothing else, so on that chip precision isn't something you get to choose. This part is about a general processor with enough memory to hold a language model, where you can store the weights at any width and unpack them as they're read, so there the width really is a decision.
 
-On a device of that second kind the binding constraint is physical. Every weight has to be held in memory, and every weight has to be read out of memory to produce each token, meaning each chunk of text roughly the size of a word-piece. So what the hardware limits is bytes, and a byte does not care whether it is spent on another parameter or on more precision for a parameter you already have.
+On a device like that the limit is physical, because every weight has to sit in memory and be read out again for every token the model produces. A token is a chunk of text about the size of a word-piece. So what the hardware actually limits is bytes, and a byte doesn't care whether you spend it on another parameter or on more precision for one you already have.
 
-That is the whole reframing. Parameter count and numerical precision look like two independent decisions and are not: they are two ways of spending one fixed allowance. A 13B model at four bits and a 7B model at eight bits occupy almost exactly the same memory, so the choice between them comes down to which one spends the same bytes better.
+Let's say you're packing for a flight with a weight limit, where the airline only weighs the bag and doesn't care if it holds more clothes or fewer, better ones. Parameter count and precision work the same way, as two ways of spending one fixed allowance. A model with 13 billion parameters at four bits and one with 7 billion at eight bits take almost exactly the same memory, so the question is which one spends it better.
 
 ![A device limits bytes held and bytes read, so a 13B model at four bits and a 7B model at eight bits spend the same seven gigabytes.](/diagrams/4bit-scaling-law-1.svg)
 
-*Where the constraint comes from, the two ways of meeting it, and the question that leaves. The same seven gigabytes buys either more weights or more precision per weight. Nothing moves in this picture because neither route is yet the answer.*
+*Where the limit comes from, the two ways of meeting it, and the question that's left. The same seven gigabytes buys either more weights or more precision per weight, and nothing moves here because neither route is the answer yet.*
 
-## Somebody ran the experiment properly
+## Dettmers and Zettlemoyer ran the experiment properly
 
-Dettmers and Zettlemoyer measured this at a scale that settles the argument. Roughly 35,000 runs, across model families from 19 million to 176 billion parameters, sweeping precision from 16 bits down to 3.
+The paper that settled this for me is by Dettmers and Zettlemoyer, who ran the experiment properly and at a scale that ends the argument. They did roughly 35,000 runs across model families from 19 million to 176 billion parameters, and swept the precision from 16 bits all the way down to 3.
 
-They were not asking which precision is most accurate. That question has an obvious and useless answer: more bits are always at least as good, if you ignore what they cost. They asked instead which precision gives the most **accuracy per bit stored**, which is the question a fixed budget actually poses.
+What I liked is that they didn't ask which precision is the most accurate, because more bits are always at least as good if you ignore what they cost. They asked which precision gives the most **accuracy per bit stored**, which is the question a fixed budget actually puts to you.
 
-The answer was four bits, almost everywhere. At a fixed total bit budget, four-bit weights beat both eight-bit and sixteen-bit on zero-shot accuracy across nearly every scale they tested. Zero-shot here means the model is evaluated with no examples given in the prompt.
+The answer was four bits almost everywhere, since at a fixed total bit budget four-bit weights beat both eight-bit and sixteen-bit on zero-shot accuracy at nearly every scale they tested. Zero-shot means the model gets no examples in the prompt before it's scored.
 
 ## Below four bits the trade reverses
 
-At three bits the relationship inverts. The accuracy lost per weight grows faster than the extra capacity bought by the bits you saved, so a larger model at three bits performs worse than a smaller one at four.
+At three bits it flips, because the accuracy lost per weight grows faster than the capacity the saved bits buy. So a bigger model at three bits does worse than a smaller one at four, which puts a floor under the whole argument.
 
-That puts a floor under the argument. The curve has an optimum at four bits, and going lower makes the trade worse. Compression has a point where it stops paying, and the measurement locates it.
+The curve peaks at four bits and going lower only makes the trade worse. For me this is the most useful part of the paper, because it shows that compression has a point where it stops paying and tells you exactly where that point is.
 
 ![Across roughly 35,000 runs from 19 million to 176 billion parameters, four-bit weights give the most accuracy per bit stored, and below four bits the trade reverses.](/diagrams/4bit-scaling-law-2.svg)
 
-*Why the measurement had to be per bit, what thirty-five thousand runs found, and where the finding stops. Four bits is a peak: below it, the accuracy lost per weight grows faster than the capacity the saved bits buy.*
+*Why the measurement had to be per bit, what thirty-five thousand runs found, and where the finding stops. Four bits is a peak, and below it the accuracy lost per weight grows faster than the capacity the saved bits buy.*
 
-## The scheme matters as much as the width
+## The format matters as much as the bit width
 
-Two formats both described as four-bit can differ substantially in the accuracy they preserve, because they differ in block size and in how the scaling factors are stored.
+Then there's the format, since two formats that are both called four-bit can keep quite different amounts of accuracy, depending on their block size and how they store the scaling factors.
 
-A four-bit format does not store a plain four-bit number per weight. It stores a group of weights together with a shared scale, and the size of that group and the precision of that scale are design choices. A format that packs 32 weights with one 16-bit scale spends 4.5 bits per weight, not 4. A format using a finer block structure spends nearer 4.85 and keeps noticeably more accuracy.
+A four-bit format doesn't store a plain four-bit number for each weight. It stores a group of weights together with one shared scale, and the size of that group and the precision of that scale are both design choices. So a format that packs 32 weights with one 16-bit scale spends 4.5 bits per weight and not 4, while a format with a finer block structure spends nearer 4.85 and keeps noticeably more accuracy.
 
-So "four-bit" names a family of schemes rather than one scheme, and two of them can sit half a bit apart in what they actually spend. When a result is quoted without the format alongside it, the number is close to meaningless.
+So for me "four-bit" names a family of schemes that can sit half a bit apart in what they actually spend. When someone quotes a four-bit result without the format next to it, the number is close to meaningless.
 
-## Accuracy is not latency, and the two get conflated
+## Accuracy is not speed, and the two get mixed up
 
-The study measured accuracy under a memory budget. Speed is a separate question with a separate answer.
+The study measured accuracy under a memory budget, and speed is a separate question with its own answer.
 
-Producing one token requires reading every weight out of memory. Memory bandwidth is how fast that data reaches the chip, so throughput is roughly memory bandwidth divided by bytes read per token. Halving the bits roughly doubles that ceiling. The effect is real, it is simply not what this result is about, and the two get run together constantly in discussions of quantisation.
+To produce one token the chip reads every weight out of memory, and memory bandwidth is how fast that data reaches the chip. So throughput is roughly memory bandwidth divided by the bytes read per token, and halving the bits roughly doubles that ceiling. The effect is real, but this result doesn't measure it, and people mix the two up all the time when they talk about quantization. It's like a lighter suitcase being both under the limit and quicker to carry, which are two different wins from the same change.
 
 ![Fewer bits means both a smaller footprint, which is what the scaling law measured, and fewer bytes read per token, which is a separate bandwidth effect. Both improve at once, which is why they get conflated.](/diagrams/4bit-scaling-law-3.svg)
 
-*Why the two effects get confused, which one this article is about, and the error that follows. The scaling law measured accuracy per bit. Memory bandwidth is separate arithmetic with its own answer, taken apart in part five.*
+*Why the two effects get confused, which one this article is about, and the mistake that follows. The scaling law measured accuracy per bit, and memory bandwidth is separate arithmetic with its own answer, which part five takes apart.*
 
-## What this changes in practice
+## Take the largest model that fits at four bits
 
-When memory is the binding constraint, and on a device it almost always is, the first move is to take the largest model that fits at four bits.
+When memory is the limit, and on a device it almost always is, I'd start by taking the largest model that fits at four bits. The usual instinct is to pick a parameter count first and quantize if it doesn't fit, but the measurement says to fix the budget first and let it choose the parameter count for you.
 
-That inverts the usual instinct, which is to choose a parameter count first and then quantise if the result does not fit. The measurement says to fix the budget first and let the budget choose the parameter count for you.
+There's one case where this runs out, which is when the largest model that fits at four bits is still too big. Then I'd go to a smaller model family at four bits, or use a shorter context window to free memory without touching the weights at all. Three bits is the one direction the measurement rules out.
 
-There is one case where this advice runs out. If the largest model that fits at four bits is still too large, the answer is a smaller model family at four bits, or a shorter context window, which frees memory without touching the weights at all. Three bits is the direction the measurement rules out.
-
-Two things follow for anyone deploying this. Record the exact quantisation format alongside any accuracy figure, because the format carries as much of the result as the bit count does. And measure accuracy after conversion on a held-out set, meaning data kept back and used only for scoring, because the conversion step is where the number moved and it is the step most often run with a default setting and no check afterwards.
+Two things follow for anyone deploying this. Record the exact quantization format next to any accuracy figure, because the format carries as much of the result as the bit count does. Then measure accuracy after conversion on a held-out set, meaning data you kept back only for scoring. Conversion is where the number moved, and it's the step people most often run with a default setting and never check.
 `,
 
   references: [

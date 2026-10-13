@@ -1,7 +1,7 @@
 const post = {
   id:        4,
   slug:      'signaldock-mqtt-iot',
-  title:     'SignalDock: Containerised MQTT Messaging with Docker',
+  title:     'SignalDock: Containerized MQTT Messaging with Docker',
   category:  'project',
   iconKey:   'Radio',
   color:     '#a855f7',
@@ -9,32 +9,35 @@ const post = {
   readTime:  '10 min',
   tags:      ['MQTT', 'Docker', 'IoT', 'Python', 'Mosquitto', 'Pub-Sub'],
   githubUrl: 'https://github.com/Nishan052/SignalDock',
-  excerpt:   'A modular, Docker-compose-based MQTT system demonstrating reliable publish-subscribe messaging between containerised IoT clients via a centralised Mosquitto broker.',
+  excerpt:   'A Docker Compose setup I built where MQTT clients on two different networks talk to each other through one Mosquitto broker.',
 
   content: `
-## Overview
+## What SignalDock is
 
-SignalDock is a lightweight IoT messaging sandbox built on the MQTT protocol, the de facto standard for machine-to-machine communication in IoT environments. The project containerises a complete publish-subscribe topology using Docker, making it fully portable and reproducible on any machine with Docker installed.
-
----
-
-## What Problem Does It Solve?
-
-IoT systems often involve heterogeneous devices (sensors, actuators, edge computers) that must communicate efficiently over low-bandwidth, high-latency networks. REST APIs are too heavy; WebSockets are too stateful. MQTT's lightweight pub-sub model is the industry standard answer.
+For my master's I built SignalDock, a small IoT messaging sandbox on MQTT, the de facto standard for machine-to-machine communication in IoT. The whole publish-subscribe setup runs in Docker, so it's portable and runs the same way on any machine with Docker.
 
 ---
 
-## System Architecture
+## The problem it solves
+
+IoT systems mix different devices like sensors, actuators and edge computers, which all have to talk efficiently over low-bandwidth, high-latency networks. For that, REST APIs are too heavy and WebSockets keep too much state, so MQTT's lightweight pub-sub model is the industry standard answer.
+
+---
+
+## System architecture
 
 \`\`\`mermaid
 flowchart TD
     subgraph mqtt-net
-        B[Mosquitto Broker\nPort 1883]
-        CA[Client Alpha\nPython MQTT Client]
+        B[Mosquitto Broker
+Port 1883]
+        CA[Client Alpha
+Python MQTT Client]
         B <--> CA
     end
     subgraph external-net
-        CB[Client Bravo\nConnects via host IP]
+        CB[Client Bravo
+Connects via host IP]
     end
     CB -- "TCP :1883" --> B
     P[mosquitto_pub CLI] -- "publish common/topic" --> B
@@ -43,25 +46,25 @@ flowchart TD
 
 ---
 
-## Key Components
+## Key components
 
-### Mosquitto Broker
-The Eclipse Mosquitto broker is the message hub. All clients connect to it and publish/subscribe to named topics (e.g. \`common/topic\`). The broker is stateless per message: it routes messages and does not store them.
+### Mosquitto broker
+The Eclipse Mosquitto broker is the message hub, so every client connects to it and publishes or subscribes to named topics like \`common/topic\`. It's stateless per message, a bit like a sorting desk at a post office, since it routes each message on and doesn't keep it.
 
-### Client Alpha (Internal Network)
-Client Alpha connects via Docker's internal \`mqtt-net\` network, using the broker's container hostname directly. This simulates an on-premises edge device on the same local network as the broker.
+### Client Alpha on the internal network
+Client Alpha connects through Docker's internal \`mqtt-net\` network using the broker's container hostname, which simulates an on-premises edge device on the broker's local network.
 
-### Client Bravo (External Network)
-Client Bravo connects via the host machine's IP address, simulating a remote device reaching the broker over an external network.
+### Client Bravo on the external network
+Client Bravo connects through the host machine's IP address instead, which simulates a remote device reaching the broker over an external network.
 
 ---
 
-## Design Decisions
+## Design decisions
 
-### Why Docker Compose?
-Docker Compose lets the entire topology (broker + multiple clients) be defined declaratively in a single YAML file and brought up with one command. This eliminates environment-specific configuration drift.
+### Docker Compose
+Docker Compose describes the whole setup, the broker and all the clients, in one YAML file that comes up with one command, so the configuration can't drift between machines.
 
-### Why MQTT over REST/WebSocket?
+### MQTT over REST and WebSocket
 | Feature | MQTT | REST | WebSocket |
 |---------|------|------|-----------|
 | Overhead | < 2 bytes header | KB+ per request | Medium |
@@ -71,7 +74,7 @@ Docker Compose lets the entire topology (broker + multiple clients) be defined d
 
 ---
 
-## Message Flow
+## Message flow
 
 \`\`\`mermaid
 sequenceDiagram
@@ -91,7 +94,7 @@ sequenceDiagram
 
 ---
 
-## How to Recreate
+## How to recreate it
 
 \`\`\`bash
 git clone https://github.com/Nishan052/SignalDock && cd SignalDock

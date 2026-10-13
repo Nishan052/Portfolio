@@ -13,7 +13,7 @@
  *   title      — string   Full display title
  *   category   — string   'project' | 'research' | 'news'
  *   iconKey    — string   Icon key used for the post icon (e.g. 'Brain', 'Python')
- *   color      — string   Hex accent colour e.g. '#6366f1'
+ *   color      — string   Hex accent color e.g. '#6366f1'
  *   date       — string   ISO date e.g. '2026-03-08'  ← controls sort order
  *   readTime   — string   e.g. '10 min'
  *   tags       — string[] e.g. ['AI', 'RAG']

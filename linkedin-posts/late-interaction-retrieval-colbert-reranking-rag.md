@@ -1,19 +1,20 @@
 # LinkedIn Post: Late interaction and reranking: where single-vector RAG falls short
 
+Status: explainer
 Source: src/data/blogs/late-interaction-retrieval-colbert-reranking-rag.js
-Date drafted: 2026-07-11
+Date drafted: 2026-07-11, rewritten in Nishan's voice 2026-10-13
 
 ---
 
-A RAG system can retrieve a chunk that looks related to the query and still miss the answer. The cause is retrieval, and it comes from how most vector search works.
+A retrieval augmented generation (RAG) system can find a chunk that looks related to the question and still miss the answer, and I ran into this with my own chatbot.
 
-Standard dense retrieval collapses a whole passage into one embedding. A 200-word chunk covers several distinct facts, and averaging them into a single point buries the one fact a specific query needs. Two passages can sit close together in embedding space while only one actually contains the answer.
+Part of the reason is how most vector search works. Standard dense retrieval squeezes a whole passage into one embedding, so a 200-word chunk that covers several facts gets averaged into a single point, and the one fact a question needs gets buried.
 
-Late interaction fixes this by comparing at the token level instead. ColBERT encodes every query token and every document token separately, then scores relevance with MaxSim: each query token finds its best match anywhere in the document before the scores get summed. The exact phrase a query needs can now stand out, instead of getting diluted by the rest of the passage.
+Late interaction fixes this by comparing word by word instead. ColBERT encodes every word of the question and the document separately and scores them with MaxSim, so the exact phrase a question needs can stand out.
 
-Most teams do not need to rebuild their whole index to benefit from this. A two-stage pipeline, fast vector recall followed by a reranker on the top candidates, captures most of the same gain far more cheaply. ColPali pushes the same idea further, applying late interaction directly to document page images so tables and layout do not have to survive a text parser first.
+You don't have to rebuild your whole index to get most of this, though. A two-stage setup, with fast vector search first and a reranker on the top candidates, gets most of the same gain far more cheaply, and ColPali takes the idea further by working on page images.
 
-If your RAG system retrieves confidently but answers wrong, check recall before you touch the prompt.
+For me the lesson is simple: when a RAG system answers confidently and gets it wrong, check retrieval before you touch the prompt.
 
 Full breakdown here: https://nishanpoojary.com/blogs/late-interaction-retrieval-colbert-reranking-rag
 

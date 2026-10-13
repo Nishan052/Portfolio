@@ -6,19 +6,17 @@ Evidence: Liu et al., Lost in the Middle, TACL 2024, arXiv:2307.03172
 Date: 2026-09-06
 
 ---
-Your search found the right document. The model still got the answer wrong.
+When your search step finds the right document, the model can still get the answer wrong just because of where that document sits in the text you hand it.
 
-Liu and colleagues measured this. They put the correct document first in the text handed to the model, and accuracy was high.
+Liu and colleagues measured this by putting the correct document first in the model's input, and accuracy was high. Then they moved the same document into the middle, and accuracy fell by more than twenty points even though the search hadn't changed at all.
 
-They put the same document in the middle, and accuracy fell by more than twenty points. The search did not change. Only the position did.
+The shape is a U, a bit like how most of us read a long email thread. The start and the end get read properly and the middle gets skimmed, and it isn't a fault in one model, since a longer input only makes that middle bigger.
 
-The shape is a U. Models read the start and the end of what you give them. They skim the middle. This is not a fault in one model, and a longer input makes the dead zone bigger, not smaller.
+So for me the ranker is doing half the job. It sorts your chunks best first and hands them over in that order, which puts your second best chunk right where the model is least likely to read it.
 
-So your ranker is doing half the job. It sorts your chunks best first, then hands them over in that order. That puts your second best chunk exactly where the model is least likely to read it.
+The fix is to rank them and then reorder, with the best at the edges and the weakest in the middle. I'd send fewer while you're at it, because twenty average chunks bury the good one deeper.
 
-The fix is not better search. Rank them, then reorder. Best at the edges, weakest in the middle. Send fewer while you are at it, because twenty average chunks bury the good one deeper.
-
-And measure position, not just whether the answer was in there. Knowing it was in the text does not mean the model ever looked at it.
+I'd also measure where the answer sat as well as whether it was in there, since knowing it was in the text doesn't mean the model ever looked at it.
 
 Paper: https://arxiv.org/abs/2307.03172
 

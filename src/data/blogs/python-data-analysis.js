@@ -1,7 +1,7 @@
 const post = {
   id:        2,
   slug:      'python-data-analysis',
-  title:     'Python Data Analysis: EDA, Visualisation & Statistical Inference',
+  title:     'Python Data Analysis: EDA, Visualization & Statistical Inference',
   category:  'project',
   iconKey:   'Python',
   color:     '#ec4899',
@@ -9,82 +9,95 @@ const post = {
   readTime:  '8 min',
   tags:      ['Python', 'Pandas', 'Matplotlib', 'Seaborn', 'NumPy', 'Jupyter', 'EDA'],
   githubUrl: 'https://github.com/Nishan052/python',
-  excerpt:   'A collection of Jupyter notebooks covering the full exploratory data analysis workflow: data cleaning, statistical summarisation, and publication-quality visualisation with Pandas, Matplotlib, and Seaborn.',
+  excerpt:   'A set of Jupyter notebooks where I go through exploratory data analysis step by step, from cleaning the data to plotting it with Seaborn.',
 
   content: `
-## Overview
+## Understanding the data first
 
-Exploratory Data Analysis (EDA) is the foundation of every data science project. Before any model is trained, the data must be understood: its shape, distributions, missing values, outliers, and relationships between variables.
+For me exploratory data analysis (EDA) is where every data science project starts. Before training any model you need to know the data's shape, distributions, missing values, outliers and how the variables relate.
 
 ---
 
-## The EDA Workflow
+## The EDA workflow
 
 \`\`\`mermaid
 flowchart TD
-    A[Raw Dataset\nCSV or Excel or SQL] --> B[Load with Pandas]
-    B --> C[Structural Inspection\n.info .dtypes .shape]
-    C --> D[Missing Value Analysis\n.isnull heatmaps]
+    A[Raw Dataset
+CSV or Excel or SQL] --> B[Load with Pandas]
+    B --> C[Structural Inspection
+.info .dtypes .shape]
+    C --> D[Missing Value Analysis
+.isnull heatmaps]
     D --> E{Impute or Drop?}
-    E --> F[Distribution Analysis\nHistograms Box plots]
-    F --> G[Correlation Analysis\nheatmaps pair plots]
-    G --> H[Statistical Tests\nt-test chi-squared]
-    H --> I[Feature Engineering\nEncode Scale Derive]
-    I --> J[Summary and Insights\nMarkdown cells in Jupyter]
+    E --> F[Distribution Analysis
+Histograms Box plots]
+    F --> G[Correlation Analysis
+heatmaps pair plots]
+    G --> H[Statistical Tests
+t-test chi-squared]
+    H --> I[Feature Engineering
+Encode Scale Derive]
+    I --> J[Summary and Insights
+Markdown cells in Jupyter]
 \`\`\`
 
 ---
 
-## Core Libraries
+## Core libraries
 
 ### Pandas for data manipulation
-Pandas provides the \`DataFrame\`, a two-dimensional, labelled data structure that is the lingua franca of Python data science. Key operations: filtering, groupby aggregation, merge, pivot, and time-series resampling.
+Pandas gives you the \`DataFrame\`, a two-dimensional labeled data structure that's the common language of Python data science. The main operations are filtering, groupby aggregation, merge, pivot and time series resampling.
 
 ### NumPy as the numerical foundation
-NumPy underpins Pandas, Matplotlib, and scikit-learn. Direct NumPy operations are 10–100× faster than Python loops on array data due to vectorised C-level operations.
+NumPy sits under Pandas, Matplotlib and scikit-learn, and its operations run 10–100× faster than Python loops on arrays, because they're vectorized in C.
 
-### Matplotlib and Seaborn for visualisation
+### Matplotlib and Seaborn for visualization
 
 \`\`\`mermaid
 flowchart LR
-    A[Matplotlib\nlow-level API\nprecise control] --> C[Seaborn\nhigh-level API\nstatistical plots]
-    B[Pandas .plot\nconvenience wrapper] --> A
+    A[Matplotlib
+low-level API
+precise control] --> C[Seaborn
+high-level API
+statistical plots]
+    B[Pandas .plot
+convenience wrapper] --> A
 \`\`\`
 
-Seaborn builds on Matplotlib, providing statistical visualisations with minimal boilerplate. It integrates directly with DataFrames.
+Seaborn builds on Matplotlib, so you get statistical plots straight from DataFrames with very little boilerplate.
 
 ---
 
-## Key Analyses Demonstrated
+## Analyses in the notebooks
 
-### 1. Missing Value Heatmap
-A heatmap reveals whether missingness is random (scattered) or systematic (whole columns/rows), which decides the imputation strategy.
+### 1. Missing value heatmap
+A heatmap shows whether missing values are scattered at random or fill whole columns or rows, and that decides the imputation strategy.
 
-### 2. Distribution Analysis
-Histograms reveal skewness, bimodality, and outliers. Box plots compare distributions across groups and highlight outliers via the IQR method.
+### 2. Distribution analysis
+Histograms show skewness, bimodality and outliers, while box plots compare groups and flag outliers with the IQR method.
 
-### 3. Correlation Heatmap
-Correlation matrices surface multicollinearity before model training. Two highly correlated features add redundancy, not signal.
+### 3. Correlation heatmap
+A correlation matrix shows multicollinearity before you train, since two highly correlated features mostly repeat each other.
 
-### 4. Pair Plot for Multivariate Relationships
-Seaborn pairplots show all pairwise scatter plots simultaneously, coloured by a target variable, revealing separability at a glance.
-
----
-
-## Design Decisions
-
-### Why Jupyter Notebooks?
-Notebooks interleave code, output, and markdown narrative, which makes analysis reproducible and easy to share. Each cell is independently executable, enabling iterative exploration.
-
-### Why Seaborn over raw Matplotlib?
-Seaborn reduces 15-line Matplotlib plots to 2-line calls for common statistical charts. Its defaults are publication-quality. Matplotlib is reserved for custom layouts that Seaborn cannot express.
-
-### Why GroupBy before Modelling?
-Understanding group-level statistics often surfaces the most actionable insights, and reveals whether a global model makes sense or whether subgroup models are needed.
+### 4. Pair plot for multivariate relationships
+Seaborn's pairplot draws every pairwise scatter plot at once, colored by a target variable, showing at a glance whether the groups separate.
 
 ---
 
-## How to Recreate
+## Design decisions
+
+### Jupyter notebooks
+Notebooks mix code, output and markdown notes, which makes the analysis reproducible and easy to share. Each cell runs on its own, so you can explore step by step.
+
+### Seaborn over raw Matplotlib
+Seaborn turns a 15-line Matplotlib plot into a 2-line call for common statistical charts, and its defaults are ready to publish. I'd only use Matplotlib for custom layouts that Seaborn can't express.
+
+### GroupBy before modeling
+Statistics by group often give the most useful findings, and they show early whether one global model makes sense or each subgroup needs its own.
+
+---
+
+## How to recreate it
 
 \`\`\`bash
 python3 -m venv .venv && source .venv/bin/activate

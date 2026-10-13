@@ -1,7 +1,7 @@
 const post = {
   id:        10,
   slug:      'rag-page-indexing-chunking',
-  title:     'Chunking Strategies for RAG: Why Page-Level Indexing Changes Everything',
+  title:     'Chunking strategies for RAG: why page-level indexing keeps the context',
   category:  'research',
   iconKey:   'Brain',
   color:     '#8b5cf6',
@@ -10,153 +10,163 @@ const post = {
   part:      4,
   readTime:  '14 min',
   tags:      ['RAG', 'Chunking', 'Vector Search', 'Page Indexing', 'LLM', 'Production', 'Information Retrieval'],
-  excerpt:   'Most RAG systems fail silently because they chunk documents wrong. Paragraph level chunks lose context. Token level chunks are too specific. Page level indexing hits the sweet spot: here is why, and how to implement it.',
+  excerpt:   'When I built my RAG chatbot, the right answer was often in the database and still didn\'t come back, and the fix was how I chunked the documents.',
 
   content: `
 ## The Chunking Problem
 
-Your RAG system retrieves the wrong information. Not catastrophically wrong: it finds *something* related to the query. But it finds the wrong *part* of the document.
+When I built the RAG chatbot for my portfolio, many wrong answers had nothing to do with the model, because the right answer was in my database and search only found something related to it.
 
-A user asks: "What is the company's return policy on defective products?"
+Let's say a user asks, "What is the company's return policy on defective products?" The system finds "Products can be returned within 30 days." and misses "Defective products can be returned within 90 days without questions asked." So the LLM answers with the general policy, which for me is worse than a hallucination because it sounds confident.
 
-Your system finds: "Products can be returned within 30 days."
-
-But it misses: "Defective products can be returned within 90 days without questions asked."
-
-The difference matters. Your LLM answers with the general policy, not the specific case. The user gets an incorrect answer grounded in retrieved text. This is worse than hallucination: it's confident wrong information.
-
-The root cause is not your retrieval algorithm. It's how you chunked the document in the first place.
+What fixed it for me was changing how the documents were chunked, and these are the three approaches I looked at.
 
 ## Three Approaches to Chunking
 
 ### Approach 1: Paragraph-Level Chunking (Too Coarse)
 
-The naive approach: split documents into paragraphs, embed each one, search across paragraphs.
+The simplest approach is to split documents into paragraphs, embed each one and search across all of them.
 
 \`\`\`mermaid
 graph TD
-    DOC["Complete document:\n<br/>400 pages<br/>10,000 paragraphs"]
+    DOC["Complete document:
+<br/>400 pages<br/>10,000 paragraphs"]
     
-    SPLIT["Split by paragraph boundary\n(blank lines, newlines)"]
+    SPLIT["Split by paragraph boundary
+(blank lines, newlines)"]
     
-    CHUNKS["Chunks:\n200 words each\n10,000 chunks total"]
+    CHUNKS["Chunks:
+200 words each
+10,000 chunks total"]
     
-    EMBED["Embed each chunk\nvector dimension: 1536"]
+    EMBED["Embed each chunk
+vector dimension: 1536"]
     
-    INDEX["Index in vector DB\n10,000 vectors"]
+    INDEX["Index in vector DB
+10,000 vectors"]
     
     SEARCH["User query comes in"]
     
-    RETRIEVE["Find top 10 most similar\nparagraphs"]
+    RETRIEVE["Find top 10 most similar
+paragraphs"]
     
     DOC --> SPLIT --> CHUNKS --> EMBED --> INDEX --> SEARCH --> RETRIEVE
     
     style RETRIEVE fill:#10b981,color:#fff
 \`\`\`
 
-The problem:
-
-A 10 page policy document might have:
+Let's say a 10 page policy document looks like this:
 * Pages 1 to 2: General return policy (5 paragraphs)
 * Pages 3 to 4: Return process steps (8 paragraphs)
 * Pages 5 to 6: Exceptions (12 paragraphs)
 * Pages 7 to 8: Timeline specifics (6 paragraphs)
 * Pages 9 to 10: FAQ (15 paragraphs)
 
-When you search for "defective electronics", you might retrieve:
+When you search for "defective electronics", you might get back:
 * One paragraph about the general 30 day window
 * One paragraph about the return form
 * One paragraph from FAQ
 
-But the full page on "Exceptions" (which contains the actual 90 day policy for defects) might not be in the top 10 because individual paragraphs were ranked against a paragraph level embedding, and no single paragraph in that section matched your query perfectly.
-
-The context is scattered across paragraphs, and you lose it.
+The page on "Exceptions", which has the actual 90 day policy for defects, might not even make the top 10, because every paragraph was ranked on its own and none of them matched closely enough. The context is scattered across paragraphs, and you lose it.
 
 ### Approach 2: Token Level Chunking (Too Fine)
 
-The over engineering approach: split by fixed token count (e.g., 256 tokens).
+The opposite approach splits by a fixed token count, for example 256 tokens, and for me it over engineers the problem.
 
 \`\`\`mermaid
 graph TD
-    DOC["Complete document:\n10,000 paragraphs"]
+    DOC["Complete document:
+10,000 paragraphs"]
     
-    TOKENIZE["Split by token count\n(512 tokens = 350 words)"]
+    TOKENIZE["Split by token count
+(512 tokens = 350 words)"]
     
-    CHUNKS["Chunks:\n350 words each\n30,000 chunks total"]
+    CHUNKS["Chunks:
+350 words each
+30,000 chunks total"]
     
     EMBED["Embed each chunk"]
     
-    INDEX["Index in vector DB\n30,000 vectors\nStorage: massive"]
+    INDEX["Index in vector DB
+30,000 vectors
+Storage: massive"]
     
     SEARCH["User query"]
     
-    RETRIEVE["Find top 10 similar\ntoken chunks"]
+    RETRIEVE["Find top 10 similar
+token chunks"]
     
     DOC --> TOKENIZE --> CHUNKS --> EMBED --> INDEX --> SEARCH --> RETRIEVE
     
-    PROBLEM["Problem: Many chunks are\n'sentence fragments'\nNo meaningful context"]
+    PROBLEM["Problem: Many chunks are
+'sentence fragments'
+No meaningful context"]
     
     RETRIEVE --> PROBLEM
     
     style PROBLEM fill:#ef4444,color:#fff
 \`\`\`
 
-The problem:
-
-A 512 token chunk might be:
+A fixed size doesn't follow the meaning of the text, so a 512 token chunk might be:
 - The middle of one sentence
 - An entire paragraph
 - Half of another paragraph
 - Completely random contextual fragments
 
-You've created fragments, not meaningful units. A 512 token chunk about "electronics" from the middle of a longer explanation loses the introduction and conclusion that give it meaning.
-
-Storage also grows to 30,000 vectors instead of 10,000. Every vector costs storage and increases search latency.
+So you get fragments instead of meaningful units, and a 512 token chunk about "electronics" from the middle of an explanation loses the parts that gave it meaning. Storage also grows to 30,000 vectors instead of 10,000, and every vector adds cost and search latency.
 
 ### Approach 3: Page Level Chunking (The Sweet Spot)
 
-Split by logical page boundaries. Each chunk represents one complete page or section.
+The third option is to split by logical page boundaries, so each chunk is one complete page or section, and this is the one I'd start with.
 
 \`\`\`mermaid
 graph TD
-    DOC["Complete document:\n10,000 paragraphs\n100 pages"]
+    DOC["Complete document:
+10,000 paragraphs
+100 pages"]
     
-    SPLIT["Split by page boundary\nor major section headers\n(----, ##, ###)"]
+    SPLIT["Split by page boundary
+or major section headers
+(----, ##, ###)"]
     
-    CHUNKS["Chunks:\n100 pages\n1500 2500 words each\nMeaningful units"]
+    CHUNKS["Chunks:
+100 pages
+1500 2500 words each
+Meaningful units"]
     
-    EMBED["Embed each page\nVector: 1536 dimensions"]
+    EMBED["Embed each page
+Vector: 1536 dimensions"]
     
-    INDEX["Index in vector DB\n100 vectors\nManagebale size"]
+    INDEX["Index in vector DB
+100 vectors
+Managebale size"]
     
-    SEARCH["User query:\n'return policy<br/>defective products'"]
+    SEARCH["User query:
+'return policy<br/>defective products'"]
     
-    RETRIEVE["Find top K pages\nPage about exceptions\nPage about timelines\nFull context retrieved"]
+    RETRIEVE["Find top K pages
+Page about exceptions
+Page about timelines
+Full context retrieved"]
     
     DOC --> SPLIT --> CHUNKS --> EMBED --> INDEX --> SEARCH --> RETRIEVE
     
     style RETRIEVE fill:#10b981,color:#fff
 \`\`\`
 
-Why this works:
-
-Each chunk is a complete semantic unit. Page 6 is entirely about "Exceptions and Special Cases". When a user asks about defective product returns:
+This works because each chunk is a complete unit of meaning. Page 6, for example, is entirely about "Exceptions and Special Cases", so when a user asks about returning a defective product:
 - The exception page ranks highly (contains full context)
 - The timeline page ranks (contains duration info)
 - You get both pieces together
 
-Each chunk is a whole page, and a page keeps its context.
-
-Storage advantage: 100 vectors instead of 10,000 or 30,000, which means faster search and lower cost.
-
-Quality advantage: each vector is a meaningful unit.
+Each chunk is a whole page, so it keeps its context, and you only store 100 vectors instead of 10,000 or 30,000, which means faster search and lower cost.
 
 
 ## How Page Level Indexing Actually Works
 
 ### Step 1: Detecting Page Boundaries
 
-Documents come in different formats. Here's how you detect where pages actually are:
+Documents come in different formats, so first you work out where the pages are:
 
 \`\`\`mermaid
 graph TD
@@ -172,13 +182,21 @@ graph TD
     FORMAT --> MARKDOWN
     FORMAT --> HTML
     
-    PDF --> PDFLIB["Use PyPDF2 or pdfplumber\nExtract page breaks natively\n(PDF has explicit page info)"]
+    PDF --> PDFLIB["Use PyPDF2 or pdfplumber
+Extract page breaks natively
+(PDF has explicit page info)"]
     
-    WORD --> DOCXLIB["Use python docx\nRead section breaks\nRead explicit page markers"]
+    WORD --> DOCXLIB["Use python docx
+Read section breaks
+Read explicit page markers"]
     
-    MARKDOWN --> HEADERLIB["Split by H1/H2 headers\nor explicit section markers\n(Sections = pages)"]
+    MARKDOWN --> HEADERLIB["Split by H1/H2 headers
+or explicit section markers
+(Sections = pages)"]
     
-    HTML --> HTMLLIB["Split by <article> tags\nor <section> tags\nor H1 boundaries"]
+    HTML --> HTMLLIB["Split by <article> tags
+or <section> tags
+or H1 boundaries"]
     
     style PDFLIB fill:#10b981,color:#fff
     style DOCXLIB fill:#10b981,color:#fff
@@ -188,18 +206,22 @@ graph TD
 
 ### Step 2: Smart Chunking with Overlap
 
-Never chunk without overlap. If a sentence spans a page boundary, you need context from both pages.
+I'd never chunk without overlap, because if a sentence spans a page boundary you need the context from both pages.
 
 \`\`\`mermaid
 graph LR
     PAGE1["Page 1:<br/>...end of discussion"]
     PAGE2["Page 2 header:<br/>What is Return Policy?<br/>...policy details"]
     
-    CHUNK1["Chunk 1:<br/>(Full page 1)\nplus first 100 tokens of page 2"]
+    CHUNK1["Chunk 1:<br/>(Full page 1)
+plus first 100 tokens of page 2"]
     
-    CHUNK2["Chunk 2:<br/>(Last 100 tokens of page 1)\nplus Full page 2\nplus first 100 tokens of page 3"]
+    CHUNK2["Chunk 2:<br/>(Last 100 tokens of page 1)
+plus Full page 2
+plus first 100 tokens of page 3"]
     
-    CHUNK3["Chunk 3:<br/>(Last 100 tokens of page 2)\nplus Full page 3"]
+    CHUNK3["Chunk 3:<br/>(Last 100 tokens of page 2)
+plus Full page 3"]
     
     PAGE1 --> CHUNK1
     PAGE1 --> CHUNK2
@@ -212,14 +234,11 @@ graph LR
     style CHUNK3 fill:#3b82f6,color:#fff
 \`\`\`
 
-The overlap (100 tokens from adjacent pages) ensures:
-* Context is preserved at boundaries
-* If a sentence starts on page 2 and ends on page 3, both chunks capture it
-* Query might match on the overlap region, serving both pages
+The overlap of 100 tokens from the neighboring pages keeps the context at the boundaries. If a sentence starts on page 2 and ends on page 3, both chunks capture it.
 
 ### Step 3: Metadata Tagging
 
-Each chunk needs metadata so you can tell the LLM where it came from:
+Each chunk also needs metadata, so the LLM can tell where it came from:
 
 \`\`\`javascript
 // Example chunk structure
@@ -235,7 +254,7 @@ Each chunk needs metadata so you can tell the LLM where it came from:
 }
 \`\`\`
 
-The LLM uses this metadata in its context window:
+The LLM then sees that metadata in its context window, like this:
 \`\`\`
 SYSTEM: You retrieved the following documents:
 
@@ -247,10 +266,7 @@ Section: Exceptions and Special Cases
 Answer the user's question based ONLY on the retrieved document.
 \`\`\`
 
-The LLM now knows:
-- This came from page 5 (can cite it)
-- It's about exceptions (can reference the section)
-- This is the authoritative source (can trust it)
+So now the LLM knows the chunk came from page 5 and can cite it, and that it's about exceptions, so it can point to the section.
 
 ---
 
@@ -268,15 +284,13 @@ The LLM now knows:
 | Handles tables/images | No | No | Yes  |
 | Implementation complexity | Low | Low | Medium |
 
-When to use each:
-
-- Paragraph-level: Only if documents are very small (< 20 pages) OR documents are already pre-summarized
-- Token-level: never recommended. (The only reason to use it is if you don't understand your documents)
-- Page-level: Default choice for production RAG. Works for 95% of real-world documents
+Paragraph-level chunking only makes sense for very small documents (< 20 pages) or ones that are already pre-summarized, and token-level chunking I wouldn't recommend at all. Page-level is the default I'd pick for production RAG, since it works for 95% of real-world documents.
 
 ---
 
 ## Real Implementation: Python Example
+
+This is what it looks like in Python, from chunking a PDF by page to answering with page citations.
 
 \`\`\`python
 from pdfplumber import PDF
@@ -398,7 +412,7 @@ def retrieve_and_generate(query: str):
 
 ### Case 1: Very Long Pages
 
-If a document has pages with 5,000+ words (some research papers), break further:
+Some documents, research papers for example, have pages with 5,000+ words, and those need to be broken down further:
 
 \`\`\`mermaid
 graph TD
@@ -408,9 +422,11 @@ graph TD
     
     DECISION --> |No| USE["Use the page as is"]
     
-    DECISION --> |Yes| SUBHEAD["Split by subheadings\n(H2, H3 headers)"]
+    DECISION --> |Yes| SUBHEAD["Split by subheadings
+(H2, H3 headers)"]
     
-    SUBHEAD --> CHUNKS["Multiple chunks per page\nBut still tagged with page #"]
+    SUBHEAD --> CHUNKS["Multiple chunks per page
+But still tagged with page #"]
     
     style USE fill:#10b981,color:#fff
     style CHUNKS fill:#10b981,color:#fff
@@ -418,13 +434,13 @@ graph TD
 
 ### Case 2: Complex Documents (Tables, Images, Diagrams)
 
-PDFs with tables lose formatting in text extraction. The table structure gets flattened:
+PDFs with tables lose their formatting when you extract the text, so the table structure gets flattened like this:
 
 | Before (formatted) | After (text extraction) |
 |---------|---------|
 | ╔════════╦═════════╗<br/>║ Policy ║ Days    ║<br/>╠════════╬═════════╣<br/>║ Normal │ 30      ║<br/>║ Defect │ 90      ║<br/>╚════════╩═════════╝ | Policy Days Normal 30 Defect 90 |
 
-The formatting is destroyed. Solution:
+Once the formatting is gone it's hard to get back, so I'd extract the tables separately and keep them as markdown:
 
 \`\`\`python
 # Detect tables in PDF
@@ -445,71 +461,48 @@ for page in pdf.pages:
 
 ### Case 3: Documents With Figures and Diagrams
 
-Images can't be embedded as text. Two solutions:
-
-Option A: Use vision models (expensive, most accurate)
-
-Process: PDF image → GPT 4V → text description → embed with page → LLM answers with full context
-
-Option B: Provide figure captions (cheaper, acceptable quality)
+Images can't be embedded as text, so there are two ways to handle them. A vision model is expensive but the most accurate, because GPT 4V turns the image into a text description that gets embedded with the page. Figure captions are cheaper and give acceptable quality.
 
 ## Measuring Chunking Success
 
-You can't improve what you don't measure. Here's how to evaluate your chunking strategy:
+To know whether a chunking strategy works, I'd track three numbers on real test queries.
 
 ### Metric 1: Chunk Relevance (MRR@K)
 
-Mean Reciprocal Rank: where does the relevant chunk rank?
-
-Example query: "What's the defective product return timeline?"
-
-Results ranking:
+Mean reciprocal rank tells you where the relevant chunk ranks, so for the query "What's the defective product return timeline?" the results might come back like this:
 1.  General return policy (irrelevant)
 2.  Return shipping info (irrelevant)
 3.  Exceptions page (RELEVANT, rank 3)
 
-MRR score: 1/3 = 0.333
-
-Target: > 0.8 (relevant chunk in top 2)
+The relevant page is at rank 3, so the MRR score is 1/3 = 0.333, and the target is above 0.8, with the relevant chunk in the top 2.
 
 ### Metric 2: Coverage (% of test queries with relevant chunks)
 
-Run your 100 test queries. How many retrieve at least one relevant chunk?
-
-- Test size: 100 queries
-- Queries with relevant results: 92
-- Coverage: 92%
-
-Quality targets:
-- Bad: < 70%
-- Good: > 85%
-- Excellent: > 95%
+Coverage is the share of test queries that bring back at least one relevant chunk. If 92 of 100 test queries retrieve something relevant, coverage is 92%, and I'd read below 70% as bad, above 85% as good and above 95% as excellent.
 
 ### Metric 3: Token Efficiency
 
-Calculate whether your chunks are optimally sized:
-
-- Total document tokens: 500K
-- Total vector index: 150 vectors
-- Storage: 150 × 1536 dimensions = manageable
-- Tokens per chunk: 500K ÷ 150 = 3,333 tokens/chunk
-
-This is healthy: large enough for context preservation, small enough for relevance ranking.
+The last check is whether the chunks are a sensible size. With 500K document tokens in a 150 vector index, storage is 150 × 1536 dimensions, and each chunk holds about 500K ÷ 150 = 3,333 tokens, large enough to keep the context and small enough to rank well.
 
 ---
 
 ## The Complete Page Level RAG Pipeline
 
+Put together, the whole pipeline goes from a PDF arriving to an answer with citations going back to the user.
+
 \`\`\`mermaid
 graph TD
     A["1. INGEST<br/>PDF/DOC arrives"]
-    B["2. CHUNK<br/>Split by pages\nadd overlap"]
+    B["2. CHUNK<br/>Split by pages
+add overlap"]
     C["3. EMBED<br/>Convert to vectors"]
     D["4. INDEX<br/>Store in DB"]
     E["5. RETRIEVE<br/>User asks question"]
     F["6. RANK<br/>Find top K pages"]
-    G["7. CONTEXT<br/>Build prompt\ninclude metadata"]
-    H["8. GENERATE<br/>LLM creates answer\nwith citations"]
+    G["7. CONTEXT<br/>Build prompt
+include metadata"]
+    H["8. GENERATE<br/>LLM creates answer
+with citations"]
     I["9. SERVE<br/>Return to user"]
     
     A --> B --> C --> D
@@ -521,17 +514,9 @@ graph TD
     style I fill:#10b981,color:#fff
 \`\`\`
 
-## Key Takeaways
+## What I'd do with a new set of documents
 
-[YES] Page level chunking preserves context and hits the performance sweet spot
-[YES] Add overlap at boundaries to prevent losing information
-[YES] Tag metadata so LLM can cite sources
-[YES] Test on real queries using MRR and coverage metrics
-[YES] Adjust for edge cases (very long pages, tables, images)
-[NO] Don't use paragraph level for documents greater than 20 pages
-[NO] Don't use token level at all (storage explosion and poor relevance)
-
-Your RAG system is only as good as what it retrieves. Master chunking, and everything else gets better.`,
+If I were starting a new RAG system today, I'd chunk by page with overlap and metadata, and test on real queries with MRR and coverage before trusting it. I wouldn't use paragraph-level chunking past 20 pages, or token-level chunking at all, and for me the biggest lesson is that a RAG system is only as good as what it retrieves.`,
 
   references: [
     { text: 'Chunking Strategies for Semantic Search — Langchain Docs', url: 'https://python.langchain.com/docs/modules/data_connection/document_loaders/file_directory' },

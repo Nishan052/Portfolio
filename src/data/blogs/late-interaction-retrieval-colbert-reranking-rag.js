@@ -10,16 +10,16 @@ const post = {
   part:      14,
   readTime:  '13 min',
   tags:      ['RAG', 'Retrieval', 'ColBERT', 'Reranking', 'ColPali', 'VectorSearch'],
-  excerpt:   'Single-vector retrieval collapses a chunk into one point and loses token-level signal. Late interaction and reranking recover that lost recall.',
+  excerpt:   'Single-vector retrieval squeezes a chunk into one point and loses token-level detail, and late interaction and reranking win that recall back.',
 
   content: `
 ## One vector per chunk throws away most of the signal
 
-Most RAG systems retrieve by collapsing a whole passage into a single embedding, then ranking by cosine similarity. The earlier posts in this series tuned that path well: better embeddings, dimensionality reduction, and HNSW indexes that find nearest neighbors fast. Yet teams keep hitting the same wall. The index returns a chunk that looks related to the query but does not contain the answer.
+Most RAG systems retrieve by squeezing a whole passage into one embedding and then ranking by cosine similarity. The earlier posts in this series tuned that path with better embeddings, dimensionality reduction and HNSW indexes that find nearest neighbors fast. Even so, teams keep hitting the same wall, where the index returns a chunk that looks related to the query and doesn't contain the answer. I ran into this with my own chatbot too, where the right answer was sitting in the database and still didn't come back.
 
-The reason is structural. A passage of 200 words carries many distinct facts. Encoding it as one 768-dimension vector averages all of them into a single point. A query that matches one specific phrase in the chunk competes against the noise of everything else in that same vector. Two passages can sit close in embedding space while only one actually answers the question.
+Let me explain why it happens. A passage of 200 words carries many separate facts, and encoding it as one 768-dimension vector averages all of them into a single point. So a query that matches one specific phrase in the chunk has to compete with the noise of everything else in that vector, and two passages can sit close in embedding space while only one of them answers the question.
 
-This is a recall problem, not a model problem. The generator never sees the right chunk, so no amount of prompt engineering fixes it. Single-vector retrieval is a strong first pass. It is rarely a sufficient one.
+For me this is a recall problem more than a model problem, because the generator never sees the right chunk and no prompt engineering can fix that. Single-vector retrieval is a strong first pass, but it's rarely enough on its own.
 
 \`\`\`mermaid
 flowchart LR
@@ -32,13 +32,13 @@ flowchart LR
     Sim --> R[Ranked Chunks]
 \`\`\`
 
-The above flowchart shows standard dense retrieval. Both query and chunk are compressed to one vector each before any comparison happens, so token-level detail is gone before scoring begins.
+The flowchart above shows standard dense retrieval, where the query and the chunk are each compressed to one vector before any comparison, so token-level detail is gone before scoring begins.
 
 ## How late interaction keeps the detail
 
-Late interaction delays the comparison until after both sides are encoded at the token level. ColBERT, introduced by Khattab and Zaharia in 2020, encodes the query into one vector per token and the document into one vector per token. Instead of a single dot product, it scores relevance with a MaxSim operator: for each query token, find its highest similarity against any document token, then sum those maxima.
+Late interaction waits to compare until both sides have been encoded at the token level. ColBERT, introduced by Khattab and Zaharia in 2020, encodes the query into one vector per token and the document into one vector per token. Instead of a single dot product, it scores relevance with a MaxSim operator, which works like this: for each query token, find its highest similarity with any document token, and then add up those maximum scores.
 
-A single query term can now match the exact phrase it belongs to. With one vector per passage, it could only match the passage's averaged gist. A query about a specific drug interaction can light up the two tokens that name the drugs, even if the surrounding paragraph discusses many other topics.
+So a single query term can match the exact phrase it belongs to, instead of only the passage's averaged gist. Let's say a query is about a specific drug interaction. It can light up the two tokens that name the drugs, even if the paragraph around them talks about many other topics.
 
 \`\`\`mermaid
 flowchart TD
@@ -50,13 +50,13 @@ flowchart TD
     Sum --> S[Relevance Score]
 \`\`\`
 
-This diagram shows the MaxSim mechanic. Each query token keeps its own vector and finds its best match in the document, so precise term matches are not drowned out by the rest of the passage.
+This diagram shows how MaxSim works, where each query token keeps its own vector and finds its best match in the document, so precise term matches don't get drowned out by the rest of the passage.
 
-The cost is storage and compute. A passage that needed one vector now needs dozens. ColBERTv2, from Santhanam and colleagues in 2022, made this practical with residual compression and centroid-based encoding, cutting the index footprint by an order of magnitude while keeping the accuracy gains. That work moved late interaction from a research curiosity to something a team can run in production.
+The cost is storage and compute, since a passage that needed one vector now needs dozens. ColBERTv2, from Santhanam and colleagues in 2022, made this practical with residual compression and centroid-based encoding, which cut the index footprint by an order of magnitude while keeping the accuracy gains. That work moved late interaction from a research curiosity to something a team can run in production.
 
 ## Reranking is the pragmatic version of the same idea
 
-Most teams do not replace their vector index. They add a second stage. The first stage uses fast single-vector search to recall a wide candidate set, say the top 100. A slower, more accurate model then reranks those candidates and keeps the best 10. This two-stage pattern is the highest-return change most RAG systems can make, because recall and precision get optimized separately.
+Most teams keep their vector index and add a second stage instead of replacing it. The first stage uses fast single-vector search to recall a wide set of candidates, say the top 100, and then a slower, more accurate model reranks them and keeps the best 10. For me this two-stage pattern is the change with the highest return for most RAG systems, because recall and precision get optimized separately.
 
 \`\`\`mermaid
 flowchart LR
@@ -65,9 +65,9 @@ flowchart LR
     RR --> LLM[Generator]
 \`\`\`
 
-The diagram shows the two-stage pipeline. A cheap recall stage casts a wide net, then an expensive reranker reorders only the survivors before they reach the model.
+The diagram shows the two-stage pipeline, where a cheap recall stage casts a wide net and then an expensive reranker reorders only the survivors before they reach the model.
 
-Three reranker families dominate, and they trade accuracy against latency differently.
+Three reranker families come up most, and each trades accuracy against latency differently.
 
 | Approach | Scoring unit | Latency | Best for |
 |----------|--------------|---------|----------|
@@ -75,19 +75,19 @@ Three reranker families dominate, and they trade accuracy against latency differ
 | Cross-encoder | Full query-doc pair | Highest | Reranking small sets |
 | Late interaction | Token-level MaxSim | Medium | Recall and rerank |
 
-A cross-encoder reads the query and a candidate together in one forward pass, which is the most accurate option but cannot be precomputed, so it only scales to small candidate sets. Late interaction sits between the two. Document vectors are precomputed once at index time, and only the MaxSim scoring runs per query, so it can serve as both the recall stage and the reranker.
+A cross-encoder reads the query and a candidate together in one forward pass, which is the most accurate option, but it can't be precomputed, so it only scales to small candidate sets. When I benchmarked rerankers on my own blog, a small MiniLM cross-encoder reranked better and faster than the much larger Laya decision model. Late interaction sits between the two, because the document vectors are precomputed once at index time and only the MaxSim scoring runs per query, so it can serve as both the recall stage and the reranker.
 
 ## ColPali extends late interaction to document images
 
-A large share of enterprise content lives in PDFs full of tables, charts, and layout. Parsing those to clean text loses the structure that often holds the answer. ColPali, from Faysse and colleagues in 2024, applies late interaction directly to page images. A vision-language model produces multi-vector embeddings of the page, and the query still scores against them with MaxSim.
+A large share of company content lives in PDFs full of tables, charts and layout, and parsing those to clean text loses the structure that often holds the answer. ColPali, from Faysse and colleagues in 2024, applies late interaction directly to page images, where a vision-language model produces multi-vector embeddings of the page and the query still scores against them with MaxSim.
 
-This skips the brittle parse-then-chunk pipeline entirely. The retriever matches a query against the visual page, including its figures and table cells, rather than against a flattened text extraction that may have scrambled the columns. For document-heavy retrieval, this removes a whole class of silent failures where the parser, not the retriever, was the real problem.
+This skips the fragile parse-then-chunk pipeline completely, since the retriever matches the query against the visual page, including its figures and table cells, instead of a flattened text extraction that may have scrambled the columns. For document-heavy retrieval this removes a whole class of silent failures, where the real problem was the parser and the retriever got the blame.
 
-The momentum here is real. The first dedicated workshop on late interaction and multi-vector retrieval was accepted for ECIR 2026, a signal that token-level methods have moved into the information-retrieval mainstream.
+For me, the first dedicated workshop on late interaction and multi-vector retrieval being accepted for ECIR 2026 shows that token-level methods have reached mainstream information retrieval.
 
 ## When the extra cost is worth it
 
-Late interaction and reranking are not free, so apply them where single-vector search actually fails. Measure recall at your candidate-set size first. If the right chunk already appears in the top 100, the problem is ordering, and a reranker fixes it cheaply. If the right chunk is missing entirely, recall is the bottleneck, and late interaction earns its storage cost.
+Late interaction and reranking cost extra, so I'd use them only where single-vector search fails, starting by measuring recall at your candidate-set size. If the right chunk already shows up in the top 100, the problem is the ordering and a reranker fixes it cheaply. If the right chunk is missing completely, then recall is the bottleneck and late interaction earns its storage cost.
 
 \`\`\`mermaid
 flowchart TD
@@ -97,9 +97,9 @@ flowchart TD
     C -->|Flexible| E[Use late<br/>interaction]
 \`\`\`
 
-This decision tree separates the two failure modes. Ordering problems call for a reranker, missing-evidence problems call for richer retrieval, and a tight latency budget pushes you toward a cross-encoder on a small set.
+This decision tree separates the two failure modes, so ordering problems call for a reranker, missing-evidence problems call for richer retrieval, and a tight latency budget pushes you toward a cross-encoder on a small set.
 
-The practical path is incremental. Keep the fast single-vector index for recall. Add a cross-encoder reranker and measure the lift on your own queries before reaching for multi-vector storage. Move to full late interaction only when reranking a single-vector candidate set still leaves the right evidence out of reach. Each step costs more compute, so let your recall numbers, not the hype cycle, decide how far up the ladder you climb.
+I'd go one step at a time, keeping the fast single-vector index for recall, then adding a cross-encoder reranker and measuring the lift on your own queries before reaching for multi-vector storage. I'd only move to full late interaction when reranking a single-vector candidate set still leaves the right evidence out of reach. Each step costs more compute, so let your recall numbers decide how far up the ladder you climb, and not the hype cycle.
 `,
 
   references: [

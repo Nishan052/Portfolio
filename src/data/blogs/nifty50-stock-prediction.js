@@ -9,90 +9,98 @@ const post = {
   readTime:  '14 min',
   tags:      ['Python', 'LSTM', 'ARIMA', 'Time Series', 'Streamlit', 'TensorFlow'],
   githubUrl: 'https://github.com/Nishan052/Stock-Price-Prediction',
-  excerpt:   'A walk-forward one-step forecasting system for the NIFTY 50 index, comparing classical ARIMA against a deep learning LSTM model, with a live Streamlit GUI and CI pipeline.',
+  excerpt:   'For my master\'s, three of us forecast the NIFTY 50 one step ahead with ARIMA and an LSTM, tested walk-forward so no future data leaks in.',
 
   content: `
-## Overview
+## What we built
 
-This project implements a walk-forward one-step forecasting framework for the NIFTY 50 stock index, India's benchmark equity index comprising the 50 largest NSE-listed companies. It compares two different modelling approaches:
+For my master's, three of us built a walk-forward, one-step forecasting system for the NIFTY 50, India's benchmark equity index of the 50 largest NSE-listed companies. We compared two different ways of modeling it:
 
 - ARIMA (AutoRegressive Integrated Moving Average), a classical econometric model
-- LSTM (Long Short-Term Memory), a recurrent neural network capable of capturing non-linear dependencies
+- LSTM (Long Short-Term Memory), a recurrent neural network that can capture non-linear dependencies
 
-A live demo is available at [nifty50indexprediction.streamlit.app](https://nifty50indexprediction.streamlit.app/).
-
----
-
-## What Does It Solve?
-
-Financial time series are notoriously difficult to predict due to:
-- Non-stationarity (trends, seasonality)
-- Structural breaks (e.g. the COVID-19 crash)
-- High noise-to-signal ratio
-
-Classical ARIMA handles stationarity explicitly through differencing and can be automatically configured. LSTM, being a deep learning model, can theoretically learn arbitrary non-linear patterns. The core research question: *does added model complexity actually improve forecast accuracy for a real-world index?*
+The live demo is at [nifty50indexprediction.streamlit.app](https://nifty50indexprediction.streamlit.app/).
 
 ---
 
-## Architecture & Pipeline
+## Why it's hard to predict
+
+Financial time series are non-stationary with trends and seasonality, they have structural breaks like the COVID-19 crash, and there's a lot of noise compared to the signal. ARIMA handles stationarity directly through differencing and can be configured automatically, while an LSTM can in theory learn any non-linear pattern. So our question was whether that extra complexity actually improves accuracy on a real-world index.
+
+---
+
+## Architecture and pipeline
 
 \`\`\`mermaid
 flowchart TD
-    A[yfinance API\nNIFTY 50 2008–2024] --> B[dataHandler.py\nClean & Feature Engineering]
-    B --> C{Walk-Forward\nSplit}
-    C --> D[ARIMA\nautoArima order selection]
-    C --> E[LSTM\nTensorFlow / Keras]
-    D --> F[One-Step Forecast\nOpen & Close]
+    A[yfinance API
+NIFTY 50 2008–2024] --> B[dataHandler.py
+Clean & Feature Engineering]
+    B --> C{Walk-Forward
+Split}
+    C --> D[ARIMA
+autoArima order selection]
+    C --> E[LSTM
+TensorFlow / Keras]
+    D --> F[One-Step Forecast
+Open & Close]
     E --> F
-    F --> G[Evaluation\nRMSE · MAPE]
-    G --> H[Streamlit GUI\nVisualisation & Comparison]
-    H --> I[GitHub Actions CI\nautomated test suite]
+    F --> G[Evaluation
+RMSE · MAPE]
+    G --> H[Streamlit GUI
+Visualization & Comparison]
+    H --> I[GitHub Actions CI
+automated test suite]
 \`\`\`
 
 ---
 
-## Key Design Decisions
+## Design decisions
 
-### 1. Walk-Forward Validation (not train/test split)
+### 1. Walk-forward validation over a train/test split
 
-A simple 80/20 split would leak future information into the training distribution, a classic mistake in financial ML. Walk-forward validation simulates live deployment: the model is only ever trained on data it *would have seen* at prediction time.
+A simple 80/20 split would leak future information into training, a classic mistake in financial machine learning. It happened to us too, because at one point our results looked too good, and then I found future data leaking into the training window. Walk-forward validation works like live deployment, so the model only ever trains on data it *would have seen* at prediction time.
 
-### 2. COVID Dummy Variable
+### 2. COVID dummy variable
 
-A binary \`COVID_dummy\` column flags the March to June 2020 crash period. This prevents ARIMA from misidentifying the structural break as a permanent trend change and helps LSTM weight those samples appropriately during training.
+A binary \`COVID_dummy\` column flags the crash from March to June 2020, so ARIMA doesn't mistake that structural break for a permanent trend change, and the LSTM can weigh those samples correctly in training.
 
-### 3. AutoARIMA for Hyperparameter Selection
+### 3. AutoARIMA for hyperparameter selection
 
-Manually tuning (p, d, q) for every rolling window would be prohibitively slow. \`pmdarima.auto_arima\` runs the Akaike Information Criterion (AIC) search automatically on each window, so the pipeline stays fully automated.
+Tuning (p, d, q) by hand for every rolling window would be far too slow, so \`pmdarima.auto_arima\` runs the Akaike Information Criterion (AIC) search on each window automatically.
 
-### 4. Pretrained Model Caching (GUI)
+### 4. Pretrained model caching (GUI)
 
-Re-training LSTM from scratch on every GUI launch would take minutes. Pre-trained \`.keras\` model weights and \`.pkl\` ARIMA objects are stored in \`GUICode/models/\`, loaded at startup, and only retrained if the user uploads data beyond the model's training horizon.
+Training the LSTM from scratch on every GUI launch would take minutes, so the pretrained \`.keras\` weights and \`.pkl\` ARIMA objects sit in \`GUICode/models/\` and load at startup. They're only retrained if the user uploads data past the training horizon.
 
-### 5. Separate GUI Codebase
+### 5. A separate GUI codebase
 
-\`GUICode/\` is kept deliberately separate from \`Code/\` (the research pipeline). This reflects a separation of concerns: the GUI is a consumer of pre-computed artefacts, while the core pipeline is a reproducible research tool with its own test suite and CI.
+We kept \`GUICode/\` apart from \`Code/\`, the research pipeline, on purpose. For me it's a simple separation of concerns, since the GUI only uses artifacts computed beforehand, while the core pipeline is a reproducible research tool with its own tests and CI.
 
 ---
 
-## Model Architecture: LSTM
+## LSTM model architecture
 
 \`\`\`mermaid
 flowchart LR
-    A["Input\n(sequence, features)"] --> B["LSTM Layer 1\nhidden_size=64"]
+    A["Input
+(sequence, features)"] --> B["LSTM Layer 1
+hidden_size=64"]
     B --> C["Dropout 0.2"]
-    C --> D["LSTM Layer 2\nhidden_size=32"]
-    D --> E["Dense\n→ 1 (Open or Close)"]
+    C --> D["LSTM Layer 2
+hidden_size=32"]
+    D --> E["Dense
+→ 1 (Open or Close)"]
 \`\`\`
 
-- Input: Sliding window of the last *N* days of OHLC features + COVID dummy
+- Input: a sliding window of the last *N* days of OHLC features plus the COVID dummy
 - Loss: Mean Squared Error
-- Optimiser: Adam
-- Scaler: MinMaxScaler per target (Open / Close) stored separately to prevent data leakage
+- Optimizer: Adam
+- Scaler: a MinMaxScaler for each target (Open and Close), stored separately to prevent data leakage
 
 ---
 
-## Evaluation Results
+## Evaluation results
 
 | Model | Target | RMSE | MAPE |
 |-------|--------|------|------|
@@ -101,11 +109,11 @@ flowchart LR
 | ARIMA | Open   | Competitive | ~1.1% |
 | LSTM  | Open   | Best overall | ~0.85% |
 
-Neither model wins everywhere. ARIMA is more interpretable and faster, and LSTM edges ahead during volatile regimes.
+Neither model wins everywhere, because ARIMA is easier to interpret and faster, while the LSTM pulls ahead when the market is volatile.
 
 ---
 
-## How to Recreate
+## How to recreate it
 
 \`\`\`bash
 git clone https://github.com/Nishan052/Stock-Price-Prediction
@@ -118,9 +126,9 @@ cd GUICode && streamlit run stockPredictorGui.py
 
 ---
 
-## Continuous Integration
+## Continuous integration
 
-GitHub Actions (\`.github/workflows/ci.yml\`) runs the full \`pytest\` suite on every push using Python 3.10. This catches data-handling regressions and model interface changes before they reach the GUI.
+GitHub Actions (\`.github/workflows/ci.yml\`) runs the full \`pytest\` suite with Python 3.10 on every push, so data handling bugs and model interface changes get caught before they reach the GUI.
 `,
 
   references: [

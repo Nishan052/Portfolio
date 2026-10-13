@@ -190,8 +190,8 @@ Each blog post exports an object with:
 - Code words in backticks: `model.fit()`, `.tflite`, `pushState`
 
 **Lists**
-- Unordered lists (`-`): Use freely when listing 3 or more non-sequential items (features, properties, options)
-  - Preferred over dense prose run-on lists
+- Unordered lists (`-`): Use for reference material a reader will scan or follow, such as options, properties or steps
+  - When Nishan is thinking out loud ("how to chunk, what to chunk, which model to use"), keep the list in the sentence, the way he talks
   - Each item 1–2 sentences maximum
 - Ordered lists (`1.`, `2.`): Use for step-by-step guidance or priority ordering
   - Example: "Pipeline steps: 1. Load data, 2. Create model, 3. Train"
@@ -342,19 +342,26 @@ flowchart TD
 ## Writing Style & Tone
 
 **Voice & Tone (Detailed)**
-- **Friendly but authoritative**: Like colleague-to-colleague, not classroom lecture
-- **Direct**: Lead with the point, not background
-- **Human**: Contractions okay ("don't", "it's"), avoid overly casual tone
-- **Humble**: Acknowledge limitations, trade-offs, competing approaches
-- **Technical but accessible**: Define concepts, don't over-explain obvious terms
-- **Active voice**: Target 80%+ active voice
 
-**Tone Examples (Good)**
+**Every post must sound like Nishan talking.** This outranks every other style rule in this file. The
+full guide, with his own words to match, is `content/VOICE.md` in the private edge-agents repository
+(and `~/.claude/voice-samples.md` on his machine). Read it before writing or editing a post. The test is
+to read the draft aloud and ask whether he would say it like this to a colleague over coffee.
 
-- "Face verification is a **metric learning** problem, not a classification problem." (Direct, specific)
-- "This is cheaper than two separate models and the tasks are positively correlated." (Shows reasoning)
-- "Quantisation reduces 4× memory — critical for MCUs with 256 KB RAM." (Concrete benefit)
-- "When you deploy serverless on AWS Lambda, cold starts add 2–5 seconds." (Real scenario)
+- **Conversational, first person**: Like talking to a colleague, not a lecture and not a LinkedIn post. Contractions are fine
+- **Flowing sentences**: Thoughts joined with "and", "so", "then" and "since", the way he speaks, never runs of short punchy lines
+- **In the order it happened**: The heading carries the section's point, and the paragraphs tell what he did, what went wrong and what he learned, in order
+- **Sets up what's coming**: "My chatbot works like this:", "Let me explain this in really simple terms.", "Let's say..."
+- **Everyday analogies**: A technical idea explained the way he would explain it to a friend
+- **Humble and honest**: Says plainly what didn't work and lands on the lesson. No hype, no drama
+- **American English spelling** in every post, old ones included
+
+**Tone Examples (Good)**, in his voice
+
+- "When I built my chatbot, the right answer was often sitting in the database and search still didn't bring it back, so I started looking at how the documents were chunked." (What happened, in order)
+- "Let me explain face verification in simple terms, because it works differently from the photo tagging most people picture." (Sets up the explanation)
+- "Shrinking the weights to 8 bits cut the memory four times, which matters on a microcontroller with 256 KB of RAM." (Concrete benefit, one flowing sentence)
+- "I tried every setting I could find and the answers were still wrong, and then I realized the problem was how the data looked before it went in." (Honest failure, then the lesson)
 
 **Tone Examples (Avoid)**
 
@@ -363,13 +370,15 @@ flowchart TD
 - ❌ "Arguably the most important concept…" (Unsubstantiated)
 - ❌ "This is amazing technology." (No concrete backing)
 - ❌ "Machine learning enables innovation at scale." (Buzzword soup)
+- ❌ "It took 2.7 seconds. Here's why. The answer surprised me." (Influencer rhythm, the style he dislikes most)
+- ❌ "Face verification is not a classification problem. It's a metric learning problem." ("It's not X, it's Y")
 
 **Sentence Structure & Rhythm**
-- Average sentence: 12–18 words
-- Vary length: mix short (5–8 words) + long (20–25 words)
-- Avoid rambling multi-clause constructions; use dashes or periods
-- ❌ "…which means that because of the fact that…"
-- ✅ "This means X happens."
+- Average sentence: 14–26 words, calibrated on 2026-10-13 to Nishan's own voice (his typed answers average 28.5, his approved writing 17 to 24)
+- Mostly flowing sentences of 15–30 words, with a short one now and then for weight. Never three short sentences in a row
+- Split a sentence where he would take a breath, usually before "so" or "but", and never let one run past 40 words
+- ❌ Influencer rhythm: "It took 2.7 seconds. Here's why. The answer surprised me."
+- ✅ "I expected it to fit easily, but it took 2.7 seconds per question, so I went back and measured where the time went."
 
 **Language Restrictions (Forbidden Words)**
 - **Never use**: passionate, excited, leverage, synergy, dynamic, best-in-class, cutting-edge, game-changer, revolutionary, paradigm shift
@@ -487,7 +496,7 @@ Before submitting a post:
 3. **Reference Test**: Can you cite a published source for each major technical claim?
 4. **Audience Test**: Would a senior engineer in your field find this immediately useful?
 5. **Brevity Test**: Remove any sentence that doesn't advance the argument
-6. **Tone Test**: Read aloud — does it sound human, direct, authoritative (not robotic)?
+6. **Tone Test**: Read aloud — does it sound like Nishan talking to a colleague, in flowing sentences, and not like an influencer, a brochure or an AI? This test outranks the rest
 7. **Emoji Test**: NO emojis anywhere (title, content, diagrams)?
 8. **Field Test**: Verify all field lengths (title < 85, slug < 60, excerpt 80–150, etc.)
 9. **Word Count Test**: Use `wc -w` to verify 1000–1200 words
@@ -535,11 +544,10 @@ Before submitting a post:
 
 ## Example Opening Lines (Good)
 
-- "Most RAG systems fail not because of the model, but because retrieval doesn't match question distribution."
-- "When you deploy serverless on AWS Lambda, cold starts add 2–5 seconds to your first API call."
-- "I spent three weeks optimizing embeddings and got 10% better recall. Then we changed how we chunked documents and got 40% better."
-- "Single Page Applications load once and then update the DOM in response to URL changes — no full-page reloads."
-- "Face verification is not a classification problem; it's a metric learning problem."
+- "When I first built my chatbot, it kept finding something related to the question but not the part that actually answered it, so the answers looked right and were still wrong."
+- "I spent a lot of time choosing the embedding model, the chunk size and whether to add a reranker, and the answers still came out wrong until I fixed how the data looked before it went in."
+- "I tried Laya as the reranker for my blog's chatbot because every post says it decides in 33 milliseconds, and on my laptop it took 2.7 seconds per question."
+- "Let me explain face verification in simple terms, because it works differently from the photo tagging most people picture."
 
 ## Example Opening Lines (Avoid)
 

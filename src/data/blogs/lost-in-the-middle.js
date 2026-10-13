@@ -10,82 +10,76 @@ const post = {
   date:      '2026-08-25',
   readTime:  '12 min',
   tags:      ['ContextEngineering', 'RAG', 'Retrieval', 'LLM'],
-  excerpt:   'A retrieval system I was debugging put the right passage in its top three, and the answer still came back wrong.',
+  excerpt:   'The retrieval system I was debugging put the right passage in its top three, and the model still gave back the wrong answer.',
 
   content: `
 ![Your retriever found the answer and the model read past it](/videos/lost-in-the-middle.mp4)
 
-Retrieval is the step that finds the documents a model answers from, and that step had done its job. Explaining the wrong answer took a day. Fixing it took ten minutes, and the fix was a sort.
+Retrieval is the step that finds the documents a model answers from, and that step had done its job. Explaining the wrong answer took me a day, and fixing it took ten minutes, because the fix turned out to be a sort.
 
-## The chunk was there and the model skipped it
+## The answer chunk was in the prompt and the model skipped it
 
-The pipeline looked healthy. Recall at five was above ninety percent, the passage containing the answer was reliably in the set, and the generated response still missed it. Every instinct said the retriever was at fault, so that is where the day went.
+The pipeline looked healthy on every number I had. Recall at five was above ninety percent, so the passage with the answer was reliably in the set, and the response still missed it. Every instinct said the retriever was at fault, so that's where the day went.
 
-It was not the retriever. The passage arrived in position four of five, and position four is where the model reads least.
-
-That sounds like a quirk of one pipeline. It is a measured property of how language models read long inputs, and it has a name.
+In the end the retriever was fine, because the passage arrived in position four of five, and position four is where the model reads least. So the chunk was there in the prompt and the model just skipped it. This happens well beyond one pipeline, because it's a measured property of how language models read long inputs, and it has a name.
 
 ## Liu and colleagues moved one document through every position
 
-The study is *Lost in the Middle*, by Liu and colleagues, published in Transactions of the Association for Computational Linguistics in 2024. The design is simple enough to reproduce on your own system.
+The study is *Lost in the Middle* by Liu and colleagues, published in Transactions of the Association for Computational Linguistics in 2024, and the design is simple enough to reproduce on your own system.
 
-Each question came with a set of documents, 10, 20 or 30 of them. Exactly one contained the answer, and the rest were relevant-looking distractors. The researchers then moved that one answer-bearing document through every position in the input and measured accuracy at each, keeping everything else identical.
+Each question came with a set of 10, 20 or 30 documents, where exactly one contained the answer and the rest were relevant-looking distractors. The researchers then moved that one answer-bearing document through every position in the input and measured accuracy at each one, keeping everything else the same.
 
-They ran this across several models, closed and open: GPT-3.5-Turbo, Claude-1.3, MPT-30B-Instruct and LongChat-13B. A second, synthetic task asked models to look up the value for a key in a long list of key and value pairs, which removes any question of whether the model understood the text.
+They ran this across several models, closed and open, namely GPT-3.5-Turbo, Claude-1.3, MPT-30B-Instruct and LongChat-13B. A second, synthetic task asked models to look up the value for a key in a long list of key and value pairs, which takes away any question of whether the model understood the text.
 
-The result is a U. Accuracy is highest when the answer sits first, high again when it sits last, and more than twenty points lower when the same document sits in the middle. Nothing about the documents changed between those runs. Only the order did.
+The result is shaped like a U, where accuracy is highest when the answer sits first, high again when it sits last, and more than twenty points lower when the same document sits in the middle. Nothing about the documents changed between those runs, only the order did. It reminds me of how most of us read a long email thread, where the first message and the last one get read properly and everything in between gets skimmed.
 
 ![One answer-bearing document moved through every position among 10, 20 or 30, with accuracy highest at the start, high at the end, and more than twenty points lower in the middle.](/diagrams/lost-in-the-middle-1.svg)
 
-*The experiment and its shape. The same document, the same question and the same model give a U across positions, so the drop in the middle comes from where the passage sits.*
+*The experiment and its shape. The same document, question and model give a U across positions, so the drop in the middle comes only from where the passage sits.*
 
-## In the middle, the documents were worse than none
+## An answer in the middle did worse than no documents
 
-One comparison in the paper changes how to read the U.
+One comparison in the paper changed how I read the U. Every model was also asked the questions with no documents at all, answering from what it learned in training, which the paper calls the closed-book setting, and GPT-3.5-Turbo scored 56.1% that way.
 
-Every model was also asked the questions with no documents at all, answering from what it learned in training. The paper calls that the closed-book setting. GPT-3.5-Turbo scored 56.1% closed-book.
+With 20 documents and the answer placed in the middle, the same model scored below that. The answer was right there in its input, and it still did worse than when it had nothing to read.
 
-With 20 documents and the answer placed in the middle, the same model scored below that. The answer was in its input, and it did worse than when it had nothing to read.
-
-So a retriever that finds the right passage can still lower accuracy, depending only on where the passage lands. Recall measures the first part. Nothing in a standard retrieval dashboard measures the second.
+That means a retriever that finds the right passage can still lower accuracy, depending only on where the passage lands. Recall measures the first part, and nothing in a standard retrieval dashboard measures the second.
 
 ![GPT-3.5-Turbo scored 56.1% with no documents, and scored lower with 20 documents when the answer sat in the middle.](/diagrams/lost-in-the-middle-2.svg)
 
-*Why recall is not the whole story. The retrieved answer was present in every middle-position run, and the model still did worse than it did with no documents.*
+*Why recall isn't the whole story. The retrieved answer was there in every middle-position run, and the model still did worse than it did with no documents.*
 
 ## A longer window does not remove the dip
 
-The natural response is a model with a bigger context window. The paper tested that directly, with extended-context versions of the same models, and found they were not better at using what they were given. A longer window holds more text. It does not read the middle more carefully.
+The natural next step is to reach for a model with a bigger context window. The paper tested that directly with extended-context versions of the same models and found they weren't any better at using what they were given, since a longer window holds more text without reading the middle more carefully.
 
-A later study by Hsieh and colleagues, at ACL Findings 2024, traces the dip to attention itself. They found a U-shaped bias in how models spread attention over their input: tokens at the start and end receive more attention whatever their relevance. Correcting for that bias, a method they call found-in-the-middle, improved retrieval-augmented generation by up to 15 percentage points.
+A later study by Hsieh and colleagues, at ACL Findings 2024, traced the dip back to attention itself. They found a U-shaped bias in how models spread attention over their input, where tokens at the start and end get more attention whatever their relevance. Correcting for that bias, with a method they call found-in-the-middle, improved retrieval-augmented generation by up to 15 percentage points.
 
-That locates the problem in the model and gives a direction for future models. It does not help a pipeline running today's models, and for that the cheap fix sits one step earlier.
+That puts the problem inside the model and gives future models a direction, but it doesn't help a pipeline running today's models, and for that the cheap fix sits one step earlier.
 
-## Your reranker is doing half a job
+## Your reranker gets the ranking right and the arrangement wrong
 
-A reranker sorts retrieved passages by relevance and hands them over in that order. Sorted order puts the best passage first, which is correct, and the second best immediately after it, which is where things go wrong. In a set of five, the second and third best passages land squarely in the zone the model reads least.
+A reranker sorts the retrieved passages by relevance and hands them over in that order. Sorted order puts the best passage first, which is right, and the second best straight after it, which is where it goes wrong. In a set of five, that puts the second and third best right in the zone the model reads least.
 
-So the ranking is right and the arrangement is wrong. Those are different problems, and most pipelines only solve the first.
+So the ranking is right and the arrangement is wrong, and those are two different problems, while most pipelines only solve the first one.
 
-## Reorder after ranking
+## Reorder the ranked passages so the best sit at the edges
 
-Rank as you already do. Then arrange the ranked set so the strongest passages sit at the edges and the weakest sit in the middle. For five passages ranked one to five, the order to send is one, three, five, four, two.
+I'd keep ranking the way you already do, and then arrange the ranked set so the strongest passages sit at the edges and the weakest sit in the middle. For five passages ranked one to five, the order to send is one, three, five, four, two.
 
-The best passage keeps the first position. The second best moves to the last, the other position the model reads well. The weakest lands in the middle, where a skipped passage costs least.
-
-That is a sort, and it costs nothing at query time.
+The best passage keeps the first position, and the second best moves to the last, which is the other position the model reads well. The weakest lands in the middle, where a skipped passage costs the least, and since it's only a sort, it costs nothing at query time.
 
 ![Five passages ranked one to five are usually sent in rank order, which puts the second and third best in the middle. Sent as one, three, five, four, two, the two best sit at the edges.](/diagrams/lost-in-the-middle-3.svg)
 
-*Rank order against edge order for the same five passages. Retrieval quality is identical in both, and only the second keeps the two strongest passages out of the low-attention middle.*
+*Rank order against edge order for the same five passages. Retrieval quality is the same in both, and only the second keeps the two strongest passages out of the low-attention middle.*
 
-Two things pair with it. Cut the number of passages, because every extra mediocre passage lengthens the middle and buries the good one deeper. And measure position as well as recall: log where the answer-bearing passage sat for every wrong answer. Recall at five tells you the answer was in the prompt. It does not tell you the model ever looked at it, and in my case those two facts had been different for a day.
+Two other things go well with it, and the first is to cut the number of passages, because every extra mediocre passage makes the middle longer and buries the good one deeper. The second is to measure position as well as recall, by logging where the answer-bearing passage sat for every wrong answer. Recall at five tells you the answer was in the prompt but not whether the model ever looked at it, and in my case those two things had been different for a whole day.
 
 ## Measure the dip on your own prompts
 
-The paper's curve comes from its models and its prompt format, so check yours before trusting the size of the effect. Take fifty questions from your own logs where you know which passage holds the answer. For each one, build the prompt your system actually sends, then move that passage through every slot and record whether the answer comes back right.
+The paper's curve comes from its own models and prompt format, so I'd check yours before trusting the size of the effect. Take fifty questions from your own logs where you know which passage holds the answer, and build the prompt your system actually sends for each one. Then move that passage through every slot, record whether the answer comes back right, and plot accuracy by slot.
 
-Plot accuracy by slot. A flat line means position is not costing you anything, and the reorder is harmless insurance. A dip in the middle tells you how much the reorder is worth, in your numbers rather than the paper's.
+A flat line means position isn't costing you anything and the reorder is cheap insurance, while a dip in the middle tells you how much the reorder is worth in your own numbers rather than the paper's.
 `,
 
   references: [

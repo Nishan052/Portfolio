@@ -9,90 +9,111 @@ const post = {
   series:      'TinyML on microcontrollers',
   part:      2,
   readTime:  '12 min',
-  tags:      ['TinyML', 'TensorFlow Lite', 'Python', 'OpenCV', 'Quantisation', 'Edge AI'],
+  tags:      ['TinyML', 'TensorFlow Lite', 'Python', 'OpenCV', 'Quantization', 'Edge AI'],
   githubUrl: 'https://github.com/Nishan052/barcodeScanner',
-  excerpt:   'A deep learning pipeline that trains a barcode presence-detection and localisation model in Keras, then compresses it to run on microcontrollers via TFLite int8 quantisation.',
+  excerpt:   'For my master\'s I trained a barcode detector in Keras and shrank it with int8 quantization so it could run on a microcontroller.',
 
   content: `
-## Overview
+## TinyML on a microcontroller
 
-TinyML is the practice of deploying machine learning models on microcontrollers: devices with kilobytes of RAM, no operating system, and sub-milliwatt power budgets. This project tackles barcode detection: determining whether a barcode is present in a camera frame and predicting its bounding box, all within MCU constraints.
-
----
-
-## What Problem Does It Solve?
-
-Industrial barcode scanning traditionally relies on dedicated hardware or powerful processors. Embedding this directly on a $2 microcontroller enables:
-- Battery-powered, offline scanning with no cloud dependency
-- Sub-millisecond latency, with inference at the sensor edge
-- Privacy by design: images never leave the device
+TinyML means running machine learning models on microcontrollers, which have kilobytes of RAM, no operating system and a power budget under a milliwatt. For my master's I built a barcode detector within those limits, which decides whether a barcode is in a camera frame and predicts its bounding box.
 
 ---
 
-## Full Pipeline
+## The problem it solves
+
+Industrial barcode scanning usually needs dedicated hardware or a powerful processor, so putting it on a $2 microcontroller gives you:
+- Battery-powered, offline scanning with no cloud behind it
+- Latency under a millisecond, since inference runs at the sensor
+- Privacy by design, because the images never leave the device
+
+---
+
+## Full pipeline
 
 \`\`\`mermaid
 flowchart TD
-    A[Raw Image Dataset\nClass 0: barcode\nClass 1: background] --> B[preprocessing\nResize · Normalise · Augment]
-    B --> C[trainModel.py\nKeras CNN\nPresence + BBox head]
-    C --> D[.keras model\nFull precision]
-    D --> E[TFLite Converter\nfloat32 → int8 quantisation]
-    E --> F[.tflite model\n10x smaller]
-    F --> G[mcuSimulator.py\nSimulates MCU inference]
-    G --> H[Cropped Detection Output\nBounding box visualisation]
+    A[Raw Image Dataset
+Class 0: barcode
+Class 1: background] --> B[preprocessing
+Resize · Normalize · Augment]
+    B --> C[trainModel.py
+Keras CNN
+Presence + BBox head]
+    C --> D[.keras model
+Full precision]
+    D --> E[TFLite Converter
+float32 → int8 quantization]
+    E --> F[.tflite model
+10x smaller]
+    F --> G[mcuSimulator.py
+Simulates MCU inference]
+    G --> H[Cropped Detection Output
+Bounding box visualization]
 \`\`\`
 
 ---
 
-## Model Architecture
+## Model architecture
 
-The model has two output heads, a multi-task design that trains both tasks simultaneously:
+The model has two output heads, one for presence and one for the bounding box, and it trains both tasks at once:
 
 \`\`\`mermaid
 flowchart LR
-    A["Input Image\n96x96 greyscale"] --> B["Conv Block 1\n32 filters 3x3"]
+    A["Input Image
+96x96 greyscale"] --> B["Conv Block 1
+32 filters 3x3"]
     B --> C["MaxPool"]
-    C --> D["Conv Block 2\n64 filters 3x3"]
+    C --> D["Conv Block 2
+64 filters 3x3"]
     D --> E["MaxPool"]
     E --> F["Flatten + Dense 128"]
-    F --> G["Presence Head\nSigmoid 0 or 1"]
-    F --> H["BBox Head\n4 coords x y w h"]
+    F --> G["Presence Head
+Sigmoid 0 or 1"]
+    F --> H["BBox Head
+4 coords x y w h"]
 \`\`\`
 
-The design choice is a shared backbone. Both tasks share the same convolutional feature extractor. This is cheaper than two separate models and the tasks are positively correlated.
+Both heads share the same convolutional backbone, which is cheaper than two separate models, and it works because the two tasks are positively correlated.
 
 ---
 
-## Key Design Decisions
+## Design decisions
 
-### 1. Int8 Quantisation over Float32
-Full-precision (float32) models require 4 bytes per weight. Int8 quantisation:
-- 4× memory reduction, which matters on MCUs with 256 KB RAM
-- 2–4× inference speed-up on integer ALUs
-- Accuracy loss typically < 1% for detection tasks
+### 1. Int8 quantization instead of float32
+A full precision (float32) model needs 4 bytes per weight, and int8 quantization gives you:
+- 4× less memory, which matters on MCUs with 256 KB of RAM
+- 2–4× faster inference on integer ALUs
+- An accuracy loss that's typically < 1% for detection tasks
 
-### 2. Masked Bounding Box Loss
-When a barcode is absent, the bounding box output is meaningless. A custom masked loss function zeros out the bounding box loss contribution when the ground truth label is "no barcode".
+### 2. Masked bounding box loss
+When there's no barcode, the bounding box output means nothing, so a custom masked loss zeros out the box loss whenever the ground truth label is "no barcode".
 
-### 3. MCU Simulator Before Hardware
-\`mcuSimulator.py\` runs the quantised \`.tflite\` model using the TFLite interpreter on a PC, simulating exactly what the MCU runtime will execute. This lets you catch accuracy regressions *before* flashing firmware.
+### 3. MCU simulator before hardware
+\`mcuSimulator.py\` runs the quantized \`.tflite\` model with the TFLite interpreter on a PC, exactly the way the MCU runtime will run it, so you catch accuracy drops *before* flashing the firmware, while they're still easy to fix.
 
 ---
 
-## Deployment Flow
+## Deployment flow
 
 \`\`\`mermaid
 flowchart LR
-    A[PC Training\npipelineRunner.py] --> B[output folder\nmodel.keras\nmodel.tflite\nmodel int8.tflite]
-    B --> C[mcuSimulator.py\nValidate on PC]
+    A[PC Training
+pipelineRunner.py] --> B[output folder
+model.keras
+model.tflite
+model int8.tflite]
+    B --> C[mcuSimulator.py
+Validate on PC]
     C --> D{Accuracy OK?}
-    D -- Yes --> E[Flash to MCU\nArduino or STM32]
+    D -- Yes --> E[Flash to MCU
+Arduino or STM32]
     D -- No --> A
 \`\`\`
 
 ---
 
-## How to Recreate
+## How to recreate it
 
 \`\`\`bash
 git clone https://github.com/Nishan052/barcodeScanner && cd barcodeScanner
