@@ -104,6 +104,13 @@ export const PROJECTS = [
 
 export const POSTS = [
   {
+    "slug": "feasibility-ceiling-holds",
+    "title": "A language model's speed on your device is set by memory bandwidth",
+    "date": "2026-10-20",
+    "series": "Edge AI",
+    "part": 5
+  },
+  {
     "slug": "jev-laya-typed-decision-models",
     "title": "Decision models like Jev and Laya, and why agents started asking them for decisions",
     "date": "2026-10-06",

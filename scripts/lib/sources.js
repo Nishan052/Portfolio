@@ -72,6 +72,14 @@ async function loadPDFs() {
 // ─── src/data/blogs/*.js ─────────────────────────────────────────────────────
 // Fields are pulled out with regexes rather than by importing the module: these
 // are ESM files using webpack's require.context, so plain Node cannot execute them.
+// A quoted string field from a blog module, with its escapes undone. A title
+// such as 'A model\'s speed' must not be cut at the backslash, which a lazy
+// (.+?) match does: the chatbot then knew the post as "A language model\".
+function stringField(raw, key) {
+  const m = raw.match(new RegExp(`${key}:\\s*(['"\`])((?:\\\\.|(?!\\1)[^\\\\])*)\\1`));
+  return m ? m[2].replace(/\\(['"`\\])/g, '$1') : null;
+}
+
 // Every blog post's slug, title and date, newest first: the same order the
 // blog page uses. The chatbot answers "what is the latest post" from this list,
 // because similarity search cannot rank by date.
@@ -82,7 +90,7 @@ function listBlogs() {
     .filter(f => f.endsWith('.js') && f !== 'index.js')
     .map(file => {
       const raw   = fs.readFileSync(path.join(blogsDir, file), 'utf-8');
-      const title = raw.match(/title:\s*['"`](.+?)['"`]/);
+      const title = stringField(raw, 'title');
       const date  = raw.match(/date:\s*['"`](.+?)['"`]/);
       const id    = raw.match(/\bid:\s*(\d+)/);
       // The series tells the model what a post is about. Without it, asked for
@@ -90,7 +98,7 @@ function listBlogs() {
       const series = raw.match(/series:\s*['"`](.+?)['"`]/);
       const part   = raw.match(/\bpart:\s*(\d+)/);
       if (!title || !date) return null;
-      return { slug: file.replace('.js', ''), title: title[1], date: date[1],
+      return { slug: file.replace('.js', ''), title, date: date[1],
                series: series ? series[1] : null, part: part ? Number(part[1]) : null,
                id: id ? Number(id[1]) : 0 };
     })
@@ -135,13 +143,13 @@ function loadBlogs() {
   for (const file of files) {
     const raw = fs.readFileSync(path.join(blogsDir, file), 'utf-8');
 
-    const titleMatch   = raw.match(/title:\s*['"`](.+?)['"`]/);
-    const excerptMatch = raw.match(/excerpt:\s*['"`](.+?)['"`]/);
+    const title        = stringField(raw, 'title');
+    const excerpt      = stringField(raw, 'excerpt');
     const dateMatch    = raw.match(/date:\s*['"`](.+?)['"`]/);
     const tagsMatch    = raw.match(/tags:\s*\[([^\]]+)\]/);
     const contentMatch = raw.match(/content:\s*`([\s\S]*?)`\s*,/);
 
-    if (!contentMatch || !titleMatch) {
+    if (!contentMatch || !title) {
       console.log(`  [SKIP] ${file} — could not parse`);
       continue;
     }
@@ -159,10 +167,10 @@ function loadBlogs() {
       : [];
 
     const blogText = `
-Blog Post: ${titleMatch[1]}
+Blog Post: ${title}
 Published: ${dateMatch ? dateMatch[1] : 'unknown'}
 Tags: ${tags.join(', ')}
-Summary: ${excerptMatch ? excerptMatch[1] : ''}
+Summary: ${excerpt || ''}
 
 ${content.trim()}
       `.trim();
@@ -170,7 +178,7 @@ ${content.trim()}
     const slug = file.replace('.js', '');
     results.push(makeSource(`blog_${slug}`, 'blog_post', blogText, {
       slug,
-      title: titleMatch[1],
+      title,
       tags:  tags.join(', '),
     }));
   }

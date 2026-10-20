@@ -29,6 +29,34 @@ describe('every source in the repo', () => {
   });
 });
 
+describe('blog titles', () => {
+  // A title with an apostrophe is written 'A model\'s speed' in the module, and
+  // a lazy regex cut it at the backslash, so the chatbot knew the post as
+  // "A language model\".
+  test('keep their apostrophes and are never cut at a backslash', () => {
+    const { listBlogs } = require('../sources');
+    const titles = Object.fromEntries(listBlogs().map(p => [p.slug, p.title]));
+    expect(titles['feasibility-ceiling-holds'])
+      .toBe("A language model's speed on your device is set by memory bandwidth");
+    for (const title of Object.values(titles)) expect(title).not.toMatch(/\\$/);
+  });
+
+  // The same cut hit excerpts: 13 posts were summarised in the knowledge base as
+  // "For my master\\" because their excerpts hold an apostrophe.
+  test('excerpts with an apostrophe are read whole for the knowledge base', async () => {
+    const sources = await loadAllSources({ only: ['blogs'] });
+    const post = sources.find(s => s.id === 'blog_nifty50-stock-prediction');
+    expect(post.text).toMatch(/Summary: For my master's, three of us forecast/);
+    for (const s of sources) expect(s.text).not.toMatch(/Summary: .*\\\n/);
+  });
+
+  test('read the same way for the knowledge base', async () => {
+    const sources = await loadAllSources({ only: ['blogs'] });
+    const post = sources.find(s => s.id === 'blog_feasibility-ceiling-holds');
+    expect(post.metadata.title).toBe("A language model's speed on your device is set by memory bandwidth");
+  });
+});
+
 describe('the chatbot site index', () => {
   // The chatbot answers "what is the latest post" from this file, so a stale
   // copy is a wrong answer in production. It is regenerated on every build;
