@@ -105,8 +105,15 @@ export const PROJECTS = [
 export const POSTS = [
   {
     "slug": "jev-laya-typed-decision-models",
-    "title": "Decision models like Jev and Laya: why agents started asking for decisions, not text",
+    "title": "Decision models like Jev and Laya, and why agents started asking them for decisions",
     "date": "2026-10-06",
+    "series": null,
+    "part": null
+  },
+  {
+    "slug": "laya-decision-model-as-a-reranker",
+    "title": "Why a 33 ms decision model took 2.7 seconds to rerank my blog",
+    "date": "2026-10-04",
     "series": null,
     "part": null
   },
@@ -196,7 +203,7 @@ export const POSTS = [
   },
   {
     "slug": "clustering-compression-not-classification",
-    "title": "Clustering is a compression decision, not classification",
+    "title": "Clustering for RAG is a compression decision that trades recall for speed",
     "date": "2026-04-28",
     "series": "Production RAG",
     "part": 7
@@ -210,14 +217,14 @@ export const POSTS = [
   },
   {
     "slug": "multi-agent-rag-orchestration",
-    "title": "Agentic RAG: Complete Systems Guide from Architecture to Production",
+    "title": "Agentic RAG: from one pipeline to a team of agents in production",
     "date": "2026-04-15",
     "series": "Production RAG",
     "part": 5
   },
   {
     "slug": "rag-page-indexing-chunking",
-    "title": "Chunking Strategies for RAG: Why Page-Level Indexing Changes Everything",
+    "title": "Chunking strategies for RAG: why page-level indexing keeps the context",
     "date": "2026-03-30",
     "series": "Production RAG",
     "part": 4
@@ -238,7 +245,7 @@ export const POSTS = [
   },
   {
     "slug": "production-rag-architecture",
-    "title": "Building Production-Ready RAG: The Architecture Nobody Talks About",
+    "title": "Production RAG architecture: the problem behind every tool in the stack",
     "date": "2026-03-08",
     "series": "Production RAG",
     "part": 1
@@ -259,7 +266,7 @@ export const POSTS = [
   },
   {
     "slug": "signaldock-mqtt-iot",
-    "title": "SignalDock: Containerised MQTT Messaging with Docker",
+    "title": "SignalDock: Containerized MQTT Messaging with Docker",
     "date": "2026-03-08",
     "series": null,
     "part": null
@@ -273,7 +280,7 @@ export const POSTS = [
   },
   {
     "slug": "python-data-analysis",
-    "title": "Python Data Analysis: EDA, Visualisation & Statistical Inference",
+    "title": "Python Data Analysis: EDA, Visualization & Statistical Inference",
     "date": "2026-03-08",
     "series": null,
     "part": null
