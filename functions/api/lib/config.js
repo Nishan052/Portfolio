@@ -30,10 +30,20 @@ export const MAX_HISTORY_MESSAGES = 6;
 /** Maximum length (chars) accepted per individual history message. */
 export const MAX_HISTORY_MESSAGE_LENGTH = 2000;
 
+/**
+ * Largest request body read at all. A full request is about 14,000 characters
+ * (six history messages of 2,000 plus the question), so this leaves room for
+ * non-ASCII text and refuses a body that is only there to cost parsing time.
+ */
+export const MAX_BODY_BYTES = 65_536;
+
 // ── Rate limiting ─────────────────────────────────────────────────────────────
 
 /** Sliding-window duration passed to Upstash Ratelimit. */
 export const RATE_LIMIT_WINDOW = '1 m';
+
+/** The same window in milliseconds, for the in-memory fallback limiter. */
+export const RATE_LIMIT_WINDOW_MS = 60_000;
 
 /** Maximum requests per window per IP. */
 export const RATE_LIMIT_MAX_REQUESTS = 10;

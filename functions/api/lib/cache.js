@@ -5,25 +5,64 @@
 
 import { Redis } from '@upstash/redis/cloudflare';
 import { Ratelimit } from '@upstash/ratelimit';
+import {
+  CACHE_TTL_SECONDS,
+  RATE_LIMIT_MAX_REQUESTS as RATE_LIMIT_REQUESTS,
+  RATE_LIMIT_WINDOW,
+  RATE_LIMIT_WINDOW_MS,
+} from './config.js';
 
-// Cache TTL: 24 hours
-const CACHE_TTL_SECONDS = 86400;
-
-// Rate limit: 10 requests per minute per IP (sliding window)
-const RATE_LIMIT_REQUESTS = 10;
-const RATE_LIMIT_WINDOW   = '1 m';
+// How long one Redis call may take before it counts as down.
+const REDIS_TIMEOUT_MS = 1500;
 
 /**
  * Build an Upstash Redis client from env vars.
+ *
+ * No retries and a short timeout: with the client's defaults, a Redis that no
+ * longer exists made every chat request wait several seconds, three times over,
+ * before the limiter and the cache gave up and failed open.
  */
 function getRedis(env) {
   if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
     throw new Error('Upstash Redis env vars not set (UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN)');
   }
   return new Redis({
-    url:   env.UPSTASH_REDIS_REST_URL,
-    token: env.UPSTASH_REDIS_REST_TOKEN,
+    url:    env.UPSTASH_REDIS_REST_URL,
+    token:  env.UPSTASH_REDIS_REST_TOKEN,
+    retry:  false,
+    signal: () => AbortSignal.timeout(REDIS_TIMEOUT_MS),
   });
+}
+
+// Used only while Redis is unreachable. It lives in one isolate's memory, so it is a
+// weaker limit than the shared one, but a dead Redis used to mean no limit at all.
+const memoryHits = new Map();
+
+function memoryLimit(identifier, now = Date.now()) {
+  const recent = (memoryHits.get(identifier) || []).filter(t => now - t < RATE_LIMIT_WINDOW_MS);
+  if (recent.length >= RATE_LIMIT_REQUESTS) {
+    memoryHits.set(identifier, recent);
+    return { success: false, remaining: 0 };
+  }
+  recent.push(now);
+  memoryHits.set(identifier, recent);
+
+  if (memoryHits.size > 5000) {   // forget callers that have gone quiet
+    for (const [key, times] of memoryHits) {
+      if (!times.some(t => now - t < RATE_LIMIT_WINDOW_MS)) memoryHits.delete(key);
+    }
+  }
+  return { success: true, remaining: RATE_LIMIT_REQUESTS - recent.length };
+}
+
+/**
+ * A reply may be cached and shared only when it was a function of the question
+ * alone. The key is the question, so a reply that also depended on conversation
+ * history, which the client supplies and can forge, would be served to every
+ * visitor who asked the same question.
+ */
+export function isCacheable(history) {
+  return history.length === 0;
 }
 
 /**
@@ -45,9 +84,8 @@ export async function checkRateLimit(env, ip) {
     const { success, remaining } = await ratelimit.limit(identifier);
     return { success, remaining };
   } catch (err) {
-    // If Redis is unreachable, fail open (allow the request)
-    console.error('Rate limit check failed, allowing request:', err.message);
-    return { success: true, remaining: 99 };
+    console.error('Rate limit check failed, using the in-memory limit:', err.message);
+    return memoryLimit(`ip_${ip}`);
   }
 }
 

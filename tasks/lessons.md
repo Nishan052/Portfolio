@@ -203,3 +203,18 @@ swipe logic treats it uniformly.
   `'A model\'s speed'`, and a lazy `(.+?)` cut it at the backslash. Use `stringField()` for quoted fields.
   Titles and excerpts both go through it now. Excerpts were cut at an apostrophe in 13 posts, so the next
   blog sync re-embeds them. Sync with `--only=blogs`, because a plain sync also pushes the 8 unindexed PDFs.
+
+## Security review of the live site (2026-10-20)
+
+- **A limiter that fails open hides its own death.** The Upstash database was deleted (its hostname is NXDOMAIN),
+  so for an unknown time `/api/chat` had no rate limit and no cache. The only sign was `X-Remaining: 99`, the value
+  the fail-open path returns. The limiter now falls back to an in-memory one, and the Redis client has no retries and
+  a 1.5 s timeout (the defaults made each request wait several seconds, three times, before giving up).
+  After recreating a Redis, `X-Remaining` must count down from 9, and never read 99.
+- **A shared cache key must contain everything the answer depends on.** The key was the question, but the answer also
+  used `history`, which the client supplies and can forge. Cache only when `history` is empty (`isCacheable`).
+- **Work after the response needs `waitUntil`.** The logging and the cache write ran after the stream closed, unawaited.
+- **Function tests**: the root Jest suite cannot load, so `npm run test:functions` runs `node --test` files named
+  `*.node-test.mjs` in `functions/api/lib/__tests__/`.
+- Source maps were public (a 9 MB `main.js.map`). `.env.production` now sets `GENERATE_SOURCEMAP=false`.
+- Cloudflare's own bot script is injected inline into the page, which is why the CSP keeps `'unsafe-inline'` for scripts.

@@ -17,7 +17,7 @@
 import { embedText }        from './lib/embed.js';
 import { streamGroq, extractGroqContent, expandToSubQueries } from './lib/llm.js';
 import { queryPinecone }    from './lib/pinecone.js';
-import { checkRateLimit, getExactCache, setExactCache } from './lib/cache.js';
+import { checkRateLimit, getExactCache, setExactCache, isCacheable } from './lib/cache.js';
 import { buildSystemPrompt, formatContext, PROMPT_VERSION } from './lib/system-prompt.js';
 import {
   ALLOWED_ORIGINS,
@@ -25,6 +25,7 @@ import {
   MAX_MESSAGE_LENGTH,
   MAX_HISTORY_MESSAGES,
   MAX_HISTORY_MESSAGE_LENGTH,
+  MAX_BODY_BYTES,
   VECTOR_SEARCH_TOP_K,
 } from './lib/config.js';
 import { RequestLogger, generateRequestId, Timer, calculateCost, estimateTokens } from './lib/structured-logger.js';
@@ -82,7 +83,7 @@ export async function onRequestOptions({ request }) {
 }
 
 // ─── POST /api/chat ───────────────────────────────────────────────────────────
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   // ═══════════════════════════════════════════════════════════════════════════
   // PHASE 1 MONITORING: Initialize request logger & detect cold start
   // ═══════════════════════════════════════════════════════════════════════════
@@ -97,10 +98,19 @@ export async function onRequestPost({ request, env }) {
   if (FIRST_REQUEST) FIRST_REQUEST = false;
   if (logger) logger.setColdStart(isColdStart, coldStartDuration);
 
-  // 1. Parse body
+  // 1. Parse body. Refuse a large one before reading it, and again after, for a client
+  // that sends no Content-Length.
+  const tooLarge = () => apiResponse(request, JSON.stringify({ error: 'Request too large' }), 413, {
+    'Content-Type': 'application/json',
+  });
+  if (Number(request.headers.get('Content-Length')) > MAX_BODY_BYTES) return tooLarge();
+  let raw = '';
+  try { raw = await request.text(); } catch { /* an unreadable body is an invalid one, below */ }
+  if (raw.length > MAX_BODY_BYTES) return tooLarge();
+
   let message, history, lang;
   try {
-    const body = await request.json();
+    const body = JSON.parse(raw);
     message = sanitizeInput((body.message || '').trim());
     lang    = body.lang === 'de' ? 'de' : 'en';   // whitelist; default 'en'
 
@@ -153,7 +163,8 @@ export async function onRequestPost({ request, env }) {
   // Versioned by the prompt and facts it was answered from: without it, a
   // corrected answer stayed hidden behind the cached wrong one for a day.
   const cacheKey = `${PROMPT_VERSION}:${lang === 'de' ? `de:${message}` : message}`;
-  const cached = await getExactCache(env, cacheKey);
+  const cacheable = isCacheable(history);
+  const cached = cacheable ? await getExactCache(env, cacheKey) : null;
   if (cached) {
     if (logger) {
       logger.setCache(cacheKey, true);
@@ -281,7 +292,9 @@ export async function onRequestPost({ request, env }) {
   const { readable, writable } = new TransformStream();
   const writer = writable.getWriter();
 
-  (async () => {
+  // waitUntil keeps the worker alive after the response ends. Without it the logging
+  // and the cache write below could be cut off, which left the cache empty.
+  const streamWork = (async () => {
     try {
       const reader  = groqResponse.body.getReader();
       const decoder = new TextDecoder();
@@ -347,9 +360,10 @@ export async function onRequestPost({ request, env }) {
       }
 
       // 10. Cache the full response async (non-blocking)
-      setExactCache(env, cacheKey, fullResponse).catch(() => {});
+      if (cacheable) setExactCache(env, cacheKey, fullResponse).catch(() => {});
     }
   })();
+  if (typeof waitUntil === 'function') waitUntil(streamWork);
 
   return new Response(readable, {
     headers: {

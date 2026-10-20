@@ -36,6 +36,7 @@
     "kb:status": "node scripts/sync-kb.js --dry-run --json-report=kb-report.json",
     "kb:rebuild": "node scripts/ingest.js --force",
     "test:kb": "jest -c scripts/jest.config.js",
+    "test:functions": "node --test functions/api/lib/__tests__/*.node-test.mjs",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
