@@ -1,0 +1,10 @@
+.notfound-page {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  padding: 160px clamp(16px, 4vw, 32px) 80px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.notfound-page h1 { margin: 0 0 12px; color: var(--text); }
+.notfound-page p  { margin: 0 0 24px; color: var(--mute); line-height: 1.6; }
+.notfound-home    { color: var(--brand); }

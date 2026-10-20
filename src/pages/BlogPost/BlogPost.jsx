@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useEnglishTranslation } from '../../i18n/index';
 import { LuTrendingUp, LuRadio, LuScanSearch, LuBot, LuArrowLeftRight, LuBrain, LuCpu } from 'react-icons/lu';
 import { SiPython } from 'react-icons/si';
@@ -9,6 +9,7 @@ import remarkGfm from 'remark-gfm';
 import MermaidDiagram from '../../components/ui/MermaidDiagram';
 import Panel from '../../components/ui/Panel';
 import blogs from '../../data/blogs/index';
+import NotFound from '../NotFound/NotFound';
 import './BlogPost.css';
 
 const BLOG_ICON_MAP = {
@@ -186,7 +187,7 @@ export default function BlogPost() {
     }
   }, [slug, blog]);
 
-  if (!blog) return <Navigate to="/blogs" replace />;
+  if (!blog) return <NotFound />;
 
   const toc = extractToc(blog.content);
 

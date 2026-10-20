@@ -66,3 +66,4 @@ Disallow: /
 User-agent: img2dataset
 Disallow: /
 
+Sitemap: https://nishanpoojary.com/sitemap.xml

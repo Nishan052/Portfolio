@@ -34,6 +34,7 @@ import ChatWidget        from "./components/ui/ChatWidget";
 // ── Pages ──────────────────────────────────────────────────────────────────────
 import BlogsList from "./pages/BlogsList/BlogsList";
 import BlogPost  from "./pages/BlogPost/BlogPost";
+import NotFound  from "./pages/NotFound/NotFound";
 
 // ── Home deck (particle scene deck) ─────────────────────────────────────────────
 import DeckPage from "./deck/DeckPage";
@@ -154,6 +155,9 @@ function AppShell({ isDark, toggleTheme }) {
         {/* ── Blog routes ───────────────────────────────────────────── */}
         <Route path="/blogs"      element={<BlogsList />} />
         <Route path="/blogs/:slug" element={<BlogPost />} />
+
+        {/* ── Anything else ─────────────────────────────────────────── */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       {/* Floating AI chat widget — hidden on blog pages */}
