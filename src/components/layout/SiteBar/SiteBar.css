@@ -37,16 +37,38 @@
 
 .sb-lang { gap: 2px; padding: 3px; cursor: default; }
 .sb-lang button {
+  display: inline-flex; align-items: center; gap: 6px;
   padding: 5px 9px; border: 0; border-radius: 999px; background: none; color: var(--mute);
   font: inherit; letter-spacing: .06em; cursor: pointer; transition: background .3s, color .3s;
 }
+.sb-lang .flag { transition: opacity .3s; }
+.sb-lang button:not(.sb-on) .flag { opacity: .55; }
+.sb-lang button:not(.sb-on):hover .flag { opacity: 1; }
 .sb-lang button:hover { color: var(--text); }
 .sb-lang button.sb-on { background: rgba(var(--brand-rgb), .14); color: var(--brand); }
+
+/* A call-out pill (the Blog link): the mint accent instead of the quiet outline, with a ring that
+   pulses outwards so the one place that changes every day is the one place the eye lands. */
+.sb-pill.sb-call {
+  border-color: var(--support); background: var(--support); color: var(--ink-on-brand);
+  font-weight: 600; animation: sb-call-pulse 2.4s ease-out infinite;
+}
+.sb-pill.sb-call:hover { border-color: var(--support); filter: brightness(1.08); }
+@keyframes sb-call-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(var(--support-rgb), .55); }
+  70%  { box-shadow: 0 0 0 12px rgba(var(--support-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--support-rgb), 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sb-pill.sb-call { animation: none; box-shadow: 0 0 14px rgba(var(--support-rgb), .35); }
+}
 
 .sb-theme { width: 36px; height: 36px; padding: 0; justify-content: center; }
 
 @media (max-width: 599px) {
   .sb-narrow-hide, .sb-pill kbd { display: none; }
+  .sb-lang-code { display: none; }   /* the flag alone on a phone; the button's aria-label still names the language */
+  .sb-lang button { padding: 5px 8px; }
   .sb-right { gap: 6px; }
   .sb-pill { padding: 7px 11px; }
   .sb-theme { width: 34px; height: 34px; padding: 0; }

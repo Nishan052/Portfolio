@@ -5,6 +5,7 @@
 import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { LuSparkles } from "react-icons/lu";
 import "./deck.css";
 import { ThemeContext } from "../context/ThemeContext";
 import siteConfig from "../config/site";
@@ -129,7 +130,7 @@ function Deck({ simple, instant, toggleTheme }) {
       <p className="dk-sr" aria-live="polite">{t("deck.nav.live", { name: scenes[cur] && scenes[cur].name, n: cur + 1 })}</p>
 
       <SiteBar variant={simple ? "solid" : "floating"} isDark={isDark} toggleTheme={toggleTheme} brand={{ href: "#hero", "data-go": 0 }}>
-        <Link className="sb-pill sb-mono sb-narrow-hide" to="/blogs"><span data-scramble>{t("deck.nav.blog")}</span></Link>
+        <Link className="sb-pill sb-mono sb-call sb-narrow-hide" to="/blogs"><LuSparkles aria-hidden="true" size={13} /><span data-scramble>{t("deck.nav.blog")}</span></Link>
         <button className="sb-pill sb-mono" type="button" aria-haspopup="dialog" onClick={() => setIxOpen(true)}><span data-scramble>{t("deck.nav.index")}</span> <kbd>K</kbd></button>
       </SiteBar>
 

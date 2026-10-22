@@ -113,7 +113,7 @@
   transform: scaleX(1);
 }
 
-/* Blog nav pill */
+/* Blog nav pill: a call-out. The mint accent, filled, with a ring that pulses outwards. */
 .nav-blog-btn {
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -121,24 +121,24 @@
   letter-spacing: 0.06em;
   padding: 6px 14px;
   border-radius: 100px;
-  border: 1px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
+  border: 1px solid var(--support);
+  background: var(--support);
+  color: var(--ink-on-brand);
   cursor: pointer;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  transition: filter 0.2s;
+  animation: nav-call-pulse 2.4s ease-out infinite;
 }
 
-.nav-blog-btn:hover {
-  background: var(--accent);
-  color: var(--ink-on-brand);
-  box-shadow: 0 0 14px rgba(var(--brand-rgb), 0.35);
+.nav-blog-btn:hover { filter: brightness(1.08); }
+
+@keyframes nav-call-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(var(--support-rgb), 0.55); }
+  70%  { box-shadow: 0 0 0 12px rgba(var(--support-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--support-rgb), 0); }
 }
 
-.nav-blog-btn.active,
-.nav-blog-btn[aria-current="page"] {
-  background: var(--accent);
-  color: var(--ink-on-brand);
-  box-shadow: 0 0 18px rgba(var(--brand-rgb), 0.4);
+@media (prefers-reduced-motion: reduce) {
+  .nav-blog-btn { animation: none; box-shadow: 0 0 14px rgba(var(--support-rgb), 0.35); }
 }
 
 /* Controls (right side) */
@@ -164,6 +164,9 @@
   letter-spacing: 0.06em;
   padding: 5px 11px;
   border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   transition: background 0.2s, color 0.2s;
   line-height: 1;
 }
@@ -313,8 +316,14 @@
   letter-spacing: 0.08em;
   padding: 6px 14px;
   border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   transition: background 0.2s, color 0.2s;
 }
+
+/* the language that is not selected shows a quieter flag */
+.lang-btn--inactive .flag { opacity: 0.55; }
 
 @media (min-width: 769px) {
   .hamburger   { display: none !important; }
@@ -324,4 +333,7 @@
 @media (max-width: 768px) {
   .hamburger   { display: flex !important; }
   .nav-desktop { display: none !important; }
+  /* the bar has no room for the letters as well: the flag alone, and the menu has the full switch */
+  .lang-code   { display: none; }
+  .lang-btn    { padding: 5px 9px; }
 }

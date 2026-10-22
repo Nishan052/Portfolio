@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LuMoon, LuSun } from "react-icons/lu";
 import siteConfig from "../../../config/site";
+import Flag from "../../ui/Flag";
 import "./SiteBar.css";
 
 const LANGUAGES = ["en", "de"];
@@ -47,7 +48,8 @@ const SiteBar = memo(({ isDark, toggleTheme, variant = "solid", showLang = true,
                 aria-label={l === "en" ? `EN — ${t("a11y.switchToEn")}` : `DE — ${t("a11y.switchToDe")}`}
                 onClick={() => lang !== l && i18n.changeLanguage(l)}
               >
-                {l.toUpperCase()}
+                <Flag lang={l} />
+                <span className="sb-lang-code">{l.toUpperCase()}</span>
               </button>
             ))}
           </div>

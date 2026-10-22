@@ -47,6 +47,15 @@ describe("SiteBar", () => {
     expect(i18n.language).toBe("de");
   });
 
+  test("each language button carries its flag, and the button keeps its name for a screen reader", () => {
+    renderBar();
+    for (const name of [/^EN/, /^DE/]) {
+      const button = screen.getByRole("button", { name });
+      expect(button.querySelector("svg.flag")).not.toBeNull();
+      expect(button.querySelector("svg.flag")).toHaveAttribute("aria-hidden", "true");
+    }
+  });
+
   test("the language switch can be hidden (English-only pages)", () => {
     renderBar({ showLang: false });
     expect(screen.queryByRole("group", { name: /language/i })).toBeNull();

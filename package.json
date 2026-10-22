@@ -22,6 +22,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "prepare": "git config core.hooksPath .githooks || true",
     "prebuild": "node scripts/build-site-index.js && node scripts/build-routing-files.js",
     "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test": "react-scripts test",

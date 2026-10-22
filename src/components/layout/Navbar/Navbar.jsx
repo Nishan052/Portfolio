@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { LuSparkles, LuMoon, LuSun } from "react-icons/lu";
 import scrollTo from "../../../utils/scrollTo";
 import siteConfig from "../../../config/site";
+import Flag from "../../ui/Flag";
 import "./Navbar.css";
 
 const NAV_KEYS = ["about", "experience", "projects", "skills", "contact"];
@@ -143,7 +144,8 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
                     aria-pressed={currentLang === l}
                     className={`lang-btn ${currentLang === l ? "lang-btn--active" : "lang-btn--inactive"}`}
                   >
-                    {l.toUpperCase()}
+                    <Flag lang={l} />
+                    <span className="lang-code">{l.toUpperCase()}</span>
                   </button>
                 ))}
               </div>
@@ -207,7 +209,7 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
           onClick={handleBlogsClick}
           aria-current={isOnBlog ? "page" : undefined}
           tabIndex={menuOpen ? 0 : -1}
-          style={{ color: "var(--accent)", fontFamily: "var(--font-mono)", fontWeight: 700 }}
+          style={{ color: "var(--support)", fontFamily: "var(--font-mono)", fontWeight: 700 }}
         >
           <span aria-hidden="true" className="mobile-nav-num">0{NAV_KEYS.length + 1}.</span>
           <LuSparkles aria-hidden="true" size={13} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} /> {t("nav.blog")}
@@ -230,7 +232,8 @@ const Navbar = memo(({ isDark, toggleTheme, scrolled, activeSection }) => {
                 tabIndex={menuOpen ? 0 : -1}
                 className={`mobile-lang-btn ${currentLang === l ? "lang-btn--active" : "lang-btn--inactive"}`}
               >
-                {l.toUpperCase()}
+                <Flag lang={l} />
+                    {l.toUpperCase()}
               </button>
             ))}
           </div>

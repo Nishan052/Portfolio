@@ -1,0 +1,41 @@
+#!/bin/sh
+# Keeps the generated files in step with what they are generated from.
+#
+#   functions/api/lib/site-index.js   the post list and facts the chatbot reads
+#   public/sitemap.xml                the pages crawlers are told about
+#   public/_redirects                 one rule per real route, so a post is not a 404
+#
+# They are committed, and CI fails the weekly sync when one is stale, so every
+# commit that touches their inputs regenerates and includes them. Before this,
+# only `npm run build` did, which left the fresh copy uncommitted and failed the
+# workflow on every push and every Monday from 30 September.
+#
+# Turn it on once per clone (npm install does it too):
+#   git config core.hooksPath .githooks
+
+inputs='^(src/data/blogs/|src/data/[^/]*\.json$|src/i18n/en\.json$|src/config/site\.js$|scripts/lib/sources\.js$|scripts/build-site-index\.js$|scripts/build-routing-files\.js$)'
+
+git diff --cached --name-only --diff-filter=ACMRD | grep -Eq "$inputs" || exit 0
+
+# A commit made from an app or a GUI does not always have node on its PATH.
+if ! command -v node >/dev/null 2>&1; then
+  for dir in "$HOME"/.nvm/versions/node/*/bin /opt/homebrew/bin /usr/local/bin; do
+    [ -x "$dir/node" ] && PATH="$dir:$PATH" && break
+  done
+fi
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: node not found, so the generated files were not refreshed." >&2
+  echo "            Run: node scripts/build-site-index.js && node scripts/build-routing-files.js" >&2
+  exit 0
+fi
+
+root=$(git rev-parse --show-toplevel) || exit 1
+cd "$root" || exit 1
+
+if ! node scripts/build-site-index.js >/dev/null || ! node scripts/build-routing-files.js >/dev/null; then
+  echo "pre-commit: regenerating the site index and routes failed. Fix that, then commit again." >&2
+  exit 1
+fi
+
+git add functions/api/lib/site-index.js public/sitemap.xml public/_redirects
+echo "pre-commit: refreshed the site index, sitemap and route rules."

@@ -1,0 +1,6 @@
+/* A flag in a language button. A hairline keeps the white parts readable on a light background. */
+.flag {
+  display: block; flex: none;
+  width: 18px; height: 12px; border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(128, 128, 128, .4);
+}

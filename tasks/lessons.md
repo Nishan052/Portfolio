@@ -218,3 +218,13 @@ swipe logic treats it uniformly.
   `*.node-test.mjs` in `functions/api/lib/__tests__/`.
 - Source maps were public (a 9 MB `main.js.map`). `.env.production` now sets `GENERATE_SOURCEMAP=false`.
 - Cloudflare's own bot script is injected inline into the page, which is why the CSP keeps `'unsafe-inline'` for scripts.
+
+## Top bar: check 375px whenever something is added to it (2026-10-22)
+
+- The flags made the language pill about 48px wider, which pushed the theme button off the edge of a phone in the
+  home bar and the hamburger off the edge in the classic one. Both bars were already within a few pixels of full.
+  Below 600px (home) and 768px (classic) the pill now shows the flag alone, and the button's `aria-label` still names
+  the language. Measure `getBoundingClientRect().right` of every control against `innerWidth` after any change.
+- The flags are inline SVG, not emoji: flag emoji render as the letters "GB" and "DE" on Windows.
+- The Blog link (mint, `--support`) and the chat button (pink, `--spare`) pulse with CSS only, and each has a
+  `prefers-reduced-motion` rule that turns the animation off.

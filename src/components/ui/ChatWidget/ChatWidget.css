@@ -13,7 +13,7 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--spare);
   border: none;
   cursor: pointer;
   display: flex;
@@ -22,7 +22,7 @@
   overflow: visible;
   transition: transform 0.2s ease, background 0.2s ease;
   outline: none;
-  box-shadow: 0 8px 28px -6px rgba(var(--brand-rgb), 0.45);
+  box-shadow: 0 8px 28px -6px rgba(var(--spare-rgb), 0.55);
 }
 
 .chat-toggle:focus-visible {
@@ -36,8 +36,8 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: var(--accent);
-  animation: chat-radiate 2.5s ease-out infinite;
+  background: var(--spare);
+  animation: chat-radiate 2.2s ease-out infinite;
   z-index: -1;
 }
 
@@ -47,8 +47,8 @@
   position: absolute;
   inset: -3px;
   border-radius: 50%;
-  box-shadow: 0 0 24px var(--accent-soft);
-  animation: chat-glow 2.5s ease-in-out infinite;
+  box-shadow: 0 0 26px rgba(var(--spare-rgb), 0.6);
+  animation: chat-glow 2.2s ease-in-out infinite;
   pointer-events: none;
   z-index: -1;
 }
@@ -76,14 +76,23 @@
   z-index: 1;
 }
 
+/* Every few seconds the icon tilts, like a hand waving: a nudge, not a constant wobble */
+.chat-toggle:not(.open) svg { animation: chat-nudge 6s ease-in-out infinite; }
+@keyframes chat-nudge {
+  0%, 86%, 100% { transform: rotate(0); }
+  90%           { transform: rotate(-12deg); }
+  94%           { transform: rotate(10deg); }
+  97%           { transform: rotate(-5deg); }
+}
+
 @keyframes chat-glow {
   0%, 100% { opacity: 0.4; }
   50%       { opacity: 1; }
 }
 
 @keyframes chat-radiate {
-  0%   { transform: scale(1);   opacity: 0.55; }
-  100% { transform: scale(2.1); opacity: 0;    }
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(2.3); opacity: 0;   }
 }
 
 /* Unread indicator dot */
@@ -94,7 +103,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--danger);
+  background: var(--support);
   border: 2px solid var(--bg);
   z-index: 2;
   animation: chat-dot-pulse 2s infinite;
@@ -515,6 +524,8 @@
 @media (prefers-reduced-motion: reduce) {
   .chat-toggle,
   .chat-toggle::before,
+  .chat-toggle::after,
+  .chat-toggle svg,
   .chat-window,
   .chat-typing-dot,
   .chat-toggle-dot {
