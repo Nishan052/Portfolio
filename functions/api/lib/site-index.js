@@ -104,6 +104,13 @@ export const PROJECTS = [
 
 export const POSTS = [
   {
+    "slug": "feasibility-point-estimate",
+    "title": "A curve that scored 14 of 14 still missed the boards it never saw",
+    "date": "2026-10-21",
+    "series": "Edge AI",
+    "part": 6
+  },
+  {
     "slug": "feasibility-ceiling-holds",
     "title": "A language model's speed on your device is set by memory bandwidth",
     "date": "2026-10-20",
